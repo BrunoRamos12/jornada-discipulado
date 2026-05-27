@@ -16,10 +16,10 @@ async function enviarEntrada() {
         document.querySelector('input[name="situacao"]:checked')?.value || "",
 
       diario:
-        document.getElementById("diario").value,
+        document.getElementById("diario")?.value || "",
 
       pedido_oracao:
-        document.getElementById("oracao").value,
+        document.getElementById("oracao")?.value || "",
 
       extra: Array.from(
         document.querySelectorAll('input[name="extra"]:checked')
@@ -39,41 +39,70 @@ async function enviarEntrada() {
       throw new Error("Erro ao enviar");
     }
 
-    // =========================
-    // SUCESSO
-    // =========================
+    // ====================================
+    // MENSAGEM DE SUCESSO
+    // ====================================
 
-    showOk(
-      "okForm",
-      "Mensagem enviada ao pastor com sucesso!"
-    );
+    const ok = document.getElementById("okForm");
 
-    // limpa radios
+    if (ok) {
+      ok.style.display = "block";
+      ok.innerHTML = "Mensagem enviada ao pastor com sucesso!";
+    }
+
+    // ====================================
+    // LIMPA RADIO
+    // ====================================
+
     document
       .querySelectorAll('input[type="radio"]')
-      .forEach(r => r.checked = false);
+      .forEach(r => {
+        r.checked = false;
+      });
 
-    // limpa checkboxes
+    // ====================================
+    // LIMPA CHECKBOX
+    // ====================================
+
     document
       .querySelectorAll('input[type="checkbox"]')
-      .forEach(c => c.checked = false);
+      .forEach(c => {
+        c.checked = false;
+      });
 
-    // limpa campos texto
-    document.getElementById("diario").value = "";
-    document.getElementById("oracao").value = "";
+    // ====================================
+    // LIMPA CAMPOS TEXTO
+    // ====================================
 
-    // limpa extra se existir
+    const diario = document.getElementById("diario");
+
+    if (diario) {
+      diario.value = "";
+    }
+
+    const oracao = document.getElementById("oracao");
+
+    if (oracao) {
+      oracao.value = "";
+    }
+
     const extra = document.getElementById("extra");
 
     if (extra) {
       extra.value = "";
     }
 
-    // reativa botão
+    // ====================================
+    // RESTAURA BOTÃO
+    // ====================================
+
     btn.disabled = false;
     btn.textContent = "Enviar ao pastor";
 
-    // sobe a página
+    // ====================================
+    // VOLTA TOPO
+    // ====================================
+
     window.scrollTo({
       top: 0,
       behavior: "smooth"
@@ -81,10 +110,13 @@ async function enviarEntrada() {
 
   } catch (e) {
 
-    showErr(
-      "errForm",
-      "Não foi possível enviar sua entrada. Tente novamente."
-    );
+    const err = document.getElementById("errForm");
+
+    if (err) {
+      err.style.display = "block";
+      err.innerHTML =
+        "Não foi possível enviar sua entrada. Tente novamente.";
+    }
 
     btn.disabled = false;
     btn.textContent = "Enviar ao pastor";
