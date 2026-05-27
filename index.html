@@ -557,11 +557,30 @@ async function loadChat(eid, isPastor) {
   const el = document.getElementById("ch_"+eid);
   if (!el) return;
   try {
+    // Get entry info to find owner name
+    const rEnt = await fetch(SB+"/rest/v1/mentoria_lideres?id=eq."+eid+"&select=nome,user_id",{
+      headers:{"apikey":KEY,"Authorization":"Bearer "+S.access_token}
+    });
+    const entData = await rEnt.json();
+    const entNome = entData[0] ? (entData[0].nome || "") : "";
+    const entUserId = entData[0] ? entData[0].user_id : "";
+    
+    // If no nome in entry, try to get from perfis
+    let discNome = entNome;
+    if (!discNome && entUserId) {
+      const rP = await fetch(SB+"/rest/v1/perfis_lideres?user_id=eq."+entUserId+"&select=nome",{
+        headers:{"apikey":KEY,"Authorization":"Bearer "+S.access_token}
+      });
+      const pData = await rP.json();
+      if (pData[0]) discNome = pData[0].nome || "";
+    }
+    discNome = discNome || "Discípulo";
+
     const r = await fetch(SB+"/rest/v1/conversa_pastoral?entrada_id=eq."+eid+"&order=created_at.asc",{
       headers:{"apikey":KEY,"Authorization":"Bearer "+S.access_token}
     });
     const msgs = await r.json();
-    const titulo = isPastor ? "Conversa pastoral" : "Conversa com o pastor";
+    const titulo = isPastor ? "Conversa com "+discNome : "Conversa com o pastor";
     let h = "<div class='chat'><div class='chat-t'>"+titulo+"</div><div class='chat-msgs' id='cm_"+eid+"'>";
     if (!Array.isArray(msgs)||!msgs.length) {
       h += "<div style='font-size:13px;color:#aaa;font-style:italic;padding:4px'>Nenhuma mensagem ainda. Inicie a conversa!</div>";
@@ -569,7 +588,7 @@ async function loadChat(eid, isPastor) {
       msgs.forEach(m => {
         const isP = m.autor==="pastor";
         const cls = isP?"pastor":"lider";
-        const autor = isPastor ? (isP?"Você (Pastor)":(m.nome||"Discípulo")) : (isP?"Pastor":"Você");
+        const autor = isPastor ? (isP?"Você (Pastor)":discNome) : (isP?"Pastor":"Você");
         const dt = new Date(m.created_at).toLocaleString("pt-BR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
         h += "<div class='msg "+cls+"'><div class='ma'>"+autor+"</div>"+m.mensagem+"<div class='md'>"+dt+"</div></div>";
       });
