@@ -130,6 +130,16 @@ textarea{resize:vertical;min-height:100px;line-height:1.7}
     <div class="field"><label>Sua célula *</label>
       <select id="cCelula"><option value="">Carregando células...</option></select>
     </div>
+    <div class="field"><label>Sexo *</label>
+      <select id="cSexo">
+        <option value="">Selecione</option>
+        <option value="Masculino">Masculino</option>
+        <option value="Feminino">Feminino</option>
+      </select>
+    </div>
+    <div class="field"><label>Data de nascimento *</label>
+      <input type="date" id="cNasc">
+    </div>
     <div class="field"><label>Senha *</label>
       <div class="sw"><input type="password" id="cSenha" placeholder="Mínimo 6 caracteres">
       <span class="so" onclick="toggleS('cSenha',this)">&#128065;</span></div>
@@ -403,20 +413,28 @@ async function doCad() {
     const d = await r.json();
     if (d.error) { showErr("eCad","Erro: "+(d.error.message||JSON.stringify(d.error))); reset(); return; }
     if (d.user && d.user.identities && d.user.identities.length===0) { showErr("eCad","Este e-mail já está cadastrado. Faça login."); reset(); return; }
-    if (d.user && d.user.id) {
+    // Supabase returns user even before email confirmation
+    const userId = d.user ? d.user.id : null;
+    if (userId) {
+      // Save profile
       await fetch(SB + "/rest/v1/perfis_lideres", {
         method: "POST",
         headers: { "Content-Type": "application/json", "apikey": KEY, "Authorization": "Bearer "+KEY, "Prefer": "return=minimal" },
-        body: JSON.stringify({ user_id: d.user.id, nome, email, telefone: tel, celula })
+        body: JSON.stringify({ 
+          user_id: userId, nome, email, 
+          telefone: tel, celula,
+          sexo: document.getElementById("cSexo").value || null,
+          data_nascimento: document.getElementById("cNasc").value || null
+        })
       });
-      showOk("okCad", "✅ Cadastro realizado! Acesse seu e-mail " + email + " e clique no link de confirmação. Depois volte aqui e faça seu login.");
-      // Clear form
-      ["cNome","cEmail","cTel","cSenha","cSenha2"].forEach(id=>{document.getElementById(id).value="";});
-      document.getElementById("cCelula").value="";
-      setTimeout(()=>showTab("login"), 4000);
-    } else {
-      showErr("eCad","Resposta inesperada. Tente novamente.");
     }
+    // Always show success if no error
+    showOk("okCad", "✅ Cadastro realizado com sucesso! Enviamos um e-mail para " + email + ". Acesse sua caixa de entrada, confirme seu cadastro e volte aqui para fazer login.");
+    // Clear form
+    ["cNome","cEmail","cTel","cSenha","cSenha2","cNasc"].forEach(id=>{document.getElementById(id).value="";});
+    document.getElementById("cCelula").value="";
+    document.getElementById("cSexo").value="";
+    setTimeout(()=>showTab("login"), 5000);
   } catch(e) { showErr("eCad","Erro de conexão: "+e.message); }
   reset();
 }
