@@ -268,7 +268,12 @@ document.addEventListener("click", function(ev) {
   const eb = ev.target.closest(".eb[data-target]");
   if (eb) addE(eb.dataset.target, eb.dataset.emoji);
   const cc = ev.target.closest("#btnCancelCel");
-  if (cc) document.getElementById("formCel").style.display = "none";
+  if (cc) { document.getElementById("formCel").style.display = "none"; document.getElementById("formCel").dataset.editId = ""; }
+  const ceb = ev.target.closest(".cel-edit-btn");
+  if (ceb && window._celulas) {
+    const c = window._celulas[parseInt(ceb.dataset.idx)];
+    if (c) editCelula(c.id, c.nome||"", c.endereco||"", c.bairro||"", c.lider_nome||"", c.dia_semana||"", c.horario||"");
+  }
   const csb = ev.target.closest(".csb[data-eid]");
   if (csb) enviarChat(parseInt(csb.dataset.eid), csb.dataset.p === "true");
   const dr = ev.target.closest(".disc-row");
@@ -382,11 +387,22 @@ async function loadCelulas() {
 }
 
 async function loadPerfil() {
-  const r = await fetch(SB + "/rest/v1/perfis_lideres?user_id=eq." + S.user.id, {
-    headers: { "apikey": KEY, "Authorization": "Bearer " + S.access_token }
-  });
-  const d = await r.json();
-  P = d[0] || null;
+  try {
+    const r = await fetch(SB + "/rest/v1/perfis_lideres?user_id=eq." + S.user.id, {
+      headers: { "apikey": KEY, "Authorization": "Bearer " + S.access_token }
+    });
+    const d = await r.json();
+    P = d[0] || null;
+    // If no perfil yet, use metadata
+    if (!P && S.user.user_metadata) {
+      P = { 
+        nome: S.user.user_metadata.nome || "",
+        celula: S.user.user_metadata.celula || "",
+        telefone: S.user.user_metadata.telefone || "",
+        email: S.user.email
+      };
+    }
+  } catch(e) { P = null; }
 }
 
 // AUTH
@@ -470,11 +486,15 @@ async function forgot() {
 async function enviar() {
   const btn = document.getElementById("btnEnv");
   btn.disabled=true; btn.textContent="Enviando...";
+  // Get name from perfil or from stored user metadata
+  const nomeDisc = P?P.nome:(S.user.user_metadata?S.user.user_metadata.nome:"");
+  const celulaDisc = P?P.celula:(S.user.user_metadata?S.user.user_metadata.celula:"");
+  const telDisc = P?P.telefone:(S.user.user_metadata?S.user.user_metadata.telefone:"");
   const dados = {
     user_id: S.user.id,
-    nome: P?P.nome:"",
-    celula: P?P.celula:"",
-    telefone: P?P.telefone:"",
+    nome: nomeDisc,
+    celula: celulaDisc,
+    telefone: telDisc,
     vida_senhor: getR("vs"),
     dificuldade: document.getElementById("dific").value.trim()||null,
     cuidado_discipulos: getR("cu"),
@@ -602,8 +622,13 @@ async function loadDisc() {
     discs.forEach(d => {
       const de = Array.isArray(ents)?ents.filter(e=>e.user_id===d.user_id):[];
       const ul = de.length?new Date(de[0].created_at).toLocaleDateString("pt-BR"):"—";
+      const semResp = de.length > 0 && !de.some(e => {
+        // check if has pastor response in convs - approximate
+        return false;
+      });
+      const statusLabel = de.length === 0 ? "" : "<span class='sl' style='font-size:10px;margin-left:4px'>"+de.length+" entrada"+(de.length>1?"s":"")+"</span>";
       h += "<tr class='disc-row' data-uid='"+d.user_id+"' data-nome='"+d.nome.replace(/'/g,"")+"' data-celula='"+(d.celula||"").replace(/'/g,"")+"'>"
-        +"<td><span class='ds "+(de.length?"a":"i")+"'></span>"+d.nome+"</td>"
+        +"<td><span class='ds "+(de.length?"a":"i")+"'></span>"+d.nome+statusLabel+"</td>"
         +"<td>"+(d.celula||"—")+"</td>"
         +"<td>"+(d.telefone||"—")+"</td>"
         +"<td>"+de.length+"</td>"
@@ -647,6 +672,7 @@ async function verDisc(uid, nome, celula) {
         +(e.situacao_especifica?"<div class='cp'><strong>Situação específica</strong>"+e.situacao_especifica+"</div>":"")
         +(e.necessidade?"<div class='cp'><strong>Pedido ao pastor</strong>"+e.necessidade+"</div>":"")
         +(e.pedido_oracao?"<div class='cp'><strong>Pedido de oração</strong>"+e.pedido_oracao+"</div>":"")
+        +(e.mensagem_extra?"<div class='cp'><strong>Mensagem extra</strong>"+e.mensagem_extra+"</div>":"")
         +"<div id='ch_"+e.id+"'></div></div>";
     }).join("");
     lista.innerHTML = h;
@@ -684,7 +710,10 @@ async function loadEnt() {
         +(e.pedido_oracao?"<div class='cp'><strong>Pedido de oração</strong>"+e.pedido_oracao+"</div>":"")
         +"<div id='ch_"+e.id+"'></div></div>";
     }).join("");
-    setTimeout(()=>ents.forEach(e=>loadChat(e.id,true)),50);
+    // Load chats after DOM renders
+    requestAnimationFrame(() => {
+      setTimeout(() => { ents.forEach(e => loadChat(e.id, true)); }, 100);
+    });
   } catch(err) { lista.innerHTML="<div class='empty'>Erro: "+err.message+"</div>"; }
 }
 
@@ -711,17 +740,34 @@ async function loadCelPastor() {
     if (!Array.isArray(cels)||!cels.length) {
       h += "<div class='empty'>Nenhuma célula cadastrada ainda.</div>";
     } else {
-      h += cels.map(c =>
+      // Store cells data globally for edit
+      window._celulas = cels;
+      h += cels.map((c,idx) =>
         "<div class='cel-card'><div class='cel-info'>"
         +"<h4>"+c.nome+"</h4>"
         +"<p>"+(c.bairro?"&#128205; "+c.bairro+" &nbsp;":"")
         +(c.lider_nome?"&#128100; "+c.lider_nome+" &nbsp;":"")
-        +(c.dia_semana?c.dia_semana+" "+( c.horario||""):"")+"</p>"
-        +"</div></div>"
+        +(c.dia_semana?c.dia_semana+" "+(c.horario||""):"")+"</p>"
+        +"</div>"
+        +"<button class='btn btn-g btn-sm cel-edit-btn' data-idx='"+idx+"'>Editar</button>"
+        +"</div>"
       ).join("");
     }
     lista.innerHTML = h;
   } catch(e) { lista.innerHTML="<div class='empty'>Erro ao carregar.</div>"; }
+}
+
+function editCelula(id, nome, end, bairro, lider, dia, hora) {
+  showFormCelula();
+  document.getElementById("celNome").value = nome;
+  document.getElementById("celEnd").value = end;
+  document.getElementById("celBairro").value = bairro;
+  document.getElementById("celLider").value = lider;
+  document.getElementById("celDia").value = dia;
+  document.getElementById("celHor").value = hora;
+  // Store id for update
+  document.getElementById("formCel").dataset.editId = id;
+  document.getElementById("formCel").querySelector(".btn").textContent = "Salvar alterações";
 }
 
 function showFormCelula() {
@@ -732,21 +778,40 @@ function showFormCelula() {
 async function salvarCelula() {
   const nome = document.getElementById("celNome").value.trim();
   if (!nome) return alert("Digite o nome da célula.");
+  const form = document.getElementById("formCel");
+  const editId = form.dataset.editId;
+  const body = JSON.stringify({
+    nome,
+    endereco: document.getElementById("celEnd").value.trim()||null,
+    bairro: document.getElementById("celBairro").value.trim()||null,
+    lider_nome: document.getElementById("celLider").value.trim()||null,
+    dia_semana: document.getElementById("celDia").value||null,
+    horario: document.getElementById("celHor").value.trim()||null
+  });
   try {
-    const r = await fetch(SB+"/rest/v1/celulas",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","apikey":KEY,"Authorization":"Bearer "+S.access_token,"Prefer":"return=minimal"},
-      body:JSON.stringify({
-        nome,
-        endereco: document.getElementById("celEnd").value.trim()||null,
-        bairro: document.getElementById("celBairro").value.trim()||null,
-        lider_nome: document.getElementById("celLider").value.trim()||null,
-        dia_semana: document.getElementById("celDia").value||null,
-        horario: document.getElementById("celHor").value.trim()||null
-      })
-    });
+    let r;
+    if (editId) {
+      // UPDATE
+      r = await fetch(SB+"/rest/v1/celulas?id=eq."+editId, {
+        method: "PATCH",
+        headers: {"Content-Type":"application/json","apikey":KEY,"Authorization":"Bearer "+S.access_token,"Prefer":"return=minimal"},
+        body
+      });
+    } else {
+      // INSERT
+      r = await fetch(SB+"/rest/v1/celulas", {
+        method: "POST",
+        headers: {"Content-Type":"application/json","apikey":KEY,"Authorization":"Bearer "+S.access_token,"Prefer":"return=minimal"},
+        body
+      });
+    }
     if (r.ok) {
-      showOk("okP","Célula cadastrada com sucesso!");
+      showOk("okP", editId ? "Célula atualizada!" : "Célula cadastrada!");
+      form.dataset.editId = "";
+      form.style.display = "none";
+      // Reset form
+      ["celNome","celEnd","celBairro","celLider","celHor"].forEach(id=>{document.getElementById(id).value="";});
+      document.getElementById("celDia").value="";
       await loadCelulas();
       loadCelPastor();
     } else {
