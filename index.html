@@ -588,25 +588,34 @@ const VERSICULOS = [
 // ════════════════════════════════════
 // INIT
 // ════════════════════════════════════
+// Único ponto de entrada — sem duplicação
 document.addEventListener('DOMContentLoaded', async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session?.user) {
-    currentUser = session.user;
-    await iniciarApp();
-  }
   await carregarCelulas();
   mostrarVersiculo();
-});
 
-sb.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'SIGNED_IN' && session?.user && !appIniciado) {
-    currentUser = session.user;
-    await iniciarApp();
-  } else if (event === 'SIGNED_OUT') {
-    currentUser = null; currentPerfil = null; appIniciado = false;
-    showScreen('auth');
-    document.getElementById('bottomNav').classList.remove('visible');
-  }
+  // Escuta mudanças de auth — única fonte de verdade
+  sb.auth.onAuthStateChange(async (event, session) => {
+    console.log('AUTH EVENT:', event, !!session);
+    if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
+      if (appIniciado) return;
+      appIniciado = true;
+      currentUser = session.user;
+      // Esconde auth imediatamente
+      document.getElementById('screenAuth').style.display = 'none';
+      document.getElementById('bottomNav').classList.add('visible');
+      await iniciarApp();
+    } else if (event === 'SIGNED_OUT') {
+      appIniciado = false;
+      currentUser = null;
+      currentPerfil = null;
+      document.getElementById('screenAuth').style.display = 'flex';
+      document.getElementById('bottomNav').classList.remove('visible');
+      document.querySelectorAll('.screen').forEach(s => {
+        s.style.display = 'none';
+        s.classList.remove('active');
+      });
+    }
+  });
 });
 
 // ════════════════════════════════════
@@ -647,12 +656,8 @@ async function doLogin() {
   if (user) {
     currentUser = user;
     console.log('USUARIO:', currentUser.email);
-    // Force hide auth screen directly
-    const authEl = document.getElementById('screenAuth');
-    authEl.style.cssText = 'display:none!important';
-    authEl.classList.remove('active');
-    document.getElementById('bottomNav').classList.add('visible');
-    await iniciarApp();
+    // onAuthStateChange vai cuidar da navegação
+    console.log('Login OK, aguardando onAuthStateChange...');
   } else {
     showMsg(err, 'Sessão não iniciada. Tente novamente.');
   }
@@ -700,8 +705,8 @@ async function doCadastro() {
     }
   } catch(e) { /* tabela ainda não existe, tudo bem */ }
   if (signupData?.session) {
-    currentUser = signupData.session.user;
-    await iniciarApp();
+    // onAuthStateChange vai cuidar da navegação
+    console.log('Cadastro OK, aguardando onAuthStateChange...');
   } else {
     showMsg(ok, 'Conta criada com sucesso! Faça login agora.', true);
     // Preenche email no login automaticamente
