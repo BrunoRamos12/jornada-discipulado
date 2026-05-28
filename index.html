@@ -646,6 +646,11 @@ async function doLogin() {
   if (user) {
     currentUser = user;
     console.log('USUARIO:', currentUser.email);
+    // Force hide auth screen directly
+    const authEl = document.getElementById('screenAuth');
+    authEl.style.cssText = 'display:none!important';
+    authEl.classList.remove('active');
+    document.getElementById('bottomNav').classList.add('visible');
     await iniciarApp();
   } else {
     showMsg(err, 'Sessão não iniciada. Tente novamente.');
