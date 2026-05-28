@@ -572,6 +572,7 @@ let chatTipoAtual = 'reflexao';
 let discipulosFiltro = 'pendentes';
 let entradaParaResponder = null;
 let realtimeChannel = null;
+let appIniciado = false;
 
 // Versículos fallback
 const VERSICULOS = [
@@ -598,11 +599,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 sb.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'SIGNED_IN' && session?.user) {
+  if (event === 'SIGNED_IN' && session?.user && !appIniciado) {
     currentUser = session.user;
     await iniciarApp();
   } else if (event === 'SIGNED_OUT') {
-    currentUser = null; currentPerfil = null;
+    currentUser = null; currentPerfil = null; appIniciado = false;
     showScreen('auth');
     document.getElementById('bottomNav').classList.remove('visible');
   }
@@ -727,6 +728,8 @@ async function doLogout() {
 // INICIAR APP
 // ════════════════════════════════════
 async function iniciarApp() {
+  if (appIniciado) { console.log('APP JA INICIADO, ignorando...'); return; }
+  appIniciado = true;
   console.log('INICIANDO APP para:', currentUser?.email);
   try { await carregarPerfil(); } catch(e) { 
     currentPerfil = { id: currentUser.id, nome: currentUser.email?.split('@')[0]||'Usuário', role:'membro' };
