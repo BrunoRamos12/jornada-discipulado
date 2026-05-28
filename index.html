@@ -9,1193 +9,738 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#0a0a0a;
-  --surface:#111111;
-  --surface2:#1a1a1a;
-  --surface3:#222222;
-  --orange:#ff6b00;
-  --orange-dim:#cc5500;
-  --orange-glow:rgba(255,107,0,0.15);
-  --orange-subtle:rgba(255,107,0,0.08);
-  --text:#f0f0f0;
-  --text2:#999;
-  --text3:#555;
-  --border:#2a2a2a;
-  --border2:#333;
-  --success:#22c55e;
-  --danger:#ef4444;
-  --info:#3b82f6;
-  --radius:14px;
-  --radius-sm:8px;
-  --radius-lg:20px;
+  --bg:#0a0a0a;--surface:#111;--surface2:#1a1a1a;--surface3:#222;
+  --orange:#ff6b00;--orange-dim:#cc5500;--orange-glow:rgba(255,107,0,.15);
+  --text:#f0f0f0;--text2:#999;--text3:#555;--border:#2a2a2a;--border2:#333;
+  --success:#22c55e;--danger:#ef4444;--radius:14px;--radius-sm:8px;
 }
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-weight:400;overflow-x:hidden}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden}
 h1,h2,h3,.syne{font-family:'Syne',sans-serif}
 
-/* ─── SCROLLBAR ─── */
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+/* PAGES */
+.page{display:none;min-height:100vh;max-width:480px;margin:0 auto}
+.page.show{display:block}
+#pageAuth{display:flex;flex-direction:column;justify-content:flex-end;min-height:100vh}
 
-/* ─── LAYOUT ─── */
-#appShell{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;position:relative;background:var(--bg)}
-.screen{display:none;flex:1;overflow-y:auto;padding-bottom:80px;animation:fadeIn .2s ease}
-.screen.active{display:block}
-#screenAuth.active{display:flex!important}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-
-/* ─── AUTH SCREENS ─── */
-#screenAuth{display:flex;flex-direction:column;justify-content:flex-end;min-height:100vh;padding:0;padding-bottom:0;background:var(--bg)}
-.auth-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 32px 40px;text-align:center;position:relative}
-.auth-hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 30%, rgba(255,107,0,0.12) 0%, transparent 70%);pointer-events:none}
-.brand-mark{width:56px;height:56px;background:var(--orange);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:26px;box-shadow:0 0 40px rgba(255,107,0,0.4)}
-.auth-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1.1;margin-bottom:10px}
+/* AUTH */
+.auth-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 32px 40px;text-align:center;background:radial-gradient(ellipse at 50% 40%,rgba(255,107,0,.1) 0%,transparent 70%)}
+.brand-mark{width:60px;height:60px;background:var(--orange);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 24px;box-shadow:0 0 40px rgba(255,107,0,.4)}
+.auth-title{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;line-height:1.1;margin-bottom:10px}
 .auth-title span{color:var(--orange)}
 .auth-sub{font-size:14px;color:var(--text2);line-height:1.6;max-width:260px}
-.auth-verse{margin-top:28px;font-size:12px;color:var(--text3);font-style:italic;line-height:1.6}
+.auth-verse{margin-top:24px;font-size:12px;color:var(--text3);font-style:italic}
+.auth-card{background:var(--surface);border-top:1px solid var(--border);border-radius:20px 20px 0 0;padding:28px 24px 48px}
+.auth-tabs{display:flex;background:var(--surface2);border-radius:8px;padding:4px;margin-bottom:24px;gap:4px}
+.auth-tab{flex:1;padding:10px;text-align:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:var(--text2);border-radius:6px;cursor:pointer;transition:all .2s;border:none;background:none}
+.auth-tab.on{background:var(--orange);color:#fff}
 
-.auth-card{background:var(--surface);border-top:1px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:28px 24px 40px}
-.auth-tabs{display:flex;background:var(--surface2);border-radius:var(--radius-sm);padding:4px;margin-bottom:28px;gap:4px}
-.auth-tab{flex:1;padding:10px;text-align:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:var(--text2);border-radius:6px;cursor:pointer;transition:all .2s}
-.auth-tab.active{background:var(--orange);color:#fff}
-
-/* ─── FORM FIELDS ─── */
+/* FORM */
 .field{margin-bottom:16px}
-.field label{display:block;font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:8px}
-.field input,.field select,.field textarea{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px 16px;font-family:'Inter',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
-.field input::placeholder,.field textarea::placeholder{color:var(--text3)}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--orange);background:var(--surface3)}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:8px}
+.field input,.field select{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:14px 16px;font-family:'Inter',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border-color .2s;-webkit-appearance:none}
+.field input::placeholder{color:var(--text3)}
+.field input:focus,.field select:focus{border-color:var(--orange)}
 .field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;cursor:pointer}
-.field select option{background:var(--surface2);color:var(--text)}
-.field textarea{resize:vertical;min-height:100px;line-height:1.7}
-.pass-wrap{position:relative}
-.pass-wrap input{padding-right:48px}
-.pass-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text3);font-size:16px;user-select:none;padding:4px}
+.field select option{background:var(--surface2)}
+.pw{position:relative}
+.pw input{padding-right:48px}
+.pw-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text3);font-size:16px;user-select:none}
 
-/* ─── BUTTONS ─── */
-.btn{width:100%;padding:16px;background:var(--orange);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .15s;margin-top:4px}
-.btn:hover{background:var(--orange-dim);transform:translateY(-1px)}
-.btn:active{transform:translateY(0);opacity:.9}
-.btn:disabled{background:var(--surface3);color:var(--text3);cursor:not-allowed;transform:none}
+/* BUTTONS */
+.btn{width:100%;padding:16px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .15s;margin-top:4px}
+.btn:hover{background:var(--orange-dim)}
+.btn:active{opacity:.9}
+.btn:disabled{background:var(--surface3);color:var(--text3);cursor:not-allowed}
 .btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}
-.btn-ghost:hover{border-color:var(--orange);color:var(--orange);background:var(--orange-subtle)}
-.btn-sm{padding:10px 20px;font-size:12px;width:auto}
-.btn-danger{background:var(--danger)}
+.btn-ghost:hover{border-color:var(--orange);color:var(--orange)}
+.btn-sm{padding:10px 18px;font-size:12px;width:auto}
 .link-btn{background:none;border:none;color:var(--orange);font-size:13px;cursor:pointer;text-decoration:underline;padding:0}
+.msg-err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:12px 16px;color:#fca5a5;font-size:13px;margin-bottom:14px;display:none}
+.msg-ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:8px;padding:12px 16px;color:#86efac;font-size:13px;margin-bottom:14px;display:none}
+.or{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--text3);font-size:12px}
+.or::before,.or::after{content:'';flex:1;border-top:1px solid var(--border)}
 
-/* ─── FEEDBACK ─── */
-.msg-err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:var(--radius-sm);padding:12px 16px;color:#fca5a5;font-size:14px;margin-bottom:16px;display:none}
-.msg-ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:var(--radius-sm);padding:12px 16px;color:#86efac;font-size:14px;margin-bottom:16px;display:none}
+/* APP SHELL */
+#app{display:none;max-width:480px;margin:0 auto;position:relative}
+#app.show{display:block}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);z-index:100}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px 10px;cursor:pointer;color:var(--text3);font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;font-family:'Syne',sans-serif;border:none;background:none;transition:color .2s}
+.nav-btn svg{width:22px;height:22px;stroke-width:1.8;transition:all .2s}
+.nav-btn.on{color:var(--orange)}
+.nav-btn.on svg{stroke:var(--orange)}
 
-/* ─── BOTTOM NAV ─── */
-.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-top:1px solid var(--border);display:none;grid-template-columns:repeat(4,1fr);z-index:100;padding-bottom:env(safe-area-inset-bottom)}
-.bottom-nav.visible{display:grid}
-.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px 10px;cursor:pointer;transition:color .2s;color:var(--text3);font-size:10px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;font-family:'Syne',sans-serif;border:none;background:none}
-.nav-item svg{width:22px;height:22px;stroke-width:1.8;transition:all .2s}
-.nav-item.active{color:var(--orange)}
-.nav-item.active svg{stroke:var(--orange);filter:drop-shadow(0 0 6px rgba(255,107,0,.5))}
+/* SCREENS */
+.screen{display:none;padding-bottom:80px;animation:fi .2s ease}
+.screen.show{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* ─── TOP BAR ─── */
-.top-bar{position:sticky;top:0;background:var(--bg);padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;z-index:50;border-bottom:1px solid var(--border)}
-.top-bar-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
-.top-bar-sub{font-size:12px;color:var(--text2);margin-top:2px}
-.avatar-sm{width:36px;height:36px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;cursor:pointer;overflow:hidden;flex-shrink:0}
-.avatar-sm img{width:100%;height:100%;object-fit:cover}
+/* TOP BAR */
+.topbar{position:sticky;top:0;background:var(--bg);padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;z-index:50;border-bottom:1px solid var(--border)}
+.topbar-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+.topbar-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.av{width:36px;height:36px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;cursor:pointer;flex-shrink:0}
 
-/* ─── HOME SCREEN ─── */
-.home-header{padding:24px 20px 0;background:var(--bg)}
-.greeting{font-size:14px;color:var(--text2);margin-bottom:4px}
-.greeting-name{font-family:'Syne',sans-serif;font-size:24px;font-weight:800}
+/* HOME */
+.home-top{padding:24px 20px 0}
+.greeting{font-size:13px;color:var(--text2);margin-bottom:2px}
+.greeting-name{font-family:'Syne',sans-serif;font-size:26px;font-weight:800}
 .verse-card{margin:20px 20px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden}
 .verse-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--orange),transparent)}
 .verse-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:10px}
-.verse-text{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;line-height:1.6;color:var(--text);margin-bottom:8px}
+.verse-text{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;line-height:1.6;margin-bottom:6px}
 .verse-ref{font-size:12px;color:var(--text2)}
-
-.section-header{display:flex;align-items:center;justify-content:space-between;padding:24px 20px 12px}
-.section-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
-.section-action{font-size:12px;color:var(--orange);cursor:pointer;font-weight:500}
-
-.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 20px}
-.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.qa-card:hover{border-color:var(--orange);background:var(--orange-subtle)}
+.sec-header{display:flex;align-items:center;justify-content:space-between;padding:24px 20px 12px}
+.sec-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+.sec-link{font-size:12px;color:var(--orange);cursor:pointer}
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 20px}
+.qa{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .2s;position:relative}
+.qa:hover{border-color:var(--orange);background:rgba(255,107,0,.05)}
 .qa-icon{font-size:24px;margin-bottom:10px}
-.qa-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:3px}
+.qa-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:2px}
 .qa-sub{font-size:11px;color:var(--text2)}
-.qa-badge{position:absolute;top:12px;right:12px;background:var(--orange);color:#fff;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;font-family:'Syne',sans-serif}
+.qa-badge{position:absolute;top:10px;right:10px;background:var(--orange);color:#fff;border-radius:20px;padding:2px 7px;font-size:10px;font-weight:700;font-family:'Syne',sans-serif}
 
-/* ─── DIÁRIO / CHAT ─── */
+/* DIÁRIO */
+.nova-btn{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin:16px 20px;cursor:pointer;transition:all .2s;width:calc(100% - 40px)}
+.nova-btn:hover{border-color:var(--orange);background:rgba(255,107,0,.05)}
+.nova-btn-icon{width:36px;height:36px;background:rgba(255,107,0,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nova-btn-text .t{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:2px}
+.nova-btn-text .s{font-size:12px;color:var(--text2)}
 .diario-list{padding:0 20px}
-.diario-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px;cursor:pointer;transition:all .2s}
-.diario-item:hover{border-color:var(--border2)}
-.diario-item.has-reply{border-left:3px solid var(--orange)}
-.diario-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.di-tipo{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px}
-.di-tipo.reflexao{background:rgba(255,107,0,.15);color:var(--orange)}
-.di-tipo.pedido{background:rgba(59,130,246,.15);color:#93c5fd}
-.di-tipo.testemunho{background:rgba(34,197,94,.15);color:#86efac}
-.di-tipo.duvida{background:rgba(168,85,247,.15);color:#d8b4fe}
-.di-data{font-size:11px;color:var(--text3)}
+.di{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px;cursor:pointer;transition:all .2s}
+.di:hover{border-color:var(--border2)}
+.di.replied{border-left:3px solid var(--orange)}
+.di-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.tipo{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:20px}
+.tipo.reflexao{background:rgba(255,107,0,.15);color:var(--orange)}
+.tipo.pedido{background:rgba(59,130,246,.15);color:#93c5fd}
+.tipo.testemunho{background:rgba(34,197,94,.15);color:#86efac}
+.tipo.duvida{background:rgba(168,85,247,.15);color:#d8b4fe}
+.di-date{font-size:11px;color:var(--text3)}
 .di-preview{font-size:14px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.di-reply-indicator{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:var(--orange)}
+.di-replied{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:var(--orange);font-weight:500}
 
-/* Chat view */
-.chat-view{display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100vh;background:var(--bg);z-index:200;flex-direction:column}
-.chat-view.open{display:flex}
-.chat-header{padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-shrink:0}
-.chat-back{background:none;border:none;color:var(--text2);cursor:pointer;padding:4px;display:flex}
+/* CHAT */
+.chat-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:200;max-width:480px;margin:0 auto;flex-direction:column}
+.chat-overlay.show{display:flex}
+.chat-hdr{padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-shrink:0}
+.chat-back{background:none;border:none;color:var(--text2);cursor:pointer;padding:4px;display:flex;align-items:center}
 .chat-info{flex:1}
 .chat-info h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
 .chat-info p{font-size:12px;color:var(--text2)}
-.chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
-.bubble{max-width:80%;padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.6;position:relative}
+.chat-msgs{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+.bubble{max-width:80%;padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.6}
 .bubble.mine{align-self:flex-end;background:var(--orange);color:#fff;border-bottom-right-radius:4px}
-.bubble.pastor{align-self:flex-start;background:var(--surface);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px}
-.bubble-meta{font-size:10px;opacity:.6;margin-top:4px;text-align:right}
-.bubble.pastor .bubble-meta{text-align:left}
-.bubble-author{font-size:10px;font-weight:600;color:var(--orange);margin-bottom:4px;font-family:'Syne',sans-serif;letter-spacing:.5px}
-.chat-input-area{padding:16px 20px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0}
-.chat-tipo-select{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:4px}
-.tipo-chip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;border:1px solid var(--border2);color:var(--text3);background:transparent;white-space:nowrap;transition:all .15s}
-.tipo-chip.active{border-color:var(--orange);color:var(--orange);background:var(--orange-subtle)}
-.chat-input-row{display:flex;gap:10px;align-items:flex-end}
-.chat-textarea{flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;font-family:'Inter',sans-serif;font-size:14px;color:var(--text);resize:none;outline:none;min-height:44px;max-height:120px;transition:border-color .2s;line-height:1.5}
-.chat-textarea:focus{border-color:var(--orange)}
-.chat-textarea::placeholder{color:var(--text3)}
-.chat-send{width:44px;height:44px;background:var(--orange);border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.bubble.pastor{align-self:flex-start;background:var(--surface);border:1px solid var(--border);border-bottom-left-radius:4px}
+.bubble-name{font-size:10px;font-weight:700;color:var(--orange);margin-bottom:4px;font-family:'Syne',sans-serif;letter-spacing:.5px}
+.bubble-time{font-size:10px;opacity:.5;margin-top:4px;text-align:right}
+.bubble.pastor .bubble-time{text-align:left}
+.chat-input{padding:16px 20px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0}
+.tipo-chips{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px}
+.chip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;border:1px solid var(--border2);color:var(--text3);background:transparent;white-space:nowrap;transition:all .15s}
+.chip.on{border-color:var(--orange);color:var(--orange);background:rgba(255,107,0,.08)}
+.chat-row{display:flex;gap:10px;align-items:flex-end}
+.chat-ta{flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;font-family:'Inter',sans-serif;font-size:14px;color:var(--text);resize:none;outline:none;min-height:44px;max-height:120px;transition:border-color .2s;line-height:1.5}
+.chat-ta:focus{border-color:var(--orange)}
+.chat-ta::placeholder{color:var(--text3)}
+.chat-send{width:44px;height:44px;background:var(--orange);border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .chat-send:hover{background:var(--orange-dim)}
 .chat-send svg{width:18px;height:18px;stroke:#fff;stroke-width:2}
+.welcome-msg{text-align:center;padding:40px 24px}
+.welcome-msg .wi{font-size:40px;margin-bottom:12px}
+.welcome-msg .wt{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:8px}
+.welcome-msg .ws{font-size:13px;color:var(--text2);line-height:1.7}
 
-/* Nova entrada */
-.nova-entrada-btn{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin:0 20px 20px;cursor:pointer;transition:all .2s;width:calc(100% - 40px)}
-.nova-entrada-btn:hover{border-color:var(--orange);background:var(--orange-subtle)}
-.neb-icon{width:36px;height:36px;background:var(--orange-subtle);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.neb-text{text-align:left}
-.neb-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:2px}
-.neb-sub{font-size:12px;color:var(--text2)}
+/* DISCÍPULOS */
+.pastor-tabs{display:flex;overflow-x:auto;gap:8px;padding:12px 20px 0;scrollbar-width:none}
+.pastor-tabs::-webkit-scrollbar{display:none}
+.ptab{padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;border:1px solid var(--border2);color:var(--text2);background:transparent;white-space:nowrap;transition:all .15s}
+.ptab.on{background:var(--orange);border-color:var(--orange);color:#fff}
+.membro-card{display:flex;align-items:center;gap:14px;padding:16px;background:var(--surface);border-radius:var(--radius);margin-bottom:10px;cursor:pointer;transition:all .2s;border:1px solid var(--border)}
+.membro-card:hover{border-color:var(--border2)}
+.mc-av{width:44px;height:44px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--orange);flex-shrink:0;border:2px solid var(--border2)}
+.mc-info{flex:1;min-width:0}
+.mc-name{font-size:14px;font-weight:600;margin-bottom:3px}
+.mc-meta{font-size:12px;color:var(--text2)}
+.mc-preview{font-size:12px;color:var(--text3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-badge{background:var(--orange);color:#fff;border-radius:20px;padding:3px 9px;font-size:10px;font-weight:700;font-family:'Syne',sans-serif;flex-shrink:0}
 
-/* ─── PERFIL ─── */
-.profile-header{padding:32px 20px 24px;text-align:center;background:var(--surface);border-bottom:1px solid var(--border)}
-.avatar-lg{width:80px;height:80px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:#fff;margin:0 auto 16px;border:3px solid var(--orange-dim);overflow:hidden}
-.avatar-lg img{width:100%;height:100%;object-fit:cover}
-.profile-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
-.profile-celula{font-size:13px;color:var(--text2);margin-bottom:16px}
-.profile-role-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:.5px}
+/* RESPONDER */
+.resp-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:300;max-width:480px;margin:0 auto;flex-direction:column}
+.resp-overlay.show{display:flex}
+.resp-hdr{padding:20px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-shrink:0}
+.resp-body{flex:1;overflow-y:auto;padding:20px}
+.entrada-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:20px}
+.ebox-autor{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ebox-av{width:32px;height:32px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+.ebox-name{font-size:13px;font-weight:600}
+.ebox-date{font-size:11px;color:var(--text3)}
+.ebox-text{font-size:15px;line-height:1.7}
+.resp-footer{padding:16px 20px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0}
+.field textarea{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:14px 16px;font-family:'Inter',sans-serif;font-size:14px;color:var(--text);outline:none;resize:vertical;min-height:120px;line-height:1.7;transition:border-color .2s}
+.field textarea:focus{border-color:var(--orange)}
+.field textarea::placeholder{color:var(--text3)}
+
+/* PERFIL */
+.perfil-hdr{padding:32px 20px 24px;text-align:center;background:var(--surface);border-bottom:1px solid var(--border)}
+.av-lg{width:80px;height:80px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:#fff;margin:0 auto 16px;border:3px solid var(--orange-dim)}
+.perfil-nome{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
+.perfil-celula{font-size:13px;color:var(--text2);margin-bottom:14px}
+.role-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:.5px}
 .role-pastor{background:rgba(255,107,0,.2);color:var(--orange);border:1px solid rgba(255,107,0,.3)}
 .role-lider{background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.3)}
 .role-membro{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
-
-.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.stat-item{background:var(--surface);padding:18px 8px;text-align:center}
-.stat-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--orange)}
-.stat-label{font-size:10px;color:var(--text2);margin-top:2px;letter-spacing:.5px;text-transform:uppercase}
-
-.settings-list{padding:20px}
-.settings-group-title{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;padding:0 4px}
-.settings-item{display:flex;align-items:center;gap:14px;padding:16px;background:var(--surface);border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer;transition:all .2s}
-.settings-item:hover{background:var(--surface2)}
+.perfil-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.stat{background:var(--surface);padding:18px 8px;text-align:center}
+.stat-n{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--orange)}
+.stat-l{font-size:10px;color:var(--text2);margin-top:2px;letter-spacing:.5px;text-transform:uppercase}
+.settings{padding:20px}
+.sg-title{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;padding:0 4px}
+.si{display:flex;align-items:center;gap:14px;padding:16px;background:var(--surface);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.si:hover{background:var(--surface2)}
 .si-icon{width:38px;height:38px;border-radius:10px;background:var(--surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
 .si-text{flex:1}
 .si-title{font-size:14px;font-weight:500}
 .si-sub{font-size:12px;color:var(--text2);margin-top:2px}
-.si-arrow{color:var(--text3)}
 
-/* ─── PAINEL PASTOR ─── */
-.pastor-tabs{display:flex;overflow-x:auto;gap:8px;padding:0 20px 16px;-ms-overflow-style:none;scrollbar-width:none}
-.pastor-tabs::-webkit-scrollbar{display:none}
-.pastor-tab{padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;border:1px solid var(--border2);color:var(--text2);background:transparent;white-space:nowrap;transition:all .15s}
-.pastor-tab.active{background:var(--orange);border-color:var(--orange);color:#fff}
-
-.responder-modal{display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100vh;background:var(--bg);z-index:300;flex-direction:column}
-.responder-modal.open{display:flex}
-.rm-header{padding:20px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-shrink:0}
-.rm-content{flex:1;overflow-y:auto;padding:20px}
-.entrada-full{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:20px}
-.ef-author{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.ef-av{width:32px;height:32px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
-.ef-name{font-size:13px;font-weight:600}
-.ef-date{font-size:11px;color:var(--text3)}
-.ef-text{font-size:15px;line-height:1.7;color:var(--text)}
-.rm-footer{padding:16px 20px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0}
-
-/* ─── EMPTY STATE ─── */
-.empty-state{text-align:center;padding:60px 40px}
-.empty-icon{font-size:48px;margin-bottom:16px;opacity:.4}
-.empty-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text2)}
-.empty-sub{font-size:13px;color:var(--text3);line-height:1.6}
-
-/* ─── LOADING ─── */
+/* UTILS */
+.empty{text-align:center;padding:60px 40px}
+.empty-i{font-size:48px;margin-bottom:16px;opacity:.4}
+.empty-t{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text2)}
+.empty-s{font-size:13px;color:var(--text3);line-height:1.6}
 .loading{text-align:center;padding:40px;color:var(--text3)}
-.spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+.spin{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* ─── DIVIDER ─── */
-.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
-.or-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text3);font-size:12px}
-.or-divider::before,.or-divider::after{content:'';flex:1;border-top:1px solid var(--border)}
-
-/* ─── CARDS DISCIPULO PASTOR ─── */
-.membro-card{display:flex;align-items:center;gap:14px;padding:16px;background:var(--surface);border-radius:var(--radius);margin-bottom:10px;cursor:pointer;transition:all .2s;border:1px solid var(--border)}
-.membro-card:hover{border-color:var(--border2);background:var(--surface2)}
-.mc-av{width:44px;height:44px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--orange);flex-shrink:0;border:2px solid var(--border2)}
-.mc-info{flex:1}
-.mc-name{font-size:14px;font-weight:600;margin-bottom:3px}
-.mc-meta{font-size:12px;color:var(--text2)}
-.mc-badge{background:var(--orange);color:#fff;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;font-family:'Syne',sans-serif;flex-shrink:0}
-
-/* ─── TOAST ─── */
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 20px;font-size:14px;color:var(--text);z-index:1000;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:calc(480px - 40px)}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.success{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.1);color:#86efac}
-.toast.error{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.1);color:#fca5a5}
-
-/* ─── UTILS ─── */
 .p20{padding:0 20px}
 .mt16{margin-top:16px}
-.text-center{text-align:center}
-.flex-row{display:flex;align-items:center;gap:10px}
-.hide{display:none!important}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px 20px;font-size:14px;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.1);color:#86efac}
+.toast.err{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.1);color:#fca5a5}
 </style>
 </head>
 <body>
 
-<div id="appShell">
-
-  <!-- ══════════════════════════════════
-       AUTH SCREEN
-  ══════════════════════════════════ -->
-  <div id="screenAuth" class="screen active" style="flex-direction:column;min-height:100vh;padding-bottom:0">
-    <div class="auth-hero">
-      <div class="brand-mark">✦</div>
-      <h1 class="auth-title">Monte<br><span>Sião</span></h1>
-      <p class="auth-verse">"Para além do templo, até os confins da terra"</p>
+<!-- ═══ AUTH PAGE ═══ -->
+<div id="pageAuth" class="page show">
+  <div class="auth-hero">
+    <div class="brand-mark">✦</div>
+    <h1 class="auth-title">Monte<br><span>Sião</span></h1>
+    <p class="auth-sub">Seu espaço de encontro com Deus e crescimento na fé</p>
+    <p class="auth-verse">"Para além do templo, até os confins da terra"</p>
+  </div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab on" id="tabLogin" onclick="switchTab('login')">Entrar</button>
+      <button class="auth-tab" id="tabCad" onclick="switchTab('cad')">Criar conta</button>
     </div>
 
-    <div class="auth-card">
-      <div class="auth-tabs">
-        <div class="auth-tab active" onclick="switchAuthTab('login')">Entrar</div>
-        <div class="auth-tab" onclick="switchAuthTab('cadastro')">Criar conta</div>
+    <!-- LOGIN -->
+    <div id="fLogin">
+      <div class="msg-err" id="eLogin"></div>
+      <div class="msg-ok" id="oLogin"></div>
+      <div class="field"><label>E-mail</label><input type="email" id="lEmail" placeholder="seu@email.com" autocomplete="email"></div>
+      <div class="field"><label>Senha</label>
+        <div class="pw"><input type="password" id="lSenha" placeholder="Sua senha" autocomplete="current-password">
+        <span class="pw-eye" onclick="togglePw('lSenha',this)">👁</span></div>
       </div>
+      <button class="btn" id="btnLogin" onclick="doLogin()">ENTRAR</button>
+      <div style="text-align:center;margin-top:16px"><button class="link-btn" onclick="doForgot()">Esqueci minha senha</button></div>
+    </div>
 
-      <!-- LOGIN -->
-      <div id="formLogin">
-        <div class="msg-err" id="errLogin"></div>
-        <div class="msg-ok" id="okLogin"></div>
-        <div class="field"><label>E-mail</label><input type="email" id="lEmail" placeholder="seu@email.com" autocomplete="email"></div>
-        <div class="field">
-          <label>Senha</label>
-          <div class="pass-wrap"><input type="password" id="lSenha" placeholder="Sua senha" autocomplete="current-password">
-          <span class="pass-eye" onclick="togglePass('lSenha',this)">👁</span></div>
-        </div>
-        <button class="btn" id="btnLogin" onclick="doLogin()">ENTRAR</button>
-        <div class="text-center mt16"><button class="link-btn" onclick="doForgot()">Esqueci minha senha</button></div>
+    <!-- CADASTRO -->
+    <div id="fCad" style="display:none">
+      <div class="msg-err" id="eCad"></div>
+      <div class="msg-ok" id="oCad"></div>
+      <div class="field"><label>Nome completo *</label><input type="text" id="cNome" placeholder="Como você se chama"></div>
+      <div class="field"><label>E-mail *</label><input type="email" id="cEmail" placeholder="seu@email.com"></div>
+      <div class="field"><label>WhatsApp</label><input type="tel" id="cTel" placeholder="(00) 00000-0000" oninput="maskTel(this)"></div>
+      <div class="field"><label>Célula</label>
+        <select id="cCelula"><option value="">Selecione sua célula</option></select>
       </div>
-
-      <!-- CADASTRO -->
-      <div id="formCadastro" style="display:none">
-        <div class="msg-err" id="errCad"></div>
-        <div class="msg-ok" id="okCad"></div>
-        <div class="field"><label>Nome completo *</label><input type="text" id="cNome" placeholder="Como você se chama"></div>
-        <div class="field"><label>E-mail *</label><input type="email" id="cEmail" placeholder="seu@email.com"></div>
-        <div class="field"><label>WhatsApp</label><input type="tel" id="cTel" placeholder="(00) 00000-0000" oninput="maskTel(this)" maxlength="15"></div>
-        <div class="field"><label>Célula *</label>
-          <select id="cCelula"><option value="">Carregando...</option></select>
-        </div>
-        <div class="field"><label>Sexo</label>
-          <select id="cSexo"><option value="">Selecione</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option></select>
-        </div>
-        <div class="field"><label>Data de nascimento</label><input type="date" id="cNasc"></div>
-        <div class="field">
-          <label>Senha *</label>
-          <div class="pass-wrap"><input type="password" id="cSenha" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
-          <span class="pass-eye" onclick="togglePass('cSenha',this)">👁</span></div>
-        </div>
-        <div class="field">
-          <label>Confirmar senha *</label>
-          <div class="pass-wrap"><input type="password" id="cSenhaConf" placeholder="Repita sua senha" autocomplete="new-password">
-          <span class="pass-eye" onclick="togglePass('cSenhaConf',this)">👁</span></div>
-        </div>
-        <button class="btn" id="btnCad" onclick="doCadastro()">CRIAR MINHA CONTA</button>
+      <div class="field"><label>Senha *</label>
+        <div class="pw"><input type="password" id="cSenha" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+        <span class="pw-eye" onclick="togglePw('cSenha',this)">👁</span></div>
       </div>
+      <div class="field"><label>Confirmar senha *</label>
+        <div class="pw"><input type="password" id="cSenha2" placeholder="Repita sua senha" autocomplete="new-password">
+        <span class="pw-eye" onclick="togglePw('cSenha2',this)">👁</span></div>
+      </div>
+      <button class="btn" id="btnCad" onclick="doCad()">CRIAR MINHA CONTA</button>
     </div>
   </div>
+</div>
 
-  <!-- ══════════════════════════════════
-       HOME SCREEN
-  ══════════════════════════════════ -->
-  <div id="screenHome" class="screen">
-    <div class="home-header">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-        <div>
-          <div class="greeting">Bem-vindo de volta,</div>
-          <div class="greeting-name" id="homeName">—</div>
-        </div>
-        <div class="avatar-sm" id="homeAvatar" onclick="goTo('perfil')">?</div>
+<!-- ═══ APP ═══ -->
+<div id="app">
+  <!-- HOME -->
+  <div id="sHome" class="screen show">
+    <div class="home-top">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div><div class="greeting">Bem-vindo de volta,</div><div class="greeting-name" id="hNome">—</div></div>
+        <div class="av" id="hAv" onclick="goScreen('perfil')">?</div>
       </div>
     </div>
-
-    <!-- Versículo do dia -->
     <div class="verse-card">
       <div class="verse-label">✦ Versículo do dia</div>
-      <div class="verse-text" id="verseText">Carregando...</div>
-      <div class="verse-ref" id="verseRef"></div>
+      <div class="verse-text" id="vText">Carregando...</div>
+      <div class="verse-ref" id="vRef"></div>
     </div>
-
-    <!-- Ações rápidas -->
-    <div class="section-header"><span class="section-title">Sua Jornada</span></div>
-    <div class="quick-actions">
-      <div class="qa-card" onclick="goTo('diario')">
-        <div class="qa-badge hide" id="badgeDiario">!</div>
+    <div class="sec-header"><span class="sec-title">Sua Jornada</span></div>
+    <div class="qa-grid">
+      <div class="qa" onclick="goScreen('diario')">
         <div class="qa-icon">📖</div>
         <div class="qa-title">Diário</div>
         <div class="qa-sub">Abra seu coração</div>
       </div>
-      <div class="qa-card" onclick="goTo('discipulos')" id="cardDiscipulos" style="display:none">
-        <div class="qa-badge hide" id="badgePendentes">0</div>
+      <div class="qa" id="qaDisc" style="display:none" onclick="goScreen('disc')">
+        <div class="qa-badge hide" id="badgeDisc">0</div>
         <div class="qa-icon">🤝</div>
         <div class="qa-title">Discípulos</div>
         <div class="qa-sub">Cuidar e responder</div>
       </div>
-      <div class="qa-card" onclick="goTo('diario')">
+      <div class="qa" onclick="goScreen('diario')">
         <div class="qa-icon">🙏</div>
         <div class="qa-title">Pedidos</div>
         <div class="qa-sub">Motivos de oração</div>
       </div>
-      <div class="qa-card" onclick="goTo('perfil')">
+      <div class="qa" onclick="goScreen('perfil')">
         <div class="qa-icon">👤</div>
         <div class="qa-title">Perfil</div>
         <div class="qa-sub">Seus dados</div>
       </div>
     </div>
+    <div class="sec-header"><span class="sec-title">Últimas reflexões</span><span class="sec-link" onclick="goScreen('diario')">Ver todas →</span></div>
+    <div class="p20" id="hEntradas"><div class="loading"><div class="spin"></div>Carregando...</div></div>
+  </div>
 
-    <!-- Últimas entradas -->
-    <div class="section-header">
-      <span class="section-title">Últimas reflexões</span>
-      <span class="section-action" onclick="goTo('diario')">Ver todas →</span>
+  <!-- DIÁRIO -->
+  <div id="sDiario" class="screen">
+    <div class="topbar">
+      <div><div class="topbar-title">Meu Diário</div><div class="topbar-sub">Canal privado com seu pastor</div></div>
+      <div class="av" id="dAv" onclick="goScreen('perfil')">?</div>
     </div>
-    <div class="p20" id="homeEntradas">
-      <div class="loading"><div class="spinner"></div>Carregando...</div>
+    <button class="nova-btn" onclick="abrirNova()">
+      <div class="nova-btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+      <div class="nova-btn-text"><div class="t">Nova reflexão</div><div class="s">Compartilhe o que está no seu coração</div></div>
+    </button>
+    <div class="diario-list" id="dList"><div class="loading"><div class="spin"></div>Carregando...</div></div>
+  </div>
+
+  <!-- DISCÍPULOS -->
+  <div id="sDisc" class="screen">
+    <div class="topbar">
+      <div><div class="topbar-title">Discípulos</div><div class="topbar-sub" id="discSub">Cuide como Cristo cuidou</div></div>
+    </div>
+    <div class="pastor-tabs">
+      <button class="ptab on" onclick="filtDisc('pend',this)">Sem resposta</button>
+      <button class="ptab" onclick="filtDisc('todos',this)">Todos</button>
+      <button class="ptab" onclick="filtDisc('resp',this)">Respondidos</button>
+    </div>
+    <div class="p20" style="margin-top:16px" id="discList"><div class="loading"><div class="spin"></div>Carregando...</div></div>
+  </div>
+
+  <!-- PERFIL -->
+  <div id="sPerfil" class="screen">
+    <div class="perfil-hdr">
+      <div class="av-lg" id="pAv">?</div>
+      <div class="perfil-nome" id="pNome">—</div>
+      <div class="perfil-celula" id="pCelula">—</div>
+      <div class="role-badge role-membro" id="pRole">Membro</div>
+    </div>
+    <div class="perfil-stats">
+      <div class="stat"><div class="stat-n" id="stEnt">0</div><div class="stat-l">Reflexões</div></div>
+      <div class="stat"><div class="stat-n" id="stResp">0</div><div class="stat-l">Respostas</div></div>
+      <div class="stat"><div class="stat-n" id="stDias">0</div><div class="stat-l">Dias</div></div>
+    </div>
+    <div class="settings">
+      <div class="sg-title">Minha conta</div>
+      <div class="si"><div class="si-icon">✏️</div><div class="si-text"><div class="si-title">Editar perfil</div><div class="si-sub">Nome, telefone</div></div></div>
+      <div class="si"><div class="si-icon">🔒</div><div class="si-text"><div class="si-title">Alterar senha</div><div class="si-sub">Segurança da conta</div></div></div>
+      <div style="margin-top:24px"><button class="btn btn-ghost" onclick="doLogout()">SAIR DA CONTA</button></div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       DIÁRIO SCREEN
-  ══════════════════════════════════ -->
-  <div id="screenDiario" class="screen">
-    <div class="top-bar">
-      <div>
-        <div class="top-bar-title">Meu Diário</div>
-        <div class="top-bar-sub">Canal privado com seu pastor</div>
-      </div>
-      <div class="avatar-sm" id="diarioAvatar" onclick="goTo('perfil')">?</div>
-    </div>
-
-    <button class="nova-entrada-btn" onclick="abrirNovaEntrada()">
-      <div class="neb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
-      <div class="neb-text">
-        <div class="neb-title">Nova reflexão</div>
-        <div class="neb-sub">Compartilhe o que está no seu coração</div>
-      </div>
+  <!-- NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn on" id="nHome" onclick="goScreen('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>Início
     </button>
-
-    <div class="diario-list" id="diarioList">
-      <div class="loading"><div class="spinner"></div>Carregando...</div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════
-       DISCÍPULOS SCREEN (Pastor/Líder)
-  ══════════════════════════════════ -->
-  <div id="screenDiscipulos" class="screen">
-    <div class="top-bar">
-      <div>
-        <div class="top-bar-title">Discípulos</div>
-        <div class="top-bar-sub" id="discipulosSubtitle">Cuide como Cristo cuidou</div>
-      </div>
-    </div>
-
-    <div style="padding:0 20px 12px">
-      <div class="pastor-tabs">
-        <div class="pastor-tab active" onclick="filtrarDiscipulos('pendentes')">Aguardando resposta</div>
-        <div class="pastor-tab" onclick="filtrarDiscipulos('todos')">Todos</div>
-        <div class="pastor-tab" onclick="filtrarDiscipulos('respondidos')">Respondidos</div>
-      </div>
-    </div>
-
-    <div class="p20" id="discipulosList">
-      <div class="loading"><div class="spinner"></div>Carregando...</div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════
-       PERFIL SCREEN
-  ══════════════════════════════════ -->
-  <div id="screenPerfil" class="screen">
-    <div class="profile-header">
-      <div class="avatar-lg" id="perfilAvatar">?</div>
-      <div class="profile-name" id="perfilNome">—</div>
-      <div class="profile-celula" id="perfilCelula">—</div>
-      <div class="profile-role-badge role-membro" id="perfilRoleBadge">Membro</div>
-    </div>
-
-    <div class="profile-stats">
-      <div class="stat-item"><div class="stat-num" id="statEntradas">0</div><div class="stat-label">Reflexões</div></div>
-      <div class="stat-item"><div class="stat-num" id="statRespostas">0</div><div class="stat-label">Respostas</div></div>
-      <div class="stat-item"><div class="stat-num" id="statDias">0</div><div class="stat-label">Dias na jornada</div></div>
-    </div>
-
-    <div class="settings-list">
-      <div class="settings-group-title">Minha conta</div>
-      <div class="settings-item" onclick="abrirEditarPerfil()">
-        <div class="si-icon">✏️</div>
-        <div class="si-text"><div class="si-title">Editar perfil</div><div class="si-sub">Nome, telefone, endereço</div></div>
-        <svg class="si-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-      <div class="settings-item" onclick="abrirAlterarSenha()">
-        <div class="si-icon">🔒</div>
-        <div class="si-text"><div class="si-title">Alterar senha</div><div class="si-sub">Segurança da conta</div></div>
-        <svg class="si-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-
-      <div class="settings-group-title" style="margin-top:20px">Suporte</div>
-      <div class="settings-item">
-        <div class="si-icon">📖</div>
-        <div class="si-text"><div class="si-title">Sobre o app</div><div class="si-sub">Monte Sião — Jornada do Discipulado</div></div>
-      </div>
-
-      <div style="margin-top:24px">
-        <button class="btn btn-ghost" onclick="doLogout()">SAIR DA CONTA</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════
-       BOTTOM NAVIGATION
-  ══════════════════════════════════ -->
-  <nav class="bottom-nav" id="bottomNav">
-    <button class="nav-item active" id="navHome" onclick="goTo('home')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
-      Início
+    <button class="nav-btn" id="nDiario" onclick="goScreen('diario')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Diário
     </button>
-    <button class="nav-item" id="navDiario" onclick="goTo('diario')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-      Diário
+    <button class="nav-btn" id="nDisc" style="display:none" onclick="goScreen('disc')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Discípulos
     </button>
-    <button class="nav-item" id="navDiscipulos" onclick="goTo('discipulos')" style="display:none">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-      Discípulos
-    </button>
-    <button class="nav-item" id="navPerfil" onclick="goTo('perfil')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      Perfil
+    <button class="nav-btn" id="nPerfil" onclick="goScreen('perfil')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil
     </button>
   </nav>
+</div>
 
-</div><!-- /appShell -->
-
-<!-- ══════════════════════════════════
-     CHAT VIEW (overlay)
-══════════════════════════════════ -->
-<div class="chat-view" id="chatView">
-  <div class="chat-header">
-    <button class="chat-back" onclick="fecharChat()">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    </button>
-    <div class="chat-info">
-      <h3 id="chatTitle">Minha Reflexão</h3>
-      <p id="chatSub">Diário Pastoral Privado</p>
-    </div>
-    <div class="di-tipo reflexao" id="chatTipoBadge" style="font-size:10px">reflexão</div>
+<!-- CHAT OVERLAY -->
+<div class="chat-overlay" id="chatOverlay">
+  <div class="chat-hdr">
+    <button class="chat-back" onclick="fecharChat()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+    <div class="chat-info"><h3 id="chatTitle">Reflexão</h3><p>Diário Pastoral Privado</p></div>
+    <div class="tipo reflexao" id="chatTipo" style="font-size:9px">reflexão</div>
   </div>
-  <div class="chat-messages" id="chatMessages"></div>
-  <div class="chat-input-area" id="chatInputArea">
-    <div class="chat-tipo-select" id="tipoSelect">
-      <button class="tipo-chip active" onclick="selectTipo('reflexao',this)">✨ Reflexão</button>
-      <button class="tipo-chip" onclick="selectTipo('pedido',this)">🙏 Pedido</button>
-      <button class="tipo-chip" onclick="selectTipo('testemunho',this)">🔥 Testemunho</button>
-      <button class="tipo-chip" onclick="selectTipo('duvida',this)">❓ Dúvida</button>
+  <div class="chat-msgs" id="chatMsgs"></div>
+  <div class="chat-input" id="chatInputArea">
+    <div class="tipo-chips" id="tipoChips">
+      <button class="chip on" onclick="selTipo('reflexao',this)">✨ Reflexão</button>
+      <button class="chip" onclick="selTipo('pedido',this)">🙏 Pedido</button>
+      <button class="chip" onclick="selTipo('testemunho',this)">🔥 Testemunho</button>
+      <button class="chip" onclick="selTipo('duvida',this)">❓ Dúvida</button>
     </div>
-    <div class="chat-input-row">
-      <textarea class="chat-textarea" id="chatInput" placeholder="Escreva aqui..." rows="1" oninput="autoResize(this)"></textarea>
-      <button class="chat-send" onclick="enviarMensagem()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>
-      </button>
+    <div class="chat-row">
+      <textarea class="chat-ta" id="chatTa" placeholder="Escreva aqui..." rows="1" oninput="autoH(this)"></textarea>
+      <button class="chat-send" onclick="enviarMsg()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg></button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     RESPONDER MODAL (Pastor)
-══════════════════════════════════ -->
-<div class="responder-modal" id="responderModal">
-  <div class="rm-header">
-    <button class="chat-back" onclick="fecharResponder()">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    </button>
+<!-- RESPONDER OVERLAY -->
+<div class="resp-overlay" id="respOverlay">
+  <div class="resp-hdr">
+    <button class="chat-back" onclick="fecharResp()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
     <div class="chat-info"><h3>Responder discípulo</h3><p>Mentoria Pastoral</p></div>
   </div>
-  <div class="rm-content">
-    <div class="entrada-full" id="entradaFullContent"></div>
+  <div class="resp-body">
+    <div class="entrada-box" id="entradaBox"></div>
     <div class="field"><label>Sua resposta pastoral</label>
-      <textarea id="respostaTexto" placeholder="Escreva uma palavra de direção, conforto ou mentoria..." rows="5"></textarea>
+      <textarea id="rTexto" placeholder="Escreva uma palavra de direção, conforto ou mentoria..."></textarea>
     </div>
-    <div class="msg-err" id="errResposta"></div>
+    <div class="msg-err" id="eResp"></div>
   </div>
-  <div class="rm-footer">
-    <button class="btn" onclick="enviarResposta()">ENVIAR RESPOSTA</button>
-  </div>
+  <div class="resp-footer"><button class="btn" onclick="enviarResp()">ENVIAR RESPOSTA</button></div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- ══════════════════════════════════
-     SCRIPT
-══════════════════════════════════ -->
 <script>
-// ════════════════════════════════════
-// CONFIG SUPABASE — substitua com suas credenciais
-// ════════════════════════════════════
 const SUPA_URL = 'https://wvjulupgociujcypsdpv.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2anVsdXBnb2NpdWpjeXBzZHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjAzMTcsImV4cCI6MjA5NTM5NjMxN30.OZWWxryYAqSNcBJyFU2czLqlVD_Yrf3Askr12GvmJmM';
 const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
-// ════════════════════════════════════
-// ESTADO GLOBAL
-// ════════════════════════════════════
-let currentUser = null;
-let currentPerfil = null;
-let currentScreen = 'home';
-let chatEntradaId = null;
-let chatIsNova = false;
-let chatTipoAtual = 'reflexao';
-let discipulosFiltro = 'pendentes';
-let entradaParaResponder = null;
-let realtimeChannel = null;
-let appIniciado = false;
+// Estado
+let U = null, P = null, discFiltro = 'pend', entradaAtual = null, tipoAtual = 'reflexao', chatNova = false;
 
-// Versículos fallback
 const VERSICULOS = [
-  {text:'Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo o que nele crê não pereça, mas tenha a vida eterna.',ref:'João 3.16'},
-  {text:'Posso tudo naquele que me fortalece.',ref:'Filipenses 4.13'},
-  {text:'O Senhor é o meu pastor, nada me faltará.',ref:'Salmos 23.1'},
-  {text:'Sede fortes e corajosos. Não temais, nem vos aterrorizeis diante deles; porque o Senhor, vosso Deus, é o que vai convosco; não vos deixará, nem vos desamparará.',ref:'Deuteronômio 31.6'},
-  {text:'Confia no Senhor de todo o teu coração e não te estribes no teu próprio entendimento.',ref:'Provérbios 3.5'},
-  {text:'Mas os que esperam no Senhor renovarão as suas forças, subirão com asas como águias, correrão e não se cansarão, caminharão e não se fatigarão.',ref:'Isaías 40.31'},
-  {text:'Eu sou a videira; vós, os ramos. Quem permanece em mim e eu nele, esse dá muito fruto; porque sem mim nada podeis fazer.',ref:'João 15.5'},
+  {t:'Posso tudo naquele que me fortalece.',r:'Filipenses 4.13'},
+  {t:'O Senhor é o meu pastor, nada me faltará.',r:'Salmos 23.1'},
+  {t:'Confia no Senhor de todo o teu coração e não te estribes no teu próprio entendimento.',r:'Provérbios 3.5'},
+  {t:'Eu sou a videira; vós, os ramos. Quem permanece em mim e eu nele, esse dá muito fruto.',r:'João 15.5'},
+  {t:'Mas os que esperam no Senhor renovarão as suas forças, subirão com asas como águias.',r:'Isaías 40.31'},
+  {t:'Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito.',r:'João 3.16'},
 ];
 
-// ════════════════════════════════════
-// INIT
-// ════════════════════════════════════
-// Único ponto de entrada — sem duplicação
-document.addEventListener('DOMContentLoaded', async () => {
-  await carregarCelulas();
+// ═══ INICIALIZAÇÃO ═══
+window.onload = async () => {
+  carregarCelulas();
   mostrarVersiculo();
+  const { data } = await sb.auth.getSession();
+  if (data.session) entrarApp(data.session.user);
+};
 
-  // Escuta mudanças de auth — única fonte de verdade
-  sb.auth.onAuthStateChange(async (event, session) => {
-    console.log('AUTH EVENT:', event, !!session);
-    if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
-      if (appIniciado) return;
-      appIniciado = true;
-      currentUser = session.user;
-      // Esconde auth imediatamente
-      document.getElementById('screenAuth').style.display = 'none';
-      document.getElementById('bottomNav').classList.add('visible');
-      await iniciarApp();
-    } else if (event === 'SIGNED_OUT') {
-      appIniciado = false;
-      currentUser = null;
-      currentPerfil = null;
-      document.getElementById('screenAuth').style.display = 'flex';
-      document.getElementById('bottomNav').classList.remove('visible');
-      document.querySelectorAll('.screen').forEach(s => {
-        s.style.display = 'none';
-        s.classList.remove('active');
-      });
-    }
-  });
-});
-
-// ════════════════════════════════════
-// AUTH
-// ════════════════════════════════════
-function switchAuthTab(tab) {
-  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById('formLogin').style.display = tab === 'login' ? 'block' : 'none';
-  document.getElementById('formCadastro').style.display = tab === 'cadastro' ? 'block' : 'none';
+// ═══ AUTH ═══
+function switchTab(t) {
+  document.getElementById('fLogin').style.display = t==='login'?'block':'none';
+  document.getElementById('fCad').style.display = t==='cad'?'block':'none';
+  document.getElementById('tabLogin').classList.toggle('on', t==='login');
+  document.getElementById('tabCad').classList.toggle('on', t==='cad');
 }
 
 async function doLogin() {
-  const email = document.getElementById('lEmail').value.trim();
-  const senha = document.getElementById('lSenha').value;
-  const err = document.getElementById('errLogin');
-  const ok = document.getElementById('okLogin');
-  err.style.display = 'none'; ok.style.display = 'none';
-  if (!email || !senha) { showMsg(err, 'Preencha e-mail e senha.'); return; }
+  const email = v('lEmail'), senha = v('lSenha');
+  const eEl = document.getElementById('eLogin');
+  hide(eEl);
+  if (!email||!senha) { show(eEl,'Preencha e-mail e senha.'); return; }
   const btn = document.getElementById('btnLogin');
-  btn.disabled = true; btn.textContent = 'Entrando...';
-  let loginRes;
-  try {
-    loginRes = await sb.auth.signInWithPassword({ email, password: senha });
-  } catch(e) {
-    btn.disabled = false; btn.textContent = 'ENTRAR';
-    showMsg(err, 'Erro de conexão. Tente novamente.'); return;
-  }
-  btn.disabled = false; btn.textContent = 'ENTRAR';
-  if (loginRes.error) { showMsg(err, traduzirErro(loginRes.error.message)); return; }
-  console.log('LOGIN RES:', JSON.stringify({
-    hasSession: !!loginRes.data?.session,
-    hasUser: !!loginRes.data?.user,
-    error: loginRes.error?.message
-  }));
-  const session = loginRes.data?.session || loginRes.data;
-  const user = session?.user || loginRes.data?.user;
-  if (user) {
-    currentUser = user;
-    console.log('USUARIO:', currentUser.email);
-    // onAuthStateChange vai cuidar da navegação
-    console.log('Login OK, aguardando onAuthStateChange...');
-  } else {
-    showMsg(err, 'Sessão não iniciada. Tente novamente.');
-  }
+  btn.disabled=true; btn.textContent='Entrando...';
+  const {data,error} = await sb.auth.signInWithPassword({email,password:senha});
+  btn.disabled=false; btn.textContent='ENTRAR';
+  if (error) { show(eEl, tradErr(error.message)); return; }
+  entrarApp(data.user);
 }
 
-async function doCadastro() {
-  const nome = document.getElementById('cNome').value.trim();
-  const email = document.getElementById('cEmail').value.trim();
-  const tel = document.getElementById('cTel').value.trim();
-  const celula = document.getElementById('cCelula').value;
-  const sexo = document.getElementById('cSexo').value;
-  const nasc = document.getElementById('cNasc').value;
-  const senha = document.getElementById('cSenha').value;
-  const err = document.getElementById('errCad');
-  const ok = document.getElementById('okCad');
-  err.style.display = 'none'; ok.style.display = 'none';
-  if (!nome || !email || !senha) { showMsg(err, 'Preencha nome, e-mail e senha.'); return; }
-  if (senha.length < 6) { showMsg(err, 'A senha deve ter pelo menos 6 caracteres.'); return; }
-  const senhaConf = document.getElementById('cSenhaConf').value;
-  if (senha !== senhaConf) { showMsg(err, 'As senhas não coincidem.'); return; }
-  const btn = document.getElementById('btnCad');
-  btn.disabled = true; btn.textContent = 'Criando conta...';
-  let signupData, signupError;
-  try {
-    const res = await sb.auth.signUp({
-      email, password: senha,
-      options: { data: { nome, telefone: tel } }
-    });
-    signupData = res.data;
-    signupError = res.error;
-  } catch(e) {
-    signupError = e;
+async function doCad() {
+  const nome=v('cNome'),email=v('cEmail'),tel=v('cTel'),cel=v('cCelula'),s1=v('cSenha'),s2=v('cSenha2');
+  const eEl=document.getElementById('eCad'), oEl=document.getElementById('oCad');
+  hide(eEl); hide(oEl);
+  if(!nome||!email||!s1) { show(eEl,'Preencha nome, e-mail e senha.'); return; }
+  if(s1.length<6) { show(eEl,'Senha mínimo 6 caracteres.'); return; }
+  if(s1!==s2) { show(eEl,'As senhas não coincidem.'); return; }
+  const btn=document.getElementById('btnCad');
+  btn.disabled=true; btn.textContent='Criando...';
+  const {data,error} = await sb.auth.signUp({email,password:s1});
+  if(error) { btn.disabled=false; btn.textContent='CRIAR MINHA CONTA'; show(eEl,tradErr(error.message)); return; }
+  const uid = data.user?.id;
+  if(uid) {
+    await sb.from('profiles').upsert({id:uid,nome,email,telefone:tel,celula_id:cel?parseInt(cel):null,role:'membro'});
   }
-  btn.disabled = false; btn.textContent = 'CRIAR MINHA CONTA';
-  if (signupError) { showMsg(err, traduzirErro(signupError.message)); return; }
-  // Tenta criar perfil mas não trava se falhar
-  try {
-    const uid = signupData?.user?.id || signupData?.session?.user?.id;
-    if (uid) {
-      await sb.from('profiles').upsert({
-        id: uid, nome, email, telefone: tel,
-        celula_id: celula ? parseInt(celula) : null, sexo,
-        data_nascimento: nasc || null, role: 'membro'
-      });
-    }
-  } catch(e) { /* tabela ainda não existe, tudo bem */ }
-  if (signupData?.session) {
-    // onAuthStateChange vai cuidar da navegação
-    console.log('Cadastro OK, aguardando onAuthStateChange...');
-  } else {
-    showMsg(ok, 'Conta criada com sucesso! Faça login agora.', true);
-    // Preenche email no login automaticamente
-    document.querySelector('.auth-tab').click();
-    document.getElementById('lEmail').value = email;
-  }
+  btn.disabled=false; btn.textContent='CRIAR MINHA CONTA';
+  if(data.session) { entrarApp(data.user); return; }
+  show(oEl,'Conta criada! Faça login para entrar.',true);
+  switchTab('login');
+  document.getElementById('lEmail').value=email;
 }
 
 async function doForgot() {
-  const email = document.getElementById('lEmail').value.trim();
-  const err = document.getElementById('errLogin');
-  const ok = document.getElementById('okLogin');
-  if (!email) { showMsg(err, 'Digite seu e-mail primeiro.'); return; }
+  const email=v('lEmail');
+  if(!email){show(document.getElementById('eLogin'),'Digite seu e-mail primeiro.');return;}
   await sb.auth.resetPasswordForEmail(email);
-  showMsg(ok, 'Link enviado para seu e-mail!', true);
+  show(document.getElementById('oLogin'),'Link enviado para seu e-mail!',true);
 }
 
 async function doLogout() {
   await sb.auth.signOut();
+  U=null; P=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('pageAuth').style.display='flex';
   toast('Até logo! 👋');
 }
 
-// ════════════════════════════════════
-// INICIAR APP
-// ════════════════════════════════════
-async function iniciarApp() {
-  if (appIniciado) { console.log('APP JA INICIADO, ignorando...'); return; }
-  appIniciado = true;
-  console.log('INICIANDO APP para:', currentUser?.email);
-  try { await carregarPerfil(); } catch(e) { 
-    currentPerfil = { id: currentUser.id, nome: currentUser.email?.split('@')[0]||'Usuário', role:'membro' };
+// ═══ ENTRAR NO APP ═══
+async function entrarApp(user) {
+  U = user;
+  // Busca perfil
+  const {data} = await sb.from('profiles').select('*,celulas(nome)').eq('id',U.id).single();
+  P = data || {id:U.id, nome:U.email.split('@')[0], role:'membro'};
+  // Se não tem perfil, cria
+  if(!data) await sb.from('profiles').upsert({id:U.id,nome:U.email.split('@')[0],email:U.email,role:'membro'});
+  // Troca telas
+  document.getElementById('pageAuth').style.display='none';
+  document.getElementById('app').style.display='block';
+  // Configura pastor
+  if(P.role==='pastor'||P.role==='lider') {
+    document.getElementById('nDisc').style.display='flex';
+    document.getElementById('qaDisc').style.display='block';
   }
-  renderAvatar();
-  showScreen('home');
-  document.getElementById('bottomNav').classList.add('visible');
-  await carregarHome();
-  configurarNavPastor();
-  iniciarRealtime();
+  // Carrega home
+  renderAvatares();
+  goScreen('home');
+  carregarHome();
 }
 
-async function carregarPerfil() {
-  const { data } = await sb.from('profiles')
-    .select('*, celulas(nome)')
-    .eq('id', currentUser.id)
-    .single();
-  if (data) {
-    currentPerfil = data;
-  } else {
-    // criar perfil se não existir
-    const meta = currentUser.user_metadata || {};
-    const insert = { id: currentUser.id, nome: meta.nome || currentUser.email?.split('@')[0] || 'Usuário', email: currentUser.email, role: 'membro' };
-    await sb.from('profiles').insert(insert);
-    currentPerfil = insert;
-  }
+// ═══ NAVEGAÇÃO ═══
+function goScreen(s) {
+  document.querySelectorAll('.screen').forEach(el=>el.classList.remove('show'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('on'));
+  const map = {home:'sHome',diario:'sDiario',disc:'sDisc',perfil:'sPerfil'};
+  const nav = {home:'nHome',diario:'nDiario',disc:'nDisc',perfil:'nPerfil'};
+  document.getElementById(map[s])?.classList.add('show');
+  document.getElementById(nav[s])?.classList.add('on');
+  if(s==='home') carregarHome();
+  else if(s==='diario') carregarDiario();
+  else if(s==='disc') carregarDisc();
+  else if(s==='perfil') carregarPerfil();
 }
 
-function renderAvatar() {
-  if (!currentPerfil) return;
-  const inicial = (currentPerfil.nome || '?')[0].toUpperCase();
-  ['homeAvatar','diarioAvatar'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = inicial;
-  });
-  document.getElementById('homeName').textContent = (currentPerfil.nome||'').split(' ')[0];
-}
-
-function configurarNavPastor() {
-  const isPastor = currentPerfil?.role === 'pastor' || currentPerfil?.role === 'lider';
-  if (isPastor) {
-    document.getElementById('navDiscipulos').style.display = 'flex';
-    document.getElementById('cardDiscipulos').style.display = 'block';
-  }
-}
-
-// ════════════════════════════════════
-// HOME
-// ════════════════════════════════════
-async function carregarHome() {
-  mostrarVersiculo();
-  await carregarEntradasHome();
-  if (currentPerfil?.role === 'pastor' || currentPerfil?.role === 'lider') {
-    await carregarBadgePendentes();
-  }
-}
-
+// ═══ HOME ═══
 function mostrarVersiculo() {
-  const v = VERSICULOS[Math.floor(Math.random() * VERSICULOS.length)];
-  document.getElementById('verseText').textContent = v.text;
-  document.getElementById('verseRef').textContent = `— ${v.ref} (NVI)`;
+  const vs = VERSICULOS[Math.floor(Math.random()*VERSICULOS.length)];
+  document.getElementById('vText').textContent = vs.t;
+  document.getElementById('vRef').textContent = '— '+vs.r+' (NVI)';
 }
 
-async function carregarEntradasHome() {
-  const el = document.getElementById('homeEntradas');
-  el.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando...</div>';
-  const { data } = await sb.from('diario_entradas')
-    .select('*')
-    .eq('autor_id', currentUser.id)
-    .order('created_at', { ascending: false })
-    .limit(3);
-  if (!data || data.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📖</div><div class="empty-title">Seu diário está vazio</div><div class="empty-sub">Compartilhe sua primeira reflexão com seu pastor</div></div>';
-    return;
-  }
-  el.innerHTML = data.map(e => renderEntradaCard(e)).join('');
+async function carregarHome() {
+  const el=document.getElementById('hEntradas');
+  el.innerHTML='<div class="loading"><div class="spin"></div>Carregando...</div>';
+  const {data} = await sb.from('diario_entradas').select('*').eq('autor_id',U.id).order('created_at',{ascending:false}).limit(3);
+  if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-i">📖</div><div class="empty-t">Seu diário está vazio</div><div class="empty-s">Toque em Diário para compartilhar sua primeira reflexão</div></div>';return;}
+  el.innerHTML=data.map(e=>cardEntrada(e)).join('');
 }
 
-async function carregarBadgePendentes() {
-  const query = sb.from('diario_entradas').select('id', { count: 'exact' }).is('resposta', null);
-  if (currentPerfil.role === 'lider') query.eq('celula_id', currentPerfil.celula_id);
-  const { count } = await query;
-  if (count > 0) {
-    const b = document.getElementById('badgePendentes');
-    b.textContent = count;
-    b.classList.remove('hide');
-  }
-}
-
-// ════════════════════════════════════
-// DIÁRIO
-// ════════════════════════════════════
+// ═══ DIÁRIO ═══
 async function carregarDiario() {
-  const el = document.getElementById('diarioList');
-  el.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando...</div>';
-  const { data } = await sb.from('diario_entradas')
-    .select('*')
-    .eq('autor_id', currentUser.id)
-    .order('created_at', { ascending: false });
-  if (!data || data.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🕊️</div><div class="empty-title">Nenhuma reflexão ainda</div><div class="empty-sub">Toque em "Nova reflexão" para compartilhar o que está em seu coração com seu pastor</div></div>';
-    return;
-  }
-  el.innerHTML = data.map(e => renderEntradaCard(e)).join('');
+  const el=document.getElementById('dList');
+  el.innerHTML='<div class="loading"><div class="spin"></div>Carregando...</div>';
+  const {data} = await sb.from('diario_entradas').select('*').eq('autor_id',U.id).order('created_at',{ascending:false});
+  if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-i">🕊️</div><div class="empty-t">Nenhuma reflexão ainda</div><div class="empty-s">Toque em Nova reflexão para começar</div></div>';return;}
+  el.innerHTML=data.map(e=>cardEntrada(e)).join('');
 }
 
-function renderEntradaCard(e) {
-  const temResposta = !!e.resposta;
-  const data = new Date(e.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'short' });
-  const preview = e.conteudo.length > 100 ? e.conteudo.slice(0,100)+'...' : e.conteudo;
-  return `<div class="diario-item ${temResposta ? 'has-reply' : ''}" onclick="abrirEntrada('${e.id}')">
-    <div class="diario-item-header">
-      <span class="di-tipo ${e.tipo||'reflexao'}">${labelTipo(e.tipo)}</span>
-      <span class="di-data">${data}</span>
-    </div>
-    <div class="di-preview">${escHtml(preview)}</div>
-    ${temResposta ? '<div class="di-reply-indicator"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Pastor respondeu</div>' : ''}
+function cardEntrada(e) {
+  const d=new Date(e.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+  const prev=e.conteudo.length>100?e.conteudo.slice(0,100)+'...':e.conteudo;
+  return `<div class="di ${e.resposta?'replied':''}" onclick="abrirEntrada('${e.id}')">
+    <div class="di-top"><span class="tipo ${e.tipo||'reflexao'}">${lblTipo(e.tipo)}</span><span class="di-date">${d}</span></div>
+    <div class="di-preview">${esc(prev)}</div>
+    ${e.resposta?'<div class="di-replied">✦ Pastor respondeu</div>':''}
   </div>`;
 }
 
-function abrirNovaEntrada() {
-  chatIsNova = true;
-  chatEntradaId = null;
-  document.getElementById('chatTitle').textContent = 'Nova Reflexão';
-  document.getElementById('chatSub').textContent = 'Somente você e seu pastor verão isto';
-  document.getElementById('chatTipoBadge').textContent = 'nova';
-  document.getElementById('chatMessages').innerHTML = `
-    <div style="text-align:center;padding:30px 20px">
-      <div style="font-size:40px;margin-bottom:12px">🕊️</div>
-      <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text)">Este é um espaço seguro</div>
-      <div style="font-size:13px;color:var(--text2);line-height:1.7">Compartilhe o que está em seu coração.<br>Seu pastor irá ler e responder com cuidado.</div>
-    </div>`;
-  document.getElementById('tipoSelect').style.display = 'flex';
-  document.getElementById('chatInput').value = '';
-  chatTipoAtual = 'reflexao';
-  document.querySelectorAll('.tipo-chip').forEach(c => c.classList.remove('active'));
-  document.querySelector('.tipo-chip').classList.add('active');
-  document.getElementById('chatView').classList.add('open');
-  setTimeout(() => document.getElementById('chatInput').focus(), 300);
+function abrirNova() {
+  chatNova=true; tipoAtual='reflexao';
+  document.getElementById('chatTitle').textContent='Nova Reflexão';
+  document.getElementById('chatTipo').textContent='nova';
+  document.getElementById('chatTipo').className='tipo reflexao';
+  document.getElementById('tipoChips').style.display='flex';
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  document.querySelector('.chip').classList.add('on');
+  document.getElementById('chatTa').value='';
+  document.getElementById('chatMsgs').innerHTML=`<div class="welcome-msg"><div class="wi">🕊️</div><div class="wt">Espaço seguro</div><div class="ws">Compartilhe o que está em seu coração.<br>Seu pastor irá ler e responder com cuidado.</div></div>`;
+  document.getElementById('chatOverlay').classList.add('show');
+  setTimeout(()=>document.getElementById('chatTa').focus(),300);
 }
 
 async function abrirEntrada(id) {
-  chatIsNova = false;
-  chatEntradaId = id;
-  const { data: e } = await sb.from('diario_entradas').select('*').eq('id', id).single();
-  if (!e) return;
-  document.getElementById('chatTitle').textContent = labelTipo(e.tipo);
-  document.getElementById('chatSub').textContent = new Date(e.created_at).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
-  document.getElementById('chatTipoBadge').textContent = labelTipo(e.tipo);
-  document.getElementById('chatTipoBadge').className = `di-tipo ${e.tipo||'reflexao'}`;
-  document.getElementById('tipoSelect').style.display = 'none';
-  renderMensagensEntrada(e);
-  document.getElementById('chatView').classList.add('open');
-}
-
-function renderMensagensEntrada(e) {
-  const msgs = document.getElementById('chatMessages');
-  const dataE = new Date(e.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  const nome = (currentPerfil?.nome||'Você').split(' ')[0];
-  let html = `<div class="bubble mine">${escHtml(e.conteudo)}<div class="bubble-meta">${nome} · ${dataE}</div></div>`;
-  if (e.resposta) {
-    const dataR = e.respondido_em ? new Date(e.respondido_em).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '';
-    html += `<div class="bubble pastor"><div class="bubble-author">✦ PASTOR</div>${escHtml(e.resposta)}<div class="bubble-meta">Pastor · ${dataR}</div></div>`;
+  chatNova=false;
+  const {data:e} = await sb.from('diario_entradas').select('*').eq('id',id).single();
+  if(!e)return;
+  entradaAtual=e;
+  document.getElementById('chatTitle').textContent=lblTipo(e.tipo);
+  document.getElementById('chatTipo').textContent=lblTipo(e.tipo);
+  document.getElementById('chatTipo').className=`tipo ${e.tipo||'reflexao'}`;
+  document.getElementById('tipoChips').style.display='none';
+  const nome=(P?.nome||'Você').split(' ')[0];
+  const t=new Date(e.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  let html=`<div class="bubble mine">${esc(e.conteudo)}<div class="bubble-time">${nome} · ${t}</div></div>`;
+  if(e.resposta){
+    const tr=e.respondido_em?new Date(e.respondido_em).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
+    html+=`<div class="bubble pastor"><div class="bubble-name">✦ PASTOR</div>${esc(e.resposta)}<div class="bubble-time">Pastor · ${tr}</div></div>`;
   }
-  msgs.innerHTML = html;
-  msgs.scrollTop = msgs.scrollHeight;
+  document.getElementById('chatMsgs').innerHTML=html;
+  document.getElementById('chatOverlay').classList.add('show');
+  document.getElementById('chatMsgs').scrollTop=99999;
 }
 
-async function enviarMensagem() {
-  const texto = document.getElementById('chatInput').value.trim();
-  if (!texto) return;
-  const btn = document.querySelector('.chat-send');
-  btn.disabled = true;
-
-  if (chatIsNova) {
-    const { data, error } = await sb.from('diario_entradas').insert({
-      autor_id: currentUser.id,
-      conteudo: texto,
-      tipo: chatTipoAtual,
-      celula_id: currentPerfil?.celula_id || null
-    }).select().single();
-    if (error) { toast('Erro ao enviar. Tente novamente.', 'error'); btn.disabled = false; return; }
-    chatEntradaId = data.id;
-    chatIsNova = false;
-    document.getElementById('tipoSelect').style.display = 'none';
-    document.getElementById('chatInput').value = '';
-    autoResize(document.getElementById('chatInput'));
-    renderMensagensEntrada(data);
-    toast('Reflexão enviada ao pastor 🙏', 'success');
-    await carregarDiario();
-  }
-  btn.disabled = false;
+async function enviarMsg() {
+  const txt=document.getElementById('chatTa').value.trim();
+  if(!txt)return;
+  document.querySelector('.chat-send').disabled=true;
+  const {data,error} = await sb.from('diario_entradas').insert({autor_id:U.id,conteudo:txt,tipo:tipoAtual,celula_id:P?.celula_id||null}).select().single();
+  document.querySelector('.chat-send').disabled=false;
+  if(error){toast('Erro ao enviar','err');return;}
+  document.getElementById('chatTa').value='';
+  document.getElementById('tipoChips').style.display='none';
+  chatNova=false; entradaAtual=data;
+  const nome=(P?.nome||'Você').split(' ')[0];
+  const t=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('chatMsgs').innerHTML=`<div class="bubble mine">${esc(txt)}<div class="bubble-time">${nome} · ${t}</div></div>`;
+  document.getElementById('chatMsgs').scrollTop=99999;
+  toast('Reflexão enviada ao pastor 🙏','ok');
+  carregarDiario();
 }
 
-function fecharChat() {
-  document.getElementById('chatView').classList.remove('open');
-}
+function fecharChat(){document.getElementById('chatOverlay').classList.remove('show');}
+function selTipo(t,el){tipoAtual=t;document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
 
-function selectTipo(tipo, el) {
-  chatTipoAtual = tipo;
-  document.querySelectorAll('.tipo-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-}
-
-// ════════════════════════════════════
-// DISCÍPULOS (Pastor/Líder)
-// ════════════════════════════════════
-async function carregarDiscipulos() {
-  const el = document.getElementById('discipulosList');
-  el.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando...</div>';
-
-  let query = sb.from('diario_entradas')
-    .select('*, profiles!diario_entradas_autor_id_fkey(nome, celulas(nome))')
-    .order('created_at', { ascending: false });
-
-  if (discipulosFiltro === 'pendentes') query = query.is('resposta', null);
-  if (discipulosFiltro === 'respondidos') query = query.not('resposta', 'is', null);
-  if (currentPerfil?.role === 'lider') query = query.eq('celula_id', currentPerfil.celula_id);
-
-  const { data } = await query.limit(50);
-
-  document.getElementById('discipulosSubtitle').textContent =
-    `${data?.length || 0} ${discipulosFiltro === 'pendentes' ? 'aguardando resposta' : discipulosFiltro === 'respondidos' ? 'respondidos' : 'entradas'}`;
-
-  if (!data || data.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🤝</div><div class="empty-title">Nenhuma entrada aqui</div><div class="empty-sub">Todos os discípulos estão em dia!</div></div>';
-    return;
-  }
-
-  el.innerHTML = data.map(e => {
-    const autor = e.profiles?.nome || 'Discípulo';
-    const inicial = autor[0].toUpperCase();
-    const celulaNome = e.profiles?.celulas?.nome || '';
-    const data = new Date(e.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
-    const preview = e.conteudo.length > 80 ? e.conteudo.slice(0,80)+'...' : e.conteudo;
-    const temResposta = !!e.resposta;
-    return `<div class="membro-card" onclick="abrirResponder('${e.id}')">
-      <div class="mc-av">${inicial}</div>
+// ═══ DISCÍPULOS ═══
+async function carregarDisc() {
+  const el=document.getElementById('discList');
+  el.innerHTML='<div class="loading"><div class="spin"></div>Carregando...</div>';
+  let q=sb.from('diario_entradas').select('*,profiles!diario_entradas_autor_id_fkey(nome)').order('created_at',{ascending:false}).limit(50);
+  if(discFiltro==='pend') q=q.is('resposta',null);
+  if(discFiltro==='resp') q=q.not('resposta','is',null);
+  const {data}=await q;
+  document.getElementById('discSub').textContent=`${data?.length||0} ${discFiltro==='pend'?'aguardando resposta':'entradas'}`;
+  if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-i">🤝</div><div class="empty-t">Tudo em dia!</div></div>';return;}
+  el.innerHTML=data.map(e=>{
+    const autor=e.profiles?.nome||'Discípulo';
+    const d=new Date(e.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+    const prev=e.conteudo.length>60?e.conteudo.slice(0,60)+'...':e.conteudo;
+    return `<div class="membro-card" onclick="abrirResp('${e.id}')">
+      <div class="mc-av">${autor[0].toUpperCase()}</div>
       <div class="mc-info">
-        <div class="mc-name">${escHtml(autor)}</div>
-        <div class="mc-meta"><span class="di-tipo ${e.tipo||'reflexao'}" style="font-size:9px;padding:2px 6px">${labelTipo(e.tipo)}</span> ${celulaNome ? '· '+celulaNome : ''} · ${data}</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:4px">${escHtml(preview)}</div>
+        <div class="mc-name">${esc(autor)}</div>
+        <div class="mc-meta"><span class="tipo ${e.tipo||'reflexao'}" style="font-size:9px;padding:2px 6px">${lblTipo(e.tipo)}</span> · ${d}</div>
+        <div class="mc-preview">${esc(prev)}</div>
       </div>
-      ${!temResposta ? '<div class="mc-badge">!</div>' : ''}
+      ${!e.resposta?'<div class="mc-badge">!</div>':''}
     </div>`;
   }).join('');
 }
 
-function filtrarDiscipulos(filtro) {
-  discipulosFiltro = filtro;
-  document.querySelectorAll('.pastor-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-  carregarDiscipulos();
-}
+function filtDisc(f,el){discFiltro=f;document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('on'));el.classList.add('on');carregarDisc();}
 
-async function abrirResponder(id) {
-  const { data: e } = await sb.from('diario_entradas')
-    .select('*, profiles!diario_entradas_autor_id_fkey(nome)')
-    .eq('id', id).single();
-  if (!e) return;
-  entradaParaResponder = e;
-  const autor = e.profiles?.nome || 'Discípulo';
-  const dataStr = new Date(e.created_at).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
-  document.getElementById('entradaFullContent').innerHTML = `
-    <div class="ef-author">
-      <div class="ef-av">${autor[0].toUpperCase()}</div>
-      <div><div class="ef-name">${escHtml(autor)}</div><div class="ef-date">${dataStr}</div></div>
-      <div class="di-tipo ${e.tipo||'reflexao'}" style="margin-left:auto;font-size:9px">${labelTipo(e.tipo)}</div>
+async function abrirResp(id) {
+  const {data:e}=await sb.from('diario_entradas').select('*,profiles!diario_entradas_autor_id_fkey(nome)').eq('id',id).single();
+  if(!e)return; entradaAtual=e;
+  const autor=e.profiles?.nome||'Discípulo';
+  const d=new Date(e.created_at).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('entradaBox').innerHTML=`
+    <div class="ebox-autor"><div class="ebox-av">${autor[0].toUpperCase()}</div>
+      <div><div class="ebox-name">${esc(autor)}</div><div class="ebox-date">${d}</div></div>
+      <div class="tipo ${e.tipo||'reflexao'}" style="margin-left:auto;font-size:9px">${lblTipo(e.tipo)}</div>
     </div>
-    <div class="ef-text">${escHtml(e.conteudo)}</div>
-    ${e.resposta ? `<hr style="border-color:var(--border);margin:14px 0"><div style="font-size:12px;color:var(--orange);font-weight:600;margin-bottom:6px">✦ SUA RESPOSTA ANTERIOR</div><div style="font-size:14px;color:var(--text2)">${escHtml(e.resposta)}</div>` : ''}`;
-  document.getElementById('respostaTexto').value = e.resposta || '';
-  document.getElementById('errResposta').style.display = 'none';
-  document.getElementById('responderModal').classList.add('open');
+    <div class="ebox-text">${esc(e.conteudo)}</div>
+    ${e.resposta?`<hr style="border-color:var(--border);margin:14px 0"><div style="font-size:11px;color:var(--orange);font-weight:600;margin-bottom:6px">✦ RESPOSTA ANTERIOR</div><div style="font-size:13px;color:var(--text2)">${esc(e.resposta)}</div>`:''}`;
+  document.getElementById('rTexto').value=e.resposta||'';
+  document.getElementById('eResp').style.display='none';
+  document.getElementById('respOverlay').classList.add('show');
 }
 
-async function enviarResposta() {
-  if (!entradaParaResponder) return;
-  const resposta = document.getElementById('respostaTexto').value.trim();
-  const err = document.getElementById('errResposta');
-  if (!resposta) { showMsg(err, 'Escreva uma resposta antes de enviar.'); return; }
-  const btn = document.querySelector('#responderModal .btn');
-  btn.disabled = true; btn.textContent = 'Enviando...';
-  const { error } = await sb.from('diario_entradas')
-    .update({ resposta, respondido_por: currentUser.id, respondido_em: new Date().toISOString() })
-    .eq('id', entradaParaResponder.id);
-  btn.disabled = false; btn.textContent = 'ENVIAR RESPOSTA';
-  if (error) { showMsg(err, 'Erro ao enviar. Tente novamente.'); return; }
-  fecharResponder();
-  toast('Resposta enviada! 🙏', 'success');
-  await carregarDiscipulos();
+async function enviarResp() {
+  if(!entradaAtual)return;
+  const txt=document.getElementById('rTexto').value.trim();
+  if(!txt){show(document.getElementById('eResp'),'Escreva uma resposta.');return;}
+  const btn=document.querySelector('#respOverlay .btn');
+  btn.disabled=true; btn.textContent='Enviando...';
+  const {error}=await sb.from('diario_entradas').update({resposta:txt,respondido_por:U.id,respondido_em:new Date().toISOString()}).eq('id',entradaAtual.id);
+  btn.disabled=false; btn.textContent='ENVIAR RESPOSTA';
+  if(error){show(document.getElementById('eResp'),'Erro ao enviar.');return;}
+  fecharResp(); toast('Resposta enviada! 🙏','ok'); carregarDisc();
 }
 
-function fecharResponder() {
-  document.getElementById('responderModal').classList.remove('open');
-  entradaParaResponder = null;
-}
+function fecharResp(){document.getElementById('respOverlay').classList.remove('show');entradaAtual=null;}
 
-// ════════════════════════════════════
-// PERFIL
-// ════════════════════════════════════
+// ═══ PERFIL ═══
 async function carregarPerfil() {
-  const { data } = await sb.from('profiles')
-    .select('*, celulas(nome)')
-    .eq('id', currentUser.id)
-    .single();
-  if (data) currentPerfil = data;
-  else { currentPerfil = { id: currentUser.id, nome: currentUser.email?.split('@')[0]||'Usuário', role:'membro' }; }
-}
-
-async function renderPerfil() {
-  if (!currentPerfil) return;
-  const nome = currentPerfil.nome || 'Usuário';
-  const inicial = nome[0].toUpperCase();
-  document.getElementById('perfilAvatar').textContent = inicial;
-  document.getElementById('perfilNome').textContent = nome;
-  document.getElementById('perfilCelula').textContent = currentPerfil.celulas?.nome || 'Sem grupo atribuído';
-  const roleBadge = document.getElementById('perfilRoleBadge');
-  const roleLabel = { pastor:'Pastor', lider:'Líder', membro:'Membro' };
-  const roleClass = { pastor:'role-pastor', lider:'role-lider', membro:'role-membro' };
-  roleBadge.textContent = roleLabel[currentPerfil.role] || 'Membro';
-  roleBadge.className = `profile-role-badge ${roleClass[currentPerfil.role]||'role-membro'}`;
-
-  // Stats
-  const [{ count: cEntradas }, { count: cRespostas }] = await Promise.all([
-    sb.from('diario_entradas').select('id',{count:'exact'}).eq('autor_id', currentUser.id),
-    sb.from('diario_entradas').select('id',{count:'exact'}).eq('autor_id', currentUser.id).not('resposta','is',null)
+  if(!P)return;
+  const ini=P.nome?P.nome[0].toUpperCase():'?';
+  document.getElementById('pAv').textContent=ini;
+  document.getElementById('pNome').textContent=P.nome||'Usuário';
+  document.getElementById('pCelula').textContent=P.celulas?.nome||'Sem célula atribuída';
+  const roles={pastor:'Pastor',lider:'Líder',membro:'Membro'};
+  const rcls={pastor:'role-pastor',lider:'role-lider',membro:'role-membro'};
+  const rb=document.getElementById('pRole');
+  rb.textContent=roles[P.role]||'Membro';
+  rb.className=`role-badge ${rcls[P.role]||'role-membro'}`;
+  const [{count:ce},{count:cr}]=await Promise.all([
+    sb.from('diario_entradas').select('id',{count:'exact'}).eq('autor_id',U.id),
+    sb.from('diario_entradas').select('id',{count:'exact'}).eq('autor_id',U.id).not('resposta','is',null)
   ]);
-  document.getElementById('statEntradas').textContent = cEntradas || 0;
-  document.getElementById('statRespostas').textContent = cRespostas || 0;
-  const criado = new Date(currentPerfil.created_at || currentUser.created_at || Date.now());
-  const dias = Math.floor((Date.now() - criado.getTime()) / 86400000);
-  document.getElementById('statDias').textContent = dias;
+  document.getElementById('stEnt').textContent=ce||0;
+  document.getElementById('stResp').textContent=cr||0;
+  const dias=Math.floor((Date.now()-new Date(U.created_at).getTime())/86400000);
+  document.getElementById('stDias').textContent=dias;
 }
 
-function abrirEditarPerfil() {
-  toast('Em breve: edição de perfil 🛠️');
-}
-function abrirAlterarSenha() {
-  toast('Em breve: alteração de senha 🛠️');
+function renderAvatares() {
+  if(!P)return;
+  const ini=P.nome?P.nome[0].toUpperCase():'?';
+  ['hAv','dAv'].forEach(id=>{ const el=document.getElementById(id); if(el)el.textContent=ini; });
+  document.getElementById('hNome').textContent=(P.nome||'').split(' ')[0];
 }
 
-// ════════════════════════════════════
-// CÉLULAS
-// ════════════════════════════════════
+// ═══ CÉLULAS ═══
 async function carregarCelulas() {
-  const sel = document.getElementById('cCelula');
-  sel.innerHTML = '<option value="">Carregando...</option>';
+  const sel=document.getElementById('cCelula');
   try {
-    const { data, error } = await sb.from('celulas').select('id, nome').order('nome');
-    if (error || !data || data.length === 0) {
-      sel.innerHTML = '<option value="">Selecione sua célula (opcional)</option>';
-      return;
-    }
-    sel.innerHTML = '<option value="">Selecione sua célula</option>' + data.map(c => `<option value="${c.id}">${escHtml(c.nome)}</option>`).join('');
-  } catch(e) {
-    sel.innerHTML = '<option value="">Selecione sua célula (opcional)</option>';
-  }
+    const {data}=await sb.from('celulas').select('id,nome').order('nome');
+    if(data&&data.length) sel.innerHTML='<option value="">Selecione sua célula</option>'+data.map(c=>`<option value="${c.id}">${esc(c.nome)}</option>`).join('');
+  } catch(e) {}
 }
 
-// ════════════════════════════════════
-// REALTIME
-// ════════════════════════════════════
-function iniciarRealtime() {
-  if (realtimeChannel) sb.removeChannel(realtimeChannel);
-  realtimeChannel = sb.channel('diario-updates')
-    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'diario_entradas', filter:`autor_id=eq.${currentUser.id}` },
-      async (payload) => {
-        if (payload.new.resposta && !payload.old.resposta) {
-          toast('✦ Seu pastor respondeu seu diário!', 'success');
-          if (currentScreen === 'diario') await carregarDiario();
-          if (currentScreen === 'home') await carregarEntradasHome();
-          if (chatEntradaId === payload.new.id) renderMensagensEntrada(payload.new);
-        }
-      })
-    .subscribe();
+// ═══ UTILS ═══
+function v(id){return document.getElementById(id)?.value?.trim()||'';}
+function show(el,msg,ok=false){el.textContent=msg;el.style.display='block';el.className=ok?'msg-ok':'msg-err';}
+function hide(el){el.style.display='none';}
+function esc(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function lblTipo(t){return{reflexao:'Reflexão',pedido:'Pedido',testemunho:'Testemunho',duvida:'Dúvida'}[t]||'Reflexão';}
+function tradErr(m){
+  if(!m)return'Erro desconhecido.';
+  if(m.includes('Invalid login'))return'E-mail ou senha incorretos.';
+  if(m.includes('already registered'))return'E-mail já cadastrado.';
+  if(m.includes('Password'))return'Senha muito curta (mínimo 6 caracteres).';
+  return m;
 }
-
-// ════════════════════════════════════
-// NAVEGAÇÃO
-// ════════════════════════════════════
-function goTo(screen) {
-  currentScreen = screen;
-  showScreen(screen);
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const navMap = { home:'navHome', diario:'navDiario', discipulos:'navDiscipulos', perfil:'navPerfil' };
-  if (navMap[screen]) document.getElementById(navMap[screen])?.classList.add('active');
-
-  if (screen === 'home') carregarHome();
-  else if (screen === 'diario') carregarDiario();
-  else if (screen === 'discipulos') carregarDiscipulos();
-  else if (screen === 'perfil') renderPerfil();
-}
-
-function showScreen(name) {
-  console.log('SHOW SCREEN:', name);
-  const all = ['screenAuth','screenHome','screenDiario','screenDiscipulos','screenPerfil'];
-  all.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.style.display = 'none'; el.classList.remove('active'); }
-  });
-  const map = { auth:'screenAuth', home:'screenHome', diario:'screenDiario', discipulos:'screenDiscipulos', perfil:'screenPerfil' };
-  const el = document.getElementById(map[name]);
-  if (el) {
-    el.style.display = name === 'auth' ? 'flex' : 'block';
-    el.classList.add('active');
-  }
-}
-
-// ════════════════════════════════════
-// UTILS
-// ════════════════════════════════════
-function showMsg(el, msg, isOk = false) {
-  el.textContent = msg;
-  el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 5000);
-}
-
-function toast(msg, type = '') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast ${type} show`;
-  setTimeout(() => t.className = 'toast', 3000);
-}
-
-function togglePass(id, el) {
-  const input = document.getElementById(id);
-  input.type = input.type === 'password' ? 'text' : 'password';
-  el.textContent = input.type === 'password' ? '👁' : '🙈';
-}
-
-function maskTel(el) {
-  let v = el.value.replace(/\D/g,'');
-  if (v.length <= 10) v = v.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3');
-  else v = v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');
-  el.value = v;
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-}
-
-function escHtml(str) {
-  if (!str) return '';
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function labelTipo(tipo) {
-  const map = { reflexao:'Reflexão', pedido:'Pedido', testemunho:'Testemunho', duvida:'Dúvida' };
-  return map[tipo] || 'Reflexão';
-}
-
-function traduzirErro(msg) {
-  if (!msg) return 'Erro desconhecido.';
-  if (msg.includes('Invalid login')) return 'E-mail ou senha incorretos.';
-  if (msg.includes('Email not confirmed')) return 'Confirme seu e-mail antes de entrar.';
-  if (msg.includes('already registered')) return 'E-mail já cadastrado.';
-  if (msg.includes('Password should be')) return 'Senha muito curta (mínimo 6 caracteres).';
-  return msg;
-}
+function togglePw(id,el){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';el.textContent=i.type==='password'?'👁':'🙈';}
+function maskTel(el){let v=el.value.replace(/\D/g,'');v=v.length<=10?v.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3'):v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');el.value=v;}
+function autoH(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${type} show`;setTimeout(()=>t.className='toast',3000);}
 </script>
 </body>
 </html>
