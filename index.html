@@ -342,7 +342,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
   <!-- PERFIL -->
   <div id="sPerfil" class="scr">
     <div class="p-hdr">
-      <div class="av-lg" id="pAvLg" onclick="document.getElementById('fotoInput').click()">?<div class="av-lg-edit">✏️</div></div>
+      <div style="position:relative;width:80px;margin:0 auto 14px">
+        <div class="av-lg" id="pAvLg" style="margin:0">?</div>
+        <div onclick="document.getElementById('fotoInput').click()" style="position:absolute;bottom:0;right:0;width:26px;height:26px;background:var(--or);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bg);font-size:12px">📷</div>
+      </div>
       <input type="file" id="fotoInput" accept="image/*" onchange="uploadFoto(this)">
       <div class="p-nome" id="pNome">—</div>
       <div class="p-celula" id="pCelula">—</div>
@@ -938,8 +941,8 @@ async function carregarPerfil(){
   if(!P)return;
   const ini=(P.nome||'?')[0].toUpperCase();
   const pav=g('pAvLg');
-  if(P.foto_url){pav.innerHTML=`<img src="${P.foto_url}"><div class="av-lg-edit">✏️</div>`;}
-  else{pav.innerHTML=`${ini}<div class="av-lg-edit">✏️</div>`;}
+  if(P.foto_url){pav.innerHTML=`<img src="${P.foto_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;}
+  else{pav.textContent=ini;}
   // Recarregar perfil do banco para ter dados frescos
   const {data:freshP}=await sb.from('profiles').select('*,celulas(nome)').eq('id',U.id).single();
   if(freshP) P={...P,...freshP};
@@ -972,8 +975,8 @@ async function uploadFoto(input){
 }
 
 function editarPerfil(){
-  const nome=P.nome&&!P.nome.includes('@')?P.nome:'';
-  const tel=P.telefone||'';
+  const nome=(P.nome&&!P.nome.includes('@'))?P.nome:'';
+  const tel=(P.telefone&&!P.telefone.includes('@'))?P.telefone:'';
   const modalId='editModal';
   document.getElementById(modalId)?.remove();
   const modal=document.createElement('div');
@@ -992,26 +995,24 @@ function editarPerfil(){
   setTimeout(()=>document.getElementById('editNome')?.focus(),200);
 }
 async function salvarPerfil(){
-  const nome=document.getElementById('editNome')?.value?.trim();
-  const tel=document.getElementById('editTel')?.value?.trim();
-  const err=document.getElementById('editErr');
-  if(!nome){sh(err,'Digite seu nome completo.');return;}
+  const nomeVal=document.getElementById('editNome')?.value?.trim();
+  const telVal=document.getElementById('editTel')?.value?.trim();
+  const errEl=document.getElementById('editErr');
+  if(!nomeVal){sh(errEl,'Digite seu nome completo.');return;}
   const btn=document.querySelector('#editModal .btn');
-  if(btn){btn.disabled=true; btn.textContent='Salvando...';}
-  // Tenta update, se falhar tenta upsert
-  let error;
-  const r1=await sb.from('profiles').update({nome,telefone:tel||null}).eq('id',U.id);
-  error=r1.error;
-  if(error){
-    // Tenta upsert completo
-    const r2=await sb.from('profiles').upsert({id:U.id,nome,email:U.email,telefone:tel||null,role:P.role||'membro',celula_id:P.celula_id||null});
-    error=r2.error;
-  }
-  if(btn){btn.disabled=false; btn.textContent='SALVAR ALTERAÇÕES';}
-  if(error){sh(err,'Erro: '+error.message);return;}
-  P.nome=nome; P.telefone=tel||null;
-  renderAvs(); 
+  if(btn){btn.disabled=true;btn.textContent='Salvando...';}
+  console.log('Salvando perfil:', U.id, nomeVal);
+  const {data,error}=await sb.from('profiles')
+    .upsert({id:U.id,nome:nomeVal,email:U.email,telefone:telVal||null,role:P.role||'membro',celula_id:P.celula_id||null},
+      {onConflict:'id'})
+    .select().single();
+  console.log('Resultado:', data, error);
+  if(btn){btn.disabled=false;btn.textContent='SALVAR ALTERAÇÕES';}
+  if(error){sh(errEl,'Erro: '+error.message);return;}
+  if(data) P={...P,...data};
+  else {P.nome=nomeVal;P.telefone=telVal||null;}
   document.getElementById('editModal')?.remove();
+  renderAvs();
   await carregarPerfil();
   toast('Perfil atualizado! ✓','ok');
 }
