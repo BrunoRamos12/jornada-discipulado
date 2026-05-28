@@ -328,7 +328,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
 
   <!-- PASTOR -->
   <div id="sPastor" class="scr">
-    <div class="tbar"><div><div class="tbar-t">Painel Pastoral</div><div class="tbar-s" id="pSub">Monte Sião</div></div></div>
+    <div class="tbar"><div><div class="tbar-t" id="painelTitulo">Painel Pastoral</div><div class="tbar-s" id="pSub">Monte Sião</div></div></div>
     <!-- VISÃO GERAL -->
     <div id="pastorOverview" style="padding:16px 20px 0">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
@@ -350,14 +350,16 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
         </div>
       </div>
     </div>
-    <div class="ptabs">
+    <div class="ptabs" id="painelTabs">
       <button class="ptab on" onclick="ptab('disc',this)">Discipulados</button>
       <button class="ptab" onclick="ptab('membros',this)">Discípulos</button>
-      <button class="ptab" onclick="ptab('celulas',this)">Células</button>
+      <button class="ptab" id="tabCelulas" onclick="ptab('celulas',this)">Células</button>
+      <button class="ptab" id="tabSolic" style="display:none" onclick="ptab('solic',this)">Solicitações</button>
     </div>
     <div id="pastorDiscs" class="pastor-content"><div class="loading"><div class="spin"></div>Carregando...</div></div>
     <div id="pastorMembros" class="pastor-content" style="display:none"><div class="loading"><div class="spin"></div>Carregando...</div></div>
     <div id="pastorCelulas" class="pastor-content" style="display:none"><div class="loading"><div class="spin"></div>Carregando...</div></div>
+    <div id="pastorSolic" class="pastor-content" style="display:none"><div class="loading"><div class="spin"></div>Carregando...</div></div>
   </div>
 
   <!-- PERFIL -->
@@ -371,6 +373,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
       <input type="file" id="fotoCamera" accept="image/*" capture="environment" onchange="uploadFoto(this)" style="display:none">
       <div class="p-nome" id="pNome">—</div>
       <div class="p-celula" id="pCelula">—</div>
+      <div style="font-size:12px;color:var(--t3);margin-top:2px" id="pLider"></div>
       <div class="rbadge rb-membro" id="pRole">Membro</div>
     </div>
     <div class="p-stats">
@@ -533,8 +536,20 @@ async function doCad(){
   const {data,error}=await sb.auth.signUp({email,password:s1});
   if(error){btn.disabled=false;btn.textContent='CRIAR MINHA CONTA';sh(eEl,te(error.message));return;}
   const uid=data.user?.id;
-  const role=document.getElementById('cRole')?.value||'membro';
-  if(uid) await sb.from('profiles').upsert({id:uid,nome,email,telefone:tel,celula_id:cel?parseInt(cel):null,role});
+  const roleVal=document.getElementById('cRole')?.value||'membro';
+  const nivelVal=roleVal==='lider'?'lider':'discipulo';
+  if(uid){
+    await sb.from('profiles').upsert({
+      id:uid,nome,email,telefone:tel,
+      celula_id:cel?parseInt(cel):null,
+      role:roleVal, nivel:nivelVal, ativo:true
+    });
+    // Se virou lider, vai para célula de líderes automaticamente
+    if(roleVal==='lider'){
+      const {data:celLid}=await sb.from('celulas').select('id').eq('tipo','lideres').single();
+      if(celLid) await sb.from('profiles').update({celula_id:celLid.id}).eq('id',uid);
+    }
+  }
   btn.disabled=false; btn.textContent='CRIAR MINHA CONTA';
   if(data.session){entrarApp(data.user);return;}
   sh(oEl,'Conta criada! Faça login para entrar.',true);
@@ -556,7 +571,7 @@ async function doLogout(){
 // ══ ENTRAR APP ══
 async function entrarApp(user){
   U=user;
-  let {data}=await sb.from('profiles').select('*,celulas(nome)').eq('id',U.id).single();
+  let {data}=await sb.from('profiles').select('*,celulas(nome),profiles!profiles_lider_direto_id_fkey(nome)').eq('id',U.id).single();
   if(!data){
     await sb.from('profiles').upsert({id:U.id,nome:'',email:U.email,role:'membro'});
     const r2=await sb.from('profiles').select('*,celulas(nome)').eq('id',U.id).single();
@@ -570,6 +585,11 @@ async function entrarApp(user){
   if(isPastor()){
     g('nPastor').style.display='flex';
     g('qaP').style.display='block';
+  } else if(isLider()){
+    // Líder vê painel simplificado
+    g('nPastor').style.display='flex';
+    g('qaP').style.display='block';
+    g('nPastor').querySelector('svg+*') && (g('nPastor').lastChild.textContent='Líderes');
   }
   if(P.celula_id){
     g('nCelula').style.display='flex';
@@ -580,7 +600,16 @@ async function entrarApp(user){
   if(!P.nome) setTimeout(()=>{ toast('Complete seu perfil com seu nome! 👤'); },1500);
 }
 
-function isPastor(){return P?.role==='pastor'||P?.role==='lider';}
+function isPastor(){return P?.role==='pastor';}
+function isLider12(){return P?.nivel==='lider12';}
+function isLider(){return P?.role==='lider'||P?.nivel==='lider12';}
+function isLiderOuPastor(){return isPastor()||isLider();}
+function nivelLabel(p){
+  if(p?.role==='pastor')return '✦ Pastor';
+  if(p?.nivel==='lider12')return '⭐ Líder 12';
+  if(p?.role==='lider')return '👑 Líder';
+  return 'Discípulo';
+}
 
 // ══ NAVEGAÇÃO ══
 function goScr(s){
@@ -681,8 +710,11 @@ async function abrirNovoDisc(){
   const num=(existentes&&existentes.length>0?existentes[0].numero:0)+1;
   const hoje=new Date();
   const sabado=new Date(hoje); sabado.setDate(hoje.getDate()+(6-hoje.getDay()));
+  // Lider responsável = lider_direto do membro
+  const liderId=P.lider_direto_id||null;
   const {data,error}=await sb.from('discipulados').insert({
     membro_id:U.id, numero:num, status:'aberto',
+    lider_id:liderId,
     data_inicio:hoje.toISOString().split('T')[0],
     data_fim:sabado.toISOString().split('T')[0]
   }).select().single();
@@ -830,21 +862,40 @@ function fecharChat(){g('chatOv').classList.remove('show');}
 
 // ══ PAINEL PASTOR ══
 async function carregarPastor(){
-  if(!isPastor())return;
+  if(!isPastor()&&!isLider())return;
+  // Título dinâmico
+  if(isLider()&&!isPastor()){
+    g('painelTitulo').textContent='Minha Liderança';
+    g('pSub').textContent=P.celulas?.nome||'Célula';
+  }
   // Overview
   try{
-    const [{count:cm},{count:cd},{count:cc}]=await Promise.all([
-      sb.from('profiles').select('id',{count:'exact'}).eq('role','membro'),
-      sb.from('discipulados').select('id',{count:'exact'}).eq('status','aberto'),
-      sb.from('celulas').select('id',{count:'exact'}).eq('ativo',true)
-    ]);
-    g('ovMembers').textContent=cm||0;
-    g('ovDiscs').textContent=cd||0;
-    g('ovCelulas').textContent=cc||0;
+    if(isPastor()){
+      const [{count:cm},{count:cd},{count:cc}]=await Promise.all([
+        sb.from('profiles').select('id',{count:'exact'}).eq('role','membro'),
+        sb.from('discipulados').select('id',{count:'exact'}).eq('status','aberto'),
+        sb.from('celulas').select('id',{count:'exact'}).eq('ativo',true)
+      ]);
+      g('ovMembers').textContent=cm||0;
+      g('ovDiscs').textContent=cd||0;
+      g('ovCelulas').textContent=cc||0;
+    } else {
+      // Líder vê stats da sua célula
+      const [{count:cm},{count:cd}]=await Promise.all([
+        sb.from('profiles').select('id',{count:'exact'}).eq('lider_direto_id',U.id),
+        sb.from('discipulados').select('id',{count:'exact'}).eq('lider_id',U.id).eq('status','aberto')
+      ]);
+      g('ovMembers').textContent=cm||0;
+      g('ovDiscs').textContent=cd||0;
+      g('ovCelulas').textContent='—';
+    }
   }catch(e){}
   if(pastorTabAtual==='disc') await carregarPastorDiscs();
   else if(pastorTabAtual==='membros') await carregarPastorMembros();
-  else if(pastorTabAtual==='celulas') await carregarPastorCelulas();
+  else if(pastorTabAtual==='celulas'){
+    if(isPastor()) await carregarPastorCelulas();
+    else await carregarSolicitacoes();
+  }
 }
 
 function ptab(t,el){
@@ -854,18 +905,23 @@ function ptab(t,el){
   g('pastorDiscs').style.display=t==='disc'?'block':'none';
   g('pastorMembros').style.display=t==='membros'?'block':'none';
   g('pastorCelulas').style.display=t==='celulas'?'block':'none';
+  g('pastorSolic').style.display=t==='solic'?'block':'none';
   if(t==='disc') carregarPastorDiscs();
   else if(t==='membros') carregarPastorMembros();
-  else if(t==='celulas') carregarPastorCelulas();
+  else if(t==='celulas') isPastor()?carregarPastorCelulas():carregarSolicitacoes();
+  else if(t==='solic') carregarSolicitacoes();
 }
 
 async function carregarPastorDiscs(){
   const el=g('pastorDiscs');
   el.innerHTML='<div class="loading"><div class="spin"></div>Carregando...</div>';
-  const {data}=await sb.from('discipulados')
+  let q=sb.from('discipulados')
     .select('*,profiles!discipulados_membro_id_fkey(nome,celulas(nome))')
     .eq('status','aberto')
     .order('created_at',{ascending:false});
+  // Líder vê só os discipulados dos seus discípulos
+  if(!isPastor()) q=q.eq('lider_id',U.id);
+  const {data}=await q;
   if(!data||!data.length){el.innerHTML='<div class="empty"><div class="empty-i">🤝</div><div class="empty-t">Nenhum discipulado aberto</div><div class="empty-s">Os discipulados da semana aparecerão aqui</div></div>';return;}
   el.innerHTML=data.map(d=>{
     const nome=d.profiles?.nome||'Discípulo';
@@ -898,15 +954,37 @@ async function pastorAbrirDisc(discId, nomeDisc){
 async function carregarPastorMembros(){
   const el=g('pastorMembros');
   el.innerHTML='<div class="loading"><div class="spin"></div>Carregando...</div>';
-  const {data:celulas}=await sb.from('celulas').select('id,nome').order('nome');
-  if(!celulas||!celulas.length){el.innerHTML='<div class="empty"><div class="empty-i">👥</div><div class="empty-t">Nenhuma célula cadastrada</div></div>';return;}
-  let html='';
+  // Buscar todos os usuários e células
+  const [{data:todos},{data:celulas}]=await Promise.all([
+    sb.from('profiles').select('id,nome,email,telefone,celula_id,role,created_at').order('nome'),
+    sb.from('celulas').select('id,nome,tipo').eq('ativo',true).order('nome')
+  ]);
+  if(!todos||!celulas) return;
+  const semCelula=todos.filter(m=>!m.celula_id&&m.role==='membro');
+  let html=`<div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn btn-sm" onclick="alocarMembro()">+ Alocar discípulo</button>
+    <button class="btn btn-sm btn-g" onclick="promoverLider()">↑ Promover a líder</button>
+  </div>`;
+  // Sem célula
+  if(semCelula.length){
+    html+=`<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:var(--ra);padding:14px 16px;margin-bottom:12px">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:#fca5a5;margin-bottom:10px">⚠️ ${semCelula.length} sem célula atribuída</div>
+      ${semCelula.map(m=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+        <div style="font-size:13px">${esc(m.nome||m.email)}</div>
+        <button class="btn btn-sm btn-g" style="padding:6px 12px;font-size:11px" onclick="alocarMembroId('${m.id}','${esc(m.nome||m.email)}')">Alocar</button>
+      </div>`).join('')}
+    </div>`;
+  }
+  // Por célula
   for(const c of celulas){
-    const {data:membros}=await sb.from('profiles').select('id,nome,email,telefone,created_at').eq('celula_id',c.id).eq('role','membro').order('nome');
-    if(!membros||!membros.length)continue;
+    const membros=todos.filter(m=>m.celula_id==c.id);
+    if(!membros.length)continue;
     html+=`<div class="celula-group">
       <div class="cg-header" onclick="toggleCelula(this)">
-        <div><div class="cg-nome">${esc(c.nome)}</div><div class="cg-count">${membros.length} discípulo${membros.length!==1?'s':''}</div></div>
+        <div>
+          <div class="cg-nome">${esc(c.nome)}${c.tipo==='lideres'?'<span style="font-size:10px;color:var(--or);margin-left:8px">LÍDERES</span>':''}</div>
+          <div class="cg-count">${membros.length} pessoa${membros.length!==1?'s':''}</div>
+        </div>
         <svg class="cg-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
       </div>
       <div class="cg-membros">
@@ -915,13 +993,104 @@ async function carregarPastorMembros(){
             <div class="mr-av">${(m.nome||'?')[0].toUpperCase()}</div>
             <div class="mr-info">
               <div class="mr-nome">${esc(m.nome||m.email)}</div>
-              <div class="mr-meta">${m.telefone||m.email||''}</div>
+              <div class="mr-meta">${m.role==='lider'?'👑 Líder':m.role==='pastor'?'✦ Pastor':'Discípulo'} ${m.telefone?'· '+m.telefone:''}</div>
             </div>
+            <button onclick="event.stopPropagation();alocarMembroId('${m.id}','${esc(m.nome||m.email)}')" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px;padding:4px" title="Mover célula">✏️</button>
           </div>`).join('')}
       </div>
     </div>`;
   }
-  el.innerHTML=html||'<div class="empty"><div class="empty-i">👥</div><div class="empty-t">Nenhum membro encontrado</div></div>';
+  el.innerHTML=html;
+}
+
+async function alocarMembro(){
+  // Buscar membros sem célula
+  const {data:membros}=await sb.from('profiles').select('id,nome,email').is('celula_id',null).eq('role','membro').order('nome');
+  if(!membros||!membros.length){toast('Todos os discípulos já estão em células!');return;}
+  // Mostrar picker
+  const {data:celulas}=await sb.from('celulas').select('id,nome').eq('ativo',true).order('nome');
+  abrirAlocarModal(null,null,membros,celulas);
+}
+
+async function alocarMembroId(uid,nome){
+  const {data:celulas}=await sb.from('celulas').select('id,nome').eq('ativo',true).order('nome');
+  abrirAlocarModal(uid,nome,null,celulas);
+}
+
+function abrirAlocarModal(uid,nome,membros,celulas){
+  document.getElementById('alocarModal')?.remove();
+  const m=document.createElement('div');
+  m.id='alocarModal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:flex-end;justify-content:center;max-width:480px;left:50%;transform:translateX(-50%)';
+  const optsM=uid?`<input type="hidden" id="alocarUid" value="${uid}"><div style="font-size:14px;font-weight:600;margin-bottom:16px">Discípulo: ${esc(nome)}</div>`
+    :`<div class="f"><label>Discípulo</label><select id="alocarUid">${(membros||[]).map(mb=>`<option value="${mb.id}">${esc(mb.nome||mb.email)}</option>`).join('')}</select></div>`;
+  const optsC=`<select id="alocarCelId">${(celulas||[]).map(c=>`<option value="${c.id}">${esc(c.nome)}</option>`).join('')}</select>`;
+  m.innerHTML=`<div style="background:var(--s1);border-radius:20px 20px 0 0;padding:24px 24px 40px;width:100%;border-top:1px solid var(--bd)">
+    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:20px">Alocar em célula</div>
+    ${optsM}
+    <div class="f"><label>Célula</label>${optsC}</div>
+    <div class="merr" id="alocarErr"></div>
+    <button class="btn" onclick="confirmarAlocacao()">SALVAR</button>
+    <button class="btn btn-g" style="margin-top:8px" onclick="document.getElementById('alocarModal').remove()">CANCELAR</button>
+  </div>`;
+  document.body.appendChild(m);
+}
+
+async function confirmarAlocacao(){
+  const uidEl=document.getElementById('alocarUid');
+  const celulaEl=document.getElementById('alocarCelId');
+  const uid=uidEl?.value;
+  const celId=celulaEl?.value;
+  if(!uid||!celId){sh(document.getElementById('alocarErr'),'Selecione discípulo e célula.');return;}
+  if(isPastor()){
+    // Pastor executa direto
+    const {error}=await sb.from('profiles').update({celula_id:parseInt(celId),lider_direto_id:U.id}).eq('id',uid);
+    if(error){sh(document.getElementById('alocarErr'),'Erro: '+error.message);return;}
+    document.getElementById('alocarModal')?.remove();
+    toast('Discípulo alocado! ✓','ok');
+  } else {
+    // Líder faz solicitação
+    await solicitarAcao('transferir_discipulo',{membro_id:uid,nova_celula_id:celId,novo_lider_id:U.id},'Aguarde aprovação do pastor.');
+    document.getElementById('alocarModal')?.remove();
+  }
+  carregarPastorMembros();
+}
+
+async function promoverLider(){
+  const {data:membros}=await sb.from('profiles').select('id,nome,email').eq('role','membro').order('nome');
+  const {data:celulas}=await sb.from('celulas').select('id,nome').eq('ativo',true).order('nome');
+  if(!membros||!membros.length){toast('Nenhum membro encontrado');return;}
+  document.getElementById('promoverModal')?.remove();
+  const m=document.createElement('div');
+  m.id='promoverModal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:flex-end;justify-content:center;max-width:480px;left:50%;transform:translateX(-50%)';
+  m.innerHTML=`<div style="background:var(--s1);border-radius:20px 20px 0 0;padding:24px 24px 40px;width:100%;border-top:1px solid var(--bd)">
+    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px">Promover a Líder</div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:20px">O líder será vinculado à célula dos Líderes automaticamente</div>
+    <div class="f"><label>Discípulo *</label><select id="promUid">${membros.map(mb=>`<option value="${mb.id}">${esc(mb.nome||mb.email)}</option>`).join('')}</select></div>
+    <div class="f"><label>Célula que irá liderar</label><select id="promCel"><option value="">Manter atual</option>${celulas.map(c=>`<option value="${c.id}">${esc(c.nome)}</option>`).join('')}</select></div>
+    <div class="merr" id="promErr"></div>
+    <button class="btn" onclick="confirmarPromocao()">PROMOVER</button>
+    <button class="btn btn-g" style="margin-top:8px" onclick="document.getElementById('promoverModal').remove()">CANCELAR</button>
+  </div>`;
+  document.body.appendChild(m);
+}
+
+async function confirmarPromocao(){
+  const uid=document.getElementById('promUid')?.value;
+  const celId=document.getElementById('promCel')?.value;
+  const err=document.getElementById('promErr');
+  if(!uid){sh(err,'Selecione um discípulo.');return;}
+  // Buscar célula de líderes
+  const {data:celLid}=await sb.from('celulas').select('id').eq('tipo','lideres').single();
+  const update={role:'lider'};
+  if(celLid) update.celula_id=celLid.id; // Move para célula de líderes automaticamente
+  if(celId) update.celula_id=parseInt(celId); // Ou célula específica escolhida
+  const {error}=await sb.from('profiles').update(update).eq('id',uid);
+  if(error){sh(err,'Erro: '+error.message);return;}
+  document.getElementById('promoverModal')?.remove();
+  toast('Líder promovido e alocado! 👑','ok');
+  carregarPastorMembros();
 }
 
 function toggleCelula(el){
@@ -982,6 +1151,12 @@ async function carregarPerfil(){
   const nomeP=P.nome&&P.nome.trim()&&!P.nome.includes('@')?P.nome.trim():'— Sem nome —';
   g('pNome').textContent=nomeP;
   g('pCelula').textContent=P.celulas?.nome||'Sem célula atribuída';
+  // Mostrar líder direto
+  const lidNome=P.profiles?.nome;
+  if(lidNome){
+    const lidEl=g('pLider');
+    if(lidEl) lidEl.textContent='Líder: '+lidNome;
+  }
   const rb=g('pRole');
   const rl={pastor:'Pastor',lider:'Líder',membro:'Membro'};
   const rc={pastor:'rb-pastor',lider:'rb-lider',membro:'rb-membro'};
@@ -1002,7 +1177,7 @@ function abrirOpcoesFoto(){
   m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:flex-end;justify-content:center;max-width:480px;left:50%;transform:translateX(-50%)';
   m.innerHTML=`<div style="background:var(--s1);border-radius:20px 20px 0 0;padding:24px 24px 40px;width:100%;border-top:1px solid var(--bd)">
     <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:20px;text-align:center">Foto de perfil</div>
-    <div onclick="document.getElementById('fotoCamera').click();document.getElementById('fotoOpcModal').remove()" style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--s2);border-radius:var(--rs);margin-bottom:10px;cursor:pointer">
+    <div onclick="usarCamera();document.getElementById('fotoOpcModal').remove()" style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--s2);border-radius:var(--rs);margin-bottom:10px;cursor:pointer">
       <div style="width:42px;height:42px;background:var(--org);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px">📷</div>
       <div><div style="font-size:14px;font-weight:600">Tirar foto</div><div style="font-size:12px;color:var(--t2)">Usar a câmera do dispositivo</div></div>
     </div>
@@ -1017,6 +1192,17 @@ function abrirOpcoesFoto(){
     <button onclick="document.getElementById('fotoOpcModal').remove()" style="width:100%;padding:14px;background:transparent;border:1px solid var(--bd2);border-radius:var(--rs);color:var(--t2);font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;margin-top:4px">CANCELAR</button>
   </div>`;
   document.body.appendChild(m);
+}
+
+function usarCamera(){
+  // Cria input dinâmico com capture para forçar câmera no mobile
+  const inp=document.createElement('input');
+  inp.type='file'; inp.accept='image/*'; inp.capture='user';
+  inp.style.display='none';
+  inp.onchange=()=>uploadFoto(inp);
+  document.body.appendChild(inp);
+  inp.click();
+  setTimeout(()=>document.body.removeChild(inp),30000);
 }
 
 async function removerFoto(){
@@ -1119,10 +1305,83 @@ function renderAvs(){
   if(cavEl) cavEl.textContent=ini;
 }
 
+// ══ SOLICITAÇÕES (LIDER → PASTOR) ══
+async function carregarSolicitacoes(){
+  const el=isPastor()?g('pastorCelulas'):g('pastorSolic');
+  el.innerHTML='<div class="loading"><div class="spin"></div>Carregando...</div>';
+  let q=sb.from('solicitacoes').select('*,profiles!solicitacoes_solicitante_id_fkey(nome)').order('created_at',{ascending:false});
+  if(!isPastor()) q=q.eq('solicitante_id',U.id);
+  const {data}=await q;
+  if(!data||!data.length){
+    el.innerHTML=`<div class="empty"><div class="empty-i">📋</div><div class="empty-t">Nenhuma solicitação</div></div>`;
+    return;
+  }
+  const statusColor={pendente:'#fbbf24',aprovado:'#86efac',recusado:'#fca5a5'};
+  const statusLabel={pendente:'Pendente',aprovado:'Aprovado',recusado:'Recusado'};
+  el.innerHTML=(isPastor()?`<div style="margin-bottom:12px;font-size:12px;color:var(--t2)">${data.filter(s=>s.status==='pendente').length} solicitação(ões) pendente(s)</div>`:'')
+  +data.map(s=>`
+    <div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--ra);padding:16px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700">${tipoSolic(s.tipo)}</div>
+        <span style="font-size:10px;font-weight:700;color:${statusColor[s.status]};background:${statusColor[s.status]}22;padding:3px 10px;border-radius:20px">${statusLabel[s.status]}</span>
+      </div>
+      ${isPastor()?`<div style="font-size:12px;color:var(--t2);margin-bottom:8px">Por: ${s.profiles?.nome||'Líder'}</div>`:''}
+      <div style="font-size:13px;color:var(--t2);margin-bottom:10px">${esc(JSON.stringify(s.payload||{}))}</div>
+      ${s.status==='pendente'&&isPastor()?`
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sm" onclick="responderSolic('${s.id}','aprovado')">✓ Aprovar</button>
+          <button class="btn btn-sm" style="background:var(--er)" onclick="responderSolic('${s.id}','recusado')">✗ Recusar</button>
+        </div>`:''}
+      ${s.resposta?`<div style="font-size:12px;color:var(--t2);margin-top:8px;padding-top:8px;border-top:1px solid var(--bd)">Resposta: ${esc(s.resposta)}</div>`:''}
+    </div>`).join('');
+}
+
+function tipoSolic(t){
+  const m={transferir_discipulo:'↔️ Transferir discípulo',desativar_usuario:'🚫 Desativar usuário',criar_celula:'➕ Criar célula',promover_lider:'⭐ Promover a líder'};
+  return m[t]||t;
+}
+
+async function solicitarAcao(tipo, payload, descricao){
+  const {error}=await sb.from('solicitacoes').insert({solicitante_id:U.id,tipo,payload,status:'pendente'});
+  if(error){toast('Erro ao enviar solicitação','err');return;}
+  toast(`Solicitação enviada ao pastor! ${descricao}`,'ok');
+}
+
+async function responderSolic(id, status){
+  const resp=status==='recusado'?prompt('Motivo da recusa (opcional):'):'';
+  await sb.from('solicitacoes').update({status,resposta:resp||null,aprovado_por:U.id,respondido_em:new Date().toISOString()}).eq('id',id);
+  if(status==='aprovado'){
+    // Executar ação aprovada
+    const {data:s}=await sb.from('solicitacoes').select('*').eq('id',id).single();
+    await executarSolicitacao(s);
+  }
+  toast(status==='aprovado'?'Aprovado e executado! ✓':'Recusado.','ok');
+  carregarSolicitacoes();
+}
+
+async function executarSolicitacao(s){
+  if(!s?.payload)return;
+  if(s.tipo==='transferir_discipulo'){
+    await sb.from('profiles').update({celula_id:parseInt(s.payload.nova_celula_id),lider_direto_id:s.payload.novo_lider_id||null}).eq('id',s.payload.membro_id);
+  } else if(s.tipo==='desativar_usuario'){
+    await sb.from('profiles').update({ativo:false}).eq('id',s.payload.membro_id);
+  } else if(s.tipo==='promover_lider'){
+    await sb.from('profiles').update({role:'lider',nivel:'lider',lider_direto_id:U.id}).eq('id',s.payload.membro_id);
+  }
+}
+
 // ══ CHAT DE CÉLULA ══
 async function carregarCelula(){
+  // Pastor vai para célula de líderes automaticamente
+  if(isPastor()&&!P?.celula_id){
+    const {data:celLid}=await sb.from('celulas').select('id,nome').eq('tipo','lideres').single();
+    if(celLid){
+      P.celula_id=celLid.id;
+      await sb.from('profiles').update({celula_id:celLid.id}).eq('id',U.id);
+    }
+  }
   if(!P?.celula_id){
-    g('celulaMsgs').innerHTML='<div class="empty"><div class="empty-i">👥</div><div class="empty-t">Sem célula</div><div class="empty-s">Você ainda não está vinculado a uma célula</div></div>';
+    g('celulaMsgs').innerHTML='<div class="empty"><div class="empty-i">👥</div><div class="empty-t">Sem célula</div><div class="empty-s">O pastor irá te alocar em uma célula em breve</div></div>';
     return;
   }
   // Buscar info da célula
@@ -1133,22 +1392,24 @@ async function carregarCelula(){
   }
   const el=g('celulaMsgs');
   el.innerHTML='<div class="loading"><div class="spin"></div>Carregando...</div>';
-  const {data:msgs}=await sb.from('celula_mensagens').select('*,profiles!celula_mensagens_autor_id_fkey(nome,foto_url)').eq('celula_id',P.celula_id).order('created_at',{ascending:true}).limit(100);
+  const {data:msgs}=await sb.from('celula_mensagens').select('*,profiles!celula_mensagens_autor_id_fkey(nome,foto_url,role)').eq('celula_id',P.celula_id).order('created_at',{ascending:true}).limit(100);
   if(!msgs||!msgs.length){
     el.innerHTML='<div class="empty"><div class="empty-i">💬</div><div class="empty-t">Nenhuma mensagem ainda</div><div class="empty-s">Seja o primeiro a compartilhar algo com a célula!</div></div>';
     return;
   }
   el.innerHTML=msgs.map(m=>{
     const eu=m.autor_id===U.id;
-    const nome=m.profiles?.nome||(eu?P.nome||'Você':'Membro');
+    const prof=m.profiles;
+    const nome=prof?.nome||(eu?P.nome||'Você':'Membro');
+    const isLider=prof?.role==='lider'||prof?.role==='pastor';
     const t=fmt(m.created_at);
     const ini=(nome||'?')[0].toUpperCase();
     if(eu){
       return `<div class="bubble eu">${esc(m.conteudo)}<div class="b-time">${t}</div></div>`;
     } else {
-      return `<div style="display:flex;gap:8px;align-items:flex-end">
-        <div style="width:28px;height:28px;border-radius:50%;background:var(--org);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--or);flex-shrink:0">${ini}</div>
-        <div class="bubble pastor"><div class="b-name">${esc(nome)}</div>${esc(m.conteudo)}<div class="b-time">${t}</div></div>
+      return `<div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:2px">
+        <div style="width:30px;height:30px;border-radius:50%;background:${isLider?'var(--or)':'var(--org)'};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:${isLider?'#fff':'var(--or)'};flex-shrink:0">${ini}</div>
+        <div class="bubble pastor"><div class="b-name">${esc(nome)}${isLider?' 👑':''}</div>${esc(m.conteudo)}<div class="b-time">${t}</div></div>
       </div>`;
     }
   }).join('');
