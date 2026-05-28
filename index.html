@@ -306,8 +306,8 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
       <div class="qa" id="qaCelula" style="display:none" onclick="goScr('celula')">
         <div class="qa-i">👥</div><div class="qa-t">Célula</div><div class="qa-s">Chat do grupo</div>
       </div>
-      <div class="qa" onclick="abrirOracao()">
-        <div class="qa-i">🙏</div><div class="qa-t">Oração</div><div class="qa-s">Pedidos e intercessão</div>
+      <div class="qa" onclick="goScr('disc')">
+        <div class="qa-i">🕊️</div><div class="qa-t">Reflexão</div><div class="qa-s">Momento com Deus</div>
       </div>
       <div class="qa" onclick="goScr('perfil')">
         <div class="qa-i">👤</div><div class="qa-t">Perfil</div><div class="qa-s">Seus dados</div>
@@ -329,6 +329,27 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
   <!-- PASTOR -->
   <div id="sPastor" class="scr">
     <div class="tbar"><div><div class="tbar-t">Painel Pastoral</div><div class="tbar-s" id="pSub">Monte Sião</div></div></div>
+    <!-- VISÃO GERAL -->
+    <div id="pastorOverview" style="padding:16px 20px 0">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--ra);padding:16px;text-align:center">
+          <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--or)" id="ovMembers">—</div>
+          <div style="font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.5px">Discípulos</div>
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--ra);padding:16px;text-align:center">
+          <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--or)" id="ovDiscs">—</div>
+          <div style="font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.5px">Discipulados abertos</div>
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--ra);padding:16px;text-align:center">
+          <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--or)" id="ovCelulas">—</div>
+          <div style="font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.5px">Células ativas</div>
+        </div>
+        <div style="background:var(--or);border-radius:var(--ra);padding:16px;text-align:center;cursor:pointer" onclick="ptab('disc',document.querySelector('.ptab'))">
+          <div style="font-size:20px;margin-bottom:4px">👥</div>
+          <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#fff">Ver discipulados</div>
+        </div>
+      </div>
+    </div>
     <div class="ptabs">
       <button class="ptab on" onclick="ptab('disc',this)">Discipulados</button>
       <button class="ptab" onclick="ptab('membros',this)">Discípulos</button>
@@ -344,9 +365,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
     <div class="p-hdr">
       <div style="position:relative;width:80px;margin:0 auto 14px">
         <div class="av-lg" id="pAvLg" style="margin:0">?</div>
-        <div onclick="document.getElementById('fotoInput').click()" style="position:absolute;bottom:0;right:0;width:26px;height:26px;background:var(--or);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bg);font-size:12px">📷</div>
+        <div onclick="abrirOpcoesFoto()" style="position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--or);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bg);font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,.4)">📷</div>
       </div>
-      <input type="file" id="fotoInput" accept="image/*" onchange="uploadFoto(this)">
+      <input type="file" id="fotoGaleria" accept="image/jpeg,image/png,image/webp,image/heic" onchange="uploadFoto(this)" style="display:none">
+      <input type="file" id="fotoCamera" accept="image/*" capture="environment" onchange="uploadFoto(this)" style="display:none">
       <div class="p-nome" id="pNome">—</div>
       <div class="p-celula" id="pCelula">—</div>
       <div class="rbadge rb-membro" id="pRole">Membro</div>
@@ -612,10 +634,11 @@ async function carregarDiscScreen(){
   let data=null;
   try{
     const res=await sb.from('discipulados').select('*').eq('membro_id',U.id).order('numero',{ascending:false});
-    data=res.data;
     if(res.error) throw res.error;
+    data=res.data||[];
   }catch(e){
-    el.innerHTML=`<div class="empty"><div class="empty-i">⚠️</div><div class="empty-t">Erro ao carregar</div><div class="empty-s">${e.message||'Verifique se as tabelas foram criadas no Supabase'}</div></div>`;
+    console.error('Discipulado erro:',e);
+    el.innerHTML=`<div class="empty"><div class="empty-i">⚠️</div><div class="empty-t">Tabelas não encontradas</div><div class="empty-s">Rode o SQL 'atualizar-tabelas.sql' no Supabase para criar as tabelas necessárias.<br><br>Erro: ${e.message}</div></div>`;
     return;
   }
 
@@ -808,10 +831,20 @@ function fecharChat(){g('chatOv').classList.remove('show');}
 // ══ PAINEL PASTOR ══
 async function carregarPastor(){
   if(!isPastor())return;
-  const {count}=await sb.from('disc_mensagens').select('id',{count:'exact'}).eq('lido_pastor',false);
-  if(count>0){g('hBadgeP').textContent=count;g('hBadgeP').style.display='block';}
+  // Overview
+  try{
+    const [{count:cm},{count:cd},{count:cc}]=await Promise.all([
+      sb.from('profiles').select('id',{count:'exact'}).eq('role','membro'),
+      sb.from('discipulados').select('id',{count:'exact'}).eq('status','aberto'),
+      sb.from('celulas').select('id',{count:'exact'}).eq('ativo',true)
+    ]);
+    g('ovMembers').textContent=cm||0;
+    g('ovDiscs').textContent=cd||0;
+    g('ovCelulas').textContent=cc||0;
+  }catch(e){}
   if(pastorTabAtual==='disc') await carregarPastorDiscs();
-  else await carregarPastorMembros();
+  else if(pastorTabAtual==='membros') await carregarPastorMembros();
+  else if(pastorTabAtual==='celulas') await carregarPastorCelulas();
 }
 
 function ptab(t,el){
@@ -960,6 +993,35 @@ async function carregarPerfil(){
   g('stD').textContent=cd||0; g('stM').textContent=cm||0;
   const dias=Math.floor((Date.now()-new Date(U.created_at).getTime())/86400000);
   g('stDs').textContent=dias;
+}
+
+function abrirOpcoesFoto(){
+  document.getElementById('fotoOpcModal')?.remove();
+  const m=document.createElement('div');
+  m.id='fotoOpcModal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:flex-end;justify-content:center;max-width:480px;left:50%;transform:translateX(-50%)';
+  m.innerHTML=`<div style="background:var(--s1);border-radius:20px 20px 0 0;padding:24px 24px 40px;width:100%;border-top:1px solid var(--bd)">
+    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:20px;text-align:center">Foto de perfil</div>
+    <div onclick="document.getElementById('fotoCamera').click();document.getElementById('fotoOpcModal').remove()" style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--s2);border-radius:var(--rs);margin-bottom:10px;cursor:pointer">
+      <div style="width:42px;height:42px;background:var(--org);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px">📷</div>
+      <div><div style="font-size:14px;font-weight:600">Tirar foto</div><div style="font-size:12px;color:var(--t2)">Usar a câmera do dispositivo</div></div>
+    </div>
+    <div onclick="document.getElementById('fotoGaleria').click();document.getElementById('fotoOpcModal').remove()" style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--s2);border-radius:var(--rs);margin-bottom:10px;cursor:pointer">
+      <div style="width:42px;height:42px;background:var(--org);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px">🖼️</div>
+      <div><div style="font-size:14px;font-weight:600">Escolher da galeria</div><div style="font-size:12px;color:var(--t2)">Selecionar uma foto salva</div></div>
+    </div>
+    ${P.foto_url?`<div onclick="removerFoto();document.getElementById('fotoOpcModal').remove()" style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--s2);border-radius:var(--rs);margin-bottom:10px;cursor:pointer">
+      <div style="width:42px;height:42px;background:rgba(239,68,68,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px">🗑️</div>
+      <div><div style="font-size:14px;font-weight:600;color:#fca5a5">Remover foto</div></div>
+    </div>`:''}
+    <button onclick="document.getElementById('fotoOpcModal').remove()" style="width:100%;padding:14px;background:transparent;border:1px solid var(--bd2);border-radius:var(--rs);color:var(--t2);font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;margin-top:4px">CANCELAR</button>
+  </div>`;
+  document.body.appendChild(m);
+}
+
+async function removerFoto(){
+  await sb.from('profiles').update({foto_url:null}).eq('id',U.id);
+  P.foto_url=null; carregarPerfil(); toast('Foto removida','ok');
 }
 
 async function uploadFoto(input){
@@ -1199,6 +1261,26 @@ async function carregarCelulas(){
     const {data}=await sb.from('celulas').select('id,nome').order('nome');
     if(data&&data.length) sel.innerHTML='<option value="">Selecione sua célula</option>'+data.map(c=>`<option value="${c.id}">${esc(c.nome)}</option>`).join('');
   }catch(e){}
+}
+
+// ══ COMPRESSOR DE IMAGEM ══
+async function comprimirImagem(file, maxW=800, qualidade=0.8){
+  return new Promise(resolve=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        let w=img.width, h=img.height;
+        if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        canvas.toBlob(blob=>resolve(blob),'image/jpeg',qualidade);
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 // ══ ORAÇÃO ══
