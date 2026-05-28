@@ -41,6 +41,7 @@ h1,h2,h3,.syne{font-family:'Syne',sans-serif}
 #appShell{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;position:relative;background:var(--bg)}
 .screen{display:none;flex:1;overflow-y:auto;padding-bottom:80px;animation:fadeIn .2s ease}
 .screen.active{display:block}
+#screenAuth.active{display:flex!important}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
 /* ─── AUTH SCREENS ─── */
@@ -263,7 +264,7 @@ h1,h2,h3,.syne{font-family:'Syne',sans-serif}
   <!-- ══════════════════════════════════
        AUTH SCREEN
   ══════════════════════════════════ -->
-  <div id="screenAuth" class="screen active" style="display:flex;flex-direction:column;min-height:100vh;padding-bottom:0">
+  <div id="screenAuth" class="screen active" style="flex-direction:column;min-height:100vh;padding-bottom:0">
     <div class="auth-hero">
       <div class="brand-mark">✦</div>
       <h1 class="auth-title">Monte<br><span>Sião</span></h1>
