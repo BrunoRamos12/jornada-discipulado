@@ -635,9 +635,19 @@ async function doLogin() {
   }
   btn.disabled = false; btn.textContent = 'ENTRAR';
   if (loginRes.error) { showMsg(err, traduzirErro(loginRes.error.message)); return; }
-  if (loginRes.data?.session) {
-    currentUser = loginRes.data.session.user;
+  console.log('LOGIN RES:', JSON.stringify({
+    hasSession: !!loginRes.data?.session,
+    hasUser: !!loginRes.data?.user,
+    error: loginRes.error?.message
+  }));
+  const session = loginRes.data?.session || loginRes.data;
+  const user = session?.user || loginRes.data?.user;
+  if (user) {
+    currentUser = user;
+    console.log('USUARIO:', currentUser.email);
     await iniciarApp();
+  } else {
+    showMsg(err, 'Sessão não iniciada. Tente novamente.');
   }
 }
 
@@ -711,6 +721,7 @@ async function doLogout() {
 // INICIAR APP
 // ════════════════════════════════════
 async function iniciarApp() {
+  console.log('INICIANDO APP para:', currentUser?.email);
   try { await carregarPerfil(); } catch(e) { 
     currentPerfil = { id: currentUser.id, nome: currentUser.email?.split('@')[0]||'Usuário', role:'membro' };
   }
@@ -1105,6 +1116,7 @@ function goTo(screen) {
 }
 
 function showScreen(name) {
+  console.log('SHOW SCREEN:', name);
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const map = { auth:'screenAuth', home:'screenHome', diario:'screenDiario', discipulos:'screenDiscipulos', perfil:'screenPerfil' };
   const el = document.getElementById(map[name]);
