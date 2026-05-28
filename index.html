@@ -2,842 +2,1124 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jornada do Discipulado — Monte Sião</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Monte Sião — Jornada</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{--cream:#f5f0e8;--dark:#0d0d0d;--brown:#5c3d1e;--gold:#b8924a;--gold2:#8a6a2a;--lb:#8c6240;--border:#d4c4a8;--ibg:#faf7f2}
-body{background:var(--cream);font-family:"Lato",sans-serif;font-weight:300;min-height:100vh}
-.hero{background:#0d0d0d;padding:10px 24px 8px;text-align:center}
-.hero-logo{width:160px;max-width:70%;margin-bottom:4px;mix-blend-mode:lighten}
-.hero h1{font-family:"Cormorant Garamond",serif;font-size:24px;font-weight:600;color:#fff;letter-spacing:1px}
-.hero h1 span{color:var(--gold2)}
-.vs{background:var(--gold);padding:11px 24px;text-align:center}
-.vs p{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:13.5px;color:var(--dark)}
-.tela{display:none;max-width:560px;margin:0 auto;padding:36px 20px 60px}
-.tela.ativa{display:block}
-.atabs{display:flex;margin-bottom:28px;border-bottom:1px solid var(--border)}
-.atab{flex:1;padding:12px;text-align:center;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--lb);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
-.atab.ativo{color:var(--brown);border-bottom-color:var(--gold)}
-.atitle{font-family:"Cormorant Garamond",serif;font-size:24px;color:var(--brown);margin-bottom:24px;text-align:center}
-.field{margin-bottom:20px}
-.field label{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--lb);margin-bottom:8px}
-input[type=text],input[type=email],input[type=password],input[type=tel],textarea,select{width:100%;background:var(--ibg);border:1px solid var(--border);border-radius:6px;padding:13px 16px;font-family:"Lato",sans-serif;font-weight:300;font-size:15px;color:#222;outline:none;transition:border-color .2s;-webkit-appearance:none}
-input:focus,textarea:focus,select:focus{border-color:var(--gold)}
-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238c6240' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;cursor:pointer}
-textarea{resize:vertical;min-height:100px;line-height:1.7}
-.cc{text-align:right;font-size:11px;color:#aaa;margin-top:4px}
-.sw{position:relative}.sw input{padding-right:44px}
-.so{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--lb);font-size:18px;user-select:none}
-.btn{width:100%;padding:14px;background:var(--dark);color:#fff;border:none;border-radius:6px;font-family:"Lato",sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:8px}
-.btn:hover{background:var(--brown)}.btn:disabled{background:#aaa;cursor:not-allowed}
-.btn-o{background:transparent;border:1px solid var(--border);color:var(--brown);margin-top:0}.btn-o:hover{background:var(--ibg)}
-.btn-sm{padding:8px 16px;font-size:11px;width:auto}
-.btn-g{background:var(--gold);color:var(--dark)}.btn-g:hover{background:var(--lb);color:#fff}
-.err{background:#fff0f0;border:1px solid #ffcccc;border-radius:6px;padding:12px 16px;color:#c0392b;font-size:14px;margin-bottom:16px;display:none}
-.ok{background:#f0fff4;border:1px solid #b2dfdb;border-radius:6px;padding:12px 16px;color:#2e7d32;font-size:14px;margin-bottom:16px;display:none}
-.div{border:none;border-top:1px solid var(--border);margin:28px 0}
-.st{font-family:"Cormorant Garamond",serif;font-size:20px;color:var(--brown);margin-bottom:16px}
-.rg,.cg{display:flex;flex-direction:column;gap:8px}
-.ri,.ci{display:flex;align-items:center;gap:12px;background:var(--ibg);border:1px solid var(--border);border-radius:6px;padding:11px 14px;cursor:pointer;transition:border-color .2s}
-.ri:has(input:checked),.ci:has(input:checked){border-color:var(--gold);background:#fdf8ef}
-.ri input,.ci input{width:16px;height:16px;accent-color:var(--gold);flex-shrink:0}
-.ri span,.ci span{font-size:14px;color:#222}
-.dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.dh h2{font-family:"Cormorant Garamond",serif;font-size:22px;color:var(--brown)}
-.dn{font-size:13px;color:var(--lb);margin-bottom:2px}
-.nb{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
-.nb-btn{padding:8px 16px;background:var(--ibg);border:1px solid var(--border);border-radius:20px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--lb);cursor:pointer;transition:all .2s}
-.nb-btn.ativo,.nb-btn:hover{background:var(--dark);color:#fff;border-color:var(--dark)}
-.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:16px}
-.card .dt{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
-.card .ln{font-family:"Cormorant Garamond",serif;font-size:18px;color:var(--brown);margin-bottom:2px}
-.card .li{font-size:12px;color:var(--lb);margin-bottom:10px}
-.card .cp{margin-bottom:10px;font-size:14px;color:#222;line-height:1.7}
-.card .cp strong{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--lb);display:block;margin-bottom:3px;font-weight:400}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px}
-.bv{background:#e8f5e9;color:#2e7d32}.ba{background:#fff8e1;color:#f57f17}
-.br{background:#ffebee;color:#c62828}.bb{background:#e3f2fd;color:#1565c0}
-.sl{background:#ffebee;border-radius:20px;padding:2px 8px;font-size:11px;color:#c62828;margin-left:6px}
-.pb{background:var(--gold);color:var(--dark);padding:3px 10px;border-radius:20px;font-size:11px;margin-left:8px}
-.load{text-align:center;padding:40px;color:var(--lb);font-size:14px}
-.empty{text-align:center;padding:40px 20px;color:#aaa;font-size:15px}
-.pn{text-align:center;margin-top:16px;font-size:12px;color:#999;line-height:1.6}
-.tc{text-align:center;margin-top:16px}
-.lt{color:var(--gold);cursor:pointer;text-decoration:underline;font-size:13px}
-/* CHAT */
-.chat{background:var(--ibg);border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:14px}
-.chat-t{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--lb);margin-bottom:10px}
-.chat-msgs{max-height:280px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
-.msg{padding:10px 14px;border-radius:8px;font-size:14px;line-height:1.6;max-width:92%}
-.msg.pastor{background:#fdf8ef;border-left:3px solid var(--gold);align-self:flex-start}
-.msg.lider{background:#e8f5e9;border-left:3px solid #4caf50;align-self:flex-end}
-.msg .ma{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--lb);margin-bottom:3px}
-.msg .md{font-size:10px;color:#aaa;margin-top:4px}
-.emoji-bar{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
-.eb{background:none;border:none;font-size:18px;cursor:pointer;padding:2px 4px;border-radius:4px}
-.eb:hover{background:rgba(0,0,0,.08)}
-.cin{display:flex;gap:8px;align-items:flex-end}
-.cin textarea{min-height:40px;max-height:100px;margin-bottom:0;font-size:14px;padding:10px 14px}
-.csb{flex-shrink:0;width:40px;height:40px;background:var(--gold);border:none;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
-.csb:hover{background:var(--lb)}
-/* TABELA */
-.dt-table{width:100%;border-collapse:collapse;font-size:14px}
-.dt-table th{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--lb);padding:10px 8px;border-bottom:2px solid var(--border);text-align:left;font-weight:400}
-.dt-table td{padding:12px 8px;border-bottom:1px solid var(--border);color:#222;vertical-align:middle}
-.dt-table tr:hover td{background:#fdf8ef;cursor:pointer}
-.ds{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
-.ds.a{background:#4caf50}.ds.i{background:#e0e0e0}
-/* CELULA CARD */
-.cel-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
-.cel-info h4{font-family:"Cormorant Garamond",serif;font-size:17px;color:var(--brown)}
-.cel-info p{font-size:13px;color:var(--lb);margin-top:3px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0a0a;
+  --surface:#111111;
+  --surface2:#1a1a1a;
+  --surface3:#222222;
+  --orange:#ff6b00;
+  --orange-dim:#cc5500;
+  --orange-glow:rgba(255,107,0,0.15);
+  --orange-subtle:rgba(255,107,0,0.08);
+  --text:#f0f0f0;
+  --text2:#999;
+  --text3:#555;
+  --border:#2a2a2a;
+  --border2:#333;
+  --success:#22c55e;
+  --danger:#ef4444;
+  --info:#3b82f6;
+  --radius:14px;
+  --radius-sm:8px;
+  --radius-lg:20px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-weight:400;overflow-x:hidden}
+h1,h2,h3,.syne{font-family:'Syne',sans-serif}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* ─── LAYOUT ─── */
+#appShell{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;position:relative;background:var(--bg)}
+.screen{display:none;flex:1;overflow-y:auto;padding-bottom:80px;animation:fadeIn .2s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── AUTH SCREENS ─── */
+#screenAuth{display:flex;flex-direction:column;justify-content:flex-end;min-height:100vh;padding:0;padding-bottom:0;background:var(--bg)}
+.auth-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 32px 40px;text-align:center;position:relative}
+.auth-hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 30%, rgba(255,107,0,0.12) 0%, transparent 70%);pointer-events:none}
+.brand-mark{width:56px;height:56px;background:var(--orange);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:26px;box-shadow:0 0 40px rgba(255,107,0,0.4)}
+.auth-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1.1;margin-bottom:10px}
+.auth-title span{color:var(--orange)}
+.auth-sub{font-size:14px;color:var(--text2);line-height:1.6;max-width:260px}
+.auth-verse{margin-top:28px;font-size:12px;color:var(--text3);font-style:italic;line-height:1.6}
+
+.auth-card{background:var(--surface);border-top:1px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:28px 24px 40px}
+.auth-tabs{display:flex;background:var(--surface2);border-radius:var(--radius-sm);padding:4px;margin-bottom:28px;gap:4px}
+.auth-tab{flex:1;padding:10px;text-align:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:var(--text2);border-radius:6px;cursor:pointer;transition:all .2s}
+.auth-tab.active{background:var(--orange);color:#fff}
+
+/* ─── FORM FIELDS ─── */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:8px}
+.field input,.field select,.field textarea{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px 16px;font-family:'Inter',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+.field input::placeholder,.field textarea::placeholder{color:var(--text3)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--orange);background:var(--surface3)}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px;cursor:pointer}
+.field select option{background:var(--surface2);color:var(--text)}
+.field textarea{resize:vertical;min-height:100px;line-height:1.7}
+.pass-wrap{position:relative}
+.pass-wrap input{padding-right:48px}
+.pass-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--text3);font-size:16px;user-select:none;padding:4px}
+
+/* ─── BUTTONS ─── */
+.btn{width:100%;padding:16px;background:var(--orange);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .15s;margin-top:4px}
+.btn:hover{background:var(--orange-dim);transform:translateY(-1px)}
+.btn:active{transform:translateY(0);opacity:.9}
+.btn:disabled{background:var(--surface3);color:var(--text3);cursor:not-allowed;transform:none}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.btn-ghost:hover{border-color:var(--orange);color:var(--orange);background:var(--orange-subtle)}
+.btn-sm{padding:10px 20px;font-size:12px;width:auto}
+.btn-danger{background:var(--danger)}
+.link-btn{background:none;border:none;color:var(--orange);font-size:13px;cursor:pointer;text-decoration:underline;padding:0}
+
+/* ─── FEEDBACK ─── */
+.msg-err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:var(--radius-sm);padding:12px 16px;color:#fca5a5;font-size:14px;margin-bottom:16px;display:none}
+.msg-ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:var(--radius-sm);padding:12px 16px;color:#86efac;font-size:14px;margin-bottom:16px;display:none}
+
+/* ─── BOTTOM NAV ─── */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--surface);border-top:1px solid var(--border);display:none;grid-template-columns:repeat(4,1fr);z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.bottom-nav.visible{display:grid}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px 10px;cursor:pointer;transition:color .2s;color:var(--text3);font-size:10px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;font-family:'Syne',sans-serif;border:none;background:none}
+.nav-item svg{width:22px;height:22px;stroke-width:1.8;transition:all .2s}
+.nav-item.active{color:var(--orange)}
+.nav-item.active svg{stroke:var(--orange);filter:drop-shadow(0 0 6px rgba(255,107,0,.5))}
+
+/* ─── TOP BAR ─── */
+.top-bar{position:sticky;top:0;background:var(--bg);padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;z-index:50;border-bottom:1px solid var(--border)}
+.top-bar-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+.top-bar-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.avatar-sm{width:36px;height:36px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;cursor:pointer;overflow:hidden;flex-shrink:0}
+.avatar-sm img{width:100%;height:100%;object-fit:cover}
+
+/* ─── HOME SCREEN ─── */
+.home-header{padding:24px 20px 0;background:var(--bg)}
+.greeting{font-size:14px;color:var(--text2);margin-bottom:4px}
+.greeting-name{font-family:'Syne',sans-serif;font-size:24px;font-weight:800}
+.verse-card{margin:20px 20px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden}
+.verse-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--orange),transparent)}
+.verse-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:10px}
+.verse-text{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;line-height:1.6;color:var(--text);margin-bottom:8px}
+.verse-ref{font-size:12px;color:var(--text2)}
+
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:24px 20px 12px}
+.section-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+.section-action{font-size:12px;color:var(--orange);cursor:pointer;font-weight:500}
+
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 20px}
+.qa-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.qa-card:hover{border-color:var(--orange);background:var(--orange-subtle)}
+.qa-icon{font-size:24px;margin-bottom:10px}
+.qa-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:3px}
+.qa-sub{font-size:11px;color:var(--text2)}
+.qa-badge{position:absolute;top:12px;right:12px;background:var(--orange);color:#fff;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;font-family:'Syne',sans-serif}
+
+/* ─── DIÁRIO / CHAT ─── */
+.diario-list{padding:0 20px}
+.diario-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px;cursor:pointer;transition:all .2s}
+.diario-item:hover{border-color:var(--border2)}
+.diario-item.has-reply{border-left:3px solid var(--orange)}
+.diario-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.di-tipo{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px}
+.di-tipo.reflexao{background:rgba(255,107,0,.15);color:var(--orange)}
+.di-tipo.pedido{background:rgba(59,130,246,.15);color:#93c5fd}
+.di-tipo.testemunho{background:rgba(34,197,94,.15);color:#86efac}
+.di-tipo.duvida{background:rgba(168,85,247,.15);color:#d8b4fe}
+.di-data{font-size:11px;color:var(--text3)}
+.di-preview{font-size:14px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.di-reply-indicator{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:var(--orange)}
+
+/* Chat view */
+.chat-view{display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100vh;background:var(--bg);z-index:200;flex-direction:column}
+.chat-view.open{display:flex}
+.chat-header{padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-shrink:0}
+.chat-back{background:none;border:none;color:var(--text2);cursor:pointer;padding:4px;display:flex}
+.chat-info{flex:1}
+.chat-info h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+.chat-info p{font-size:12px;color:var(--text2)}
+.chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+.bubble{max-width:80%;padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.6;position:relative}
+.bubble.mine{align-self:flex-end;background:var(--orange);color:#fff;border-bottom-right-radius:4px}
+.bubble.pastor{align-self:flex-start;background:var(--surface);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px}
+.bubble-meta{font-size:10px;opacity:.6;margin-top:4px;text-align:right}
+.bubble.pastor .bubble-meta{text-align:left}
+.bubble-author{font-size:10px;font-weight:600;color:var(--orange);margin-bottom:4px;font-family:'Syne',sans-serif;letter-spacing:.5px}
+.chat-input-area{padding:16px 20px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0}
+.chat-tipo-select{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:4px}
+.tipo-chip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;border:1px solid var(--border2);color:var(--text3);background:transparent;white-space:nowrap;transition:all .15s}
+.tipo-chip.active{border-color:var(--orange);color:var(--orange);background:var(--orange-subtle)}
+.chat-input-row{display:flex;gap:10px;align-items:flex-end}
+.chat-textarea{flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;font-family:'Inter',sans-serif;font-size:14px;color:var(--text);resize:none;outline:none;min-height:44px;max-height:120px;transition:border-color .2s;line-height:1.5}
+.chat-textarea:focus{border-color:var(--orange)}
+.chat-textarea::placeholder{color:var(--text3)}
+.chat-send{width:44px;height:44px;background:var(--orange);border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.chat-send:hover{background:var(--orange-dim)}
+.chat-send svg{width:18px;height:18px;stroke:#fff;stroke-width:2}
+
+/* Nova entrada */
+.nova-entrada-btn{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin:0 20px 20px;cursor:pointer;transition:all .2s;width:calc(100% - 40px)}
+.nova-entrada-btn:hover{border-color:var(--orange);background:var(--orange-subtle)}
+.neb-icon{width:36px;height:36px;background:var(--orange-subtle);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.neb-text{text-align:left}
+.neb-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:2px}
+.neb-sub{font-size:12px;color:var(--text2)}
+
+/* ─── PERFIL ─── */
+.profile-header{padding:32px 20px 24px;text-align:center;background:var(--surface);border-bottom:1px solid var(--border)}
+.avatar-lg{width:80px;height:80px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:#fff;margin:0 auto 16px;border:3px solid var(--orange-dim);overflow:hidden}
+.avatar-lg img{width:100%;height:100%;object-fit:cover}
+.profile-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
+.profile-celula{font-size:13px;color:var(--text2);margin-bottom:16px}
+.profile-role-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:.5px}
+.role-pastor{background:rgba(255,107,0,.2);color:var(--orange);border:1px solid rgba(255,107,0,.3)}
+.role-lider{background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.3)}
+.role-membro{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
+
+.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.stat-item{background:var(--surface);padding:18px 8px;text-align:center}
+.stat-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--orange)}
+.stat-label{font-size:10px;color:var(--text2);margin-top:2px;letter-spacing:.5px;text-transform:uppercase}
+
+.settings-list{padding:20px}
+.settings-group-title{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;padding:0 4px}
+.settings-item{display:flex;align-items:center;gap:14px;padding:16px;background:var(--surface);border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer;transition:all .2s}
+.settings-item:hover{background:var(--surface2)}
+.si-icon{width:38px;height:38px;border-radius:10px;background:var(--surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.si-text{flex:1}
+.si-title{font-size:14px;font-weight:500}
+.si-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.si-arrow{color:var(--text3)}
+
+/* ─── PAINEL PASTOR ─── */
+.pastor-tabs{display:flex;overflow-x:auto;gap:8px;padding:0 20px 16px;-ms-overflow-style:none;scrollbar-width:none}
+.pastor-tabs::-webkit-scrollbar{display:none}
+.pastor-tab{padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;border:1px solid var(--border2);color:var(--text2);background:transparent;white-space:nowrap;transition:all .15s}
+.pastor-tab.active{background:var(--orange);border-color:var(--orange);color:#fff}
+
+.responder-modal{display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100vh;background:var(--bg);z-index:300;flex-direction:column}
+.responder-modal.open{display:flex}
+.rm-header{padding:20px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-shrink:0}
+.rm-content{flex:1;overflow-y:auto;padding:20px}
+.entrada-full{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:20px}
+.ef-author{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ef-av{width:32px;height:32px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+.ef-name{font-size:13px;font-weight:600}
+.ef-date{font-size:11px;color:var(--text3)}
+.ef-text{font-size:15px;line-height:1.7;color:var(--text)}
+.rm-footer{padding:16px 20px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0}
+
+/* ─── EMPTY STATE ─── */
+.empty-state{text-align:center;padding:60px 40px}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:.4}
+.empty-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text2)}
+.empty-sub{font-size:13px;color:var(--text3);line-height:1.6}
+
+/* ─── LOADING ─── */
+.loading{text-align:center;padding:40px;color:var(--text3)}
+.spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── DIVIDER ─── */
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+.or-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text3);font-size:12px}
+.or-divider::before,.or-divider::after{content:'';flex:1;border-top:1px solid var(--border)}
+
+/* ─── CARDS DISCIPULO PASTOR ─── */
+.membro-card{display:flex;align-items:center;gap:14px;padding:16px;background:var(--surface);border-radius:var(--radius);margin-bottom:10px;cursor:pointer;transition:all .2s;border:1px solid var(--border)}
+.membro-card:hover{border-color:var(--border2);background:var(--surface2)}
+.mc-av{width:44px;height:44px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--orange);flex-shrink:0;border:2px solid var(--border2)}
+.mc-info{flex:1}
+.mc-name{font-size:14px;font-weight:600;margin-bottom:3px}
+.mc-meta{font-size:12px;color:var(--text2)}
+.mc-badge{background:var(--orange);color:#fff;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;font-family:'Syne',sans-serif;flex-shrink:0}
+
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px 20px;font-size:14px;color:var(--text);z-index:1000;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:calc(480px - 40px)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.1);color:#86efac}
+.toast.error{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.1);color:#fca5a5}
+
+/* ─── UTILS ─── */
+.p20{padding:0 20px}
+.mt16{margin-top:16px}
+.text-center{text-align:center}
+.flex-row{display:flex;align-items:center;gap:10px}
+.hide{display:none!important}
 </style>
 </head>
 <body>
-<div class="hero">
-  <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAVGBDgDASIAAhEBAxEB/8QAHQABAAIDAQEBAQAAAAAAAAAAAAcIBQYJBAECA//EAFsQAQABAwMBBAYFBQoHDQYHAAABAgMEBQYRBwgSITETQVFhcYEJFCKRoRUjMkKxFlJicoKSorLB0RckMzVzs9IYJjRDVVZkZWZ0k5XCJyhEU5TDJTY4g4TT8P/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCmQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/9k=" alt="Monte Sião" class="hero-logo">
-  <h1>Jornada do <span>Discipulado</span></h1>
-</div>
-<div class="vs"><p>Além do templo até os confins da terra</p></div>
 
-<!-- AUTH -->
-<div class="tela ativa" id="telaAuth">
-  <div class="atabs">
-    <div class="atab ativo" onclick="showTab('login')">Entrar</div>
-    <div class="atab" onclick="showTab('cad')">Criar conta</div>
-  </div>
-  <div id="pLogin">
-    <p class="atitle">Bem-vindo de volta</p>
-    <div class="err" id="eLogin"></div>
-    <div class="ok" id="okLogin"></div>
-    <div class="field"><label>E-mail</label><input type="email" id="lEmail" placeholder="seu@email.com"></div>
-    <div class="field"><label>Senha</label>
-      <div class="sw"><input type="password" id="lSenha" placeholder="Sua senha">
-      <span class="so" onclick="toggleS('lSenha',this)">&#128065;</span></div>
-    </div>
-    <button class="btn" onclick="doLogin()">Entrar</button>
-    <div class="tc"><span class="lt" onclick="forgot()">Esqueci minha senha</span></div>
-  </div>
-  <div id="pCad" style="display:none">
-    <p class="atitle">Criar minha conta</p>
-    <div class="err" id="eCad"></div>
-    <div class="ok" id="okCad"></div>
-    <div class="field"><label>Nome completo *</label><input type="text" id="cNome" placeholder="Como você se chama"></div>
-    <div class="field"><label>E-mail *</label><input type="email" id="cEmail" placeholder="seu@email.com"></div>
-    <div class="field"><label>WhatsApp</label><input type="tel" id="cTel" placeholder="(00) 00000-0000" oninput="maskTel(this)" maxlength="15"></div>
-    <div class="field"><label>Sua célula *</label>
-      <select id="cCelula"><option value="">Carregando células...</option></select>
-    </div>
-    <div class="field"><label>Sexo *</label>
-      <select id="cSexo">
-        <option value="">Selecione</option>
-        <option value="Masculino">Masculino</option>
-        <option value="Feminino">Feminino</option>
-      </select>
-    </div>
-    <div class="field"><label>Data de nascimento *</label>
-      <input type="date" id="cNasc">
-    </div>
-    <div class="field"><label>Senha *</label>
-      <div class="sw"><input type="password" id="cSenha" placeholder="Mínimo 6 caracteres">
-      <span class="so" onclick="toggleS('cSenha',this)">&#128065;</span></div>
-    </div>
-    <div class="field"><label>Confirmar senha *</label>
-      <div class="sw"><input type="password" id="cSenha2" placeholder="Repita a senha">
-      <span class="so" onclick="toggleS('cSenha2',this)">&#128065;</span></div>
-    </div>
-    <button class="btn" id="btnCad" onclick="doCad()">Iniciar minha jornada de discipulado</button>
-  </div>
-</div>
+<div id="appShell">
 
-<!-- DASHBOARD DISCÍPULO -->
-<div class="tela" id="telaDash">
-  <div class="dh">
-    <div><div class="dn" id="dNome"></div><h2>Minha área</h2></div>
-    <button class="btn btn-o btn-sm" onclick="sair()">Sair</button>
-  </div>
-  <div class="nb">
-    <div class="nb-btn ativo" onclick="showSec('novo')">Nova entrada</div>
-    <div class="nb-btn" onclick="showSec('hist')">Meu histórico</div>
-  </div>
-  <div id="secNovo">
-    <div class="err" id="eForm"></div>
-    <div class="ok" id="okForm"></div>
-    <p class="st">Como está o seu coração?</p>
-    <div class="field"><label>Como você descreveria sua vida com o Senhor esta semana?</label>
-      <div class="rg">
-        <label class="ri"><input type="radio" name="vs" value="Próximo e em comunhão"><span>Próximo e em comunhão</span></label>
-        <label class="ri"><input type="radio" name="vs" value="Estável, mas sem profundidade"><span>Estável, mas sem profundidade</span></label>
-        <label class="ri"><input type="radio" name="vs" value="Distante e frio"><span>Distante e frio</span></label>
-        <label class="ri"><input type="radio" name="vs" value="Em luta, mas buscando"><span>Em luta, mas buscando</span></label>
+  <!-- ══════════════════════════════════
+       AUTH SCREEN
+  ══════════════════════════════════ -->
+  <div id="screenAuth" class="screen active" style="display:flex;flex-direction:column;min-height:100vh;padding-bottom:0">
+    <div class="auth-hero">
+      <div class="brand-mark">✦</div>
+      <h1 class="auth-title">Monte<br><span>Sião</span></h1>
+      <p class="auth-verse">"Para além do templo, até os confins da terra"</p>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <div class="auth-tab active" onclick="switchAuthTab('login')">Entrar</div>
+        <div class="auth-tab" onclick="switchAuthTab('cadastro')">Criar conta</div>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="formLogin">
+        <div class="msg-err" id="errLogin"></div>
+        <div class="msg-ok" id="okLogin"></div>
+        <div class="field"><label>E-mail</label><input type="email" id="lEmail" placeholder="seu@email.com" autocomplete="email"></div>
+        <div class="field">
+          <label>Senha</label>
+          <div class="pass-wrap"><input type="password" id="lSenha" placeholder="Sua senha" autocomplete="current-password">
+          <span class="pass-eye" onclick="togglePass('lSenha',this)">👁</span></div>
+        </div>
+        <button class="btn" id="btnLogin" onclick="doLogin()">ENTRAR</button>
+        <div class="text-center mt16"><button class="link-btn" onclick="doForgot()">Esqueci minha senha</button></div>
+      </div>
+
+      <!-- CADASTRO -->
+      <div id="formCadastro" style="display:none">
+        <div class="msg-err" id="errCad"></div>
+        <div class="msg-ok" id="okCad"></div>
+        <div class="field"><label>Nome completo *</label><input type="text" id="cNome" placeholder="Como você se chama"></div>
+        <div class="field"><label>E-mail *</label><input type="email" id="cEmail" placeholder="seu@email.com"></div>
+        <div class="field"><label>WhatsApp</label><input type="tel" id="cTel" placeholder="(00) 00000-0000" oninput="maskTel(this)" maxlength="15"></div>
+        <div class="field"><label>Discípulos (célula) *</label>
+          <select id="cCelula"><option value="">Carregando...</option></select>
+        </div>
+        <div class="field"><label>Sexo</label>
+          <select id="cSexo"><option value="">Selecione</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option></select>
+        </div>
+        <div class="field"><label>Data de nascimento</label><input type="date" id="cNasc"></div>
+        <div class="field">
+          <label>Senha *</label>
+          <div class="pass-wrap"><input type="password" id="cSenha" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+          <span class="pass-eye" onclick="togglePass('cSenha',this)">👁</span></div>
+        </div>
+        <button class="btn" id="btnCad" onclick="doCadastro()">CRIAR MINHA CONTA</button>
       </div>
     </div>
-    <div class="field"><label>O que tem dificultado sua intimidade com Cristo?</label>
-      <textarea id="dific" oninput="cc(this,'cc1')"></textarea>
-      <div class="cc" id="cc1">0 / 500</div>
-    </div>
-    <hr class="div">
-    <p class="st">Sobre o seu discipulado</p>
-    <div class="field"><label>Como você tem cuidado dos seus discípulos?</label>
-      <div class="rg">
-        <label class="ri"><input type="radio" name="cu" value="Tenho cuidado com proximidade e oração"><span>Tenho cuidado com proximidade e oração</span></label>
-        <label class="ri"><input type="radio" name="cu" value="Cuido, mas sinto que falta profundidade"><span>Cuido, mas sinto que falta profundidade</span></label>
-        <label class="ri"><input type="radio" name="cu" value="Tenho dificuldade em me aproximar"><span>Tenho dificuldade em me aproximar</span></label>
-        <label class="ri"><input type="radio" name="cu" value="Não sei bem como pastorear"><span>Não sei bem como pastorear</span></label>
-      </div>
-    </div>
-    <div class="field"><label>Situação específica que precisa de orientação?</label>
-      <textarea id="situ" oninput="cc(this,'cc2')"></textarea>
-      <div class="cc" id="cc2">0 / 500</div>
-    </div>
-    <hr class="div">
-    <p class="st">Diário espiritual</p>
-    <div class="field"><label>Como foi sua semana espiritualmente?</label>
-      <div class="emoji-bar">
-        <button class="eb" onclick="addE('diario','🙏')">🙏</button>
-        <button class="eb" onclick="addE('diario','❤️')">❤️</button>
-        <button class="eb" onclick="addE('diario','✝️')">✝️</button>
-        <button class="eb" onclick="addE('diario','🔥')">🔥</button>
-        <button class="eb" onclick="addE('diario','😢')">😢</button>
-        <button class="eb" onclick="addE('diario','😊')">😊</button>
-        <button class="eb" onclick="addE('diario','💪')">💪</button>
-        <button class="eb" onclick="addE('diario','🌿')">🌿</button>
-        <button class="eb" onclick="addE('diario','📖')">📖</button>
-        <button class="eb" onclick="addE('diario','🕊️')">🕊️</button>
-      </div>
-      <textarea id="diario" style="min-height:140px" oninput="cc(this,'cc3')"></textarea>
-      <div class="cc" id="cc3">0 / 1000</div>
-    </div>
-    <hr class="div">
-    <p class="st">O que você precisa?</p>
-    <div class="field"><label>O que gostaria de receber do pastor? (pode marcar mais de uma)</label>
-      <div class="cg">
-        <label class="ci"><input type="checkbox" value="Orientação de oração e jejum"><span>Orientação de oração e jejum</span></label>
-        <label class="ci"><input type="checkbox" value="Indicação de leitura bíblica"><span>Indicação de leitura bíblica</span></label>
-        <label class="ci"><input type="checkbox" value="Uma conversa pastoral"><span>Uma conversa pastoral</span></label>
-        <label class="ci"><input type="checkbox" value="Direção para o meu discipulado"><span>Direção para o meu discipulado</span></label>
-        <label class="ci"><input type="checkbox" value="Só queria que o pastor soubesse como estou"><span>Só queria que o pastor soubesse como estou</span></label>
-      </div>
-    </div>
-    <div class="field"><label>Pedido de oração</label>
-      <textarea id="oracao" oninput="cc(this,'cc4')"></textarea>
-      <div class="cc" id="cc4">0 / 500</div>
-    </div>
-    <div class="field"><label>Algo mais que queira compartilhar?</label>
-      <textarea id="extra" oninput="cc(this,'cc5')"></textarea>
-      <div class="cc" id="cc5">0 / 500</div>
-    </div>
-    <button class="btn" id="btnEnv" onclick="enviar()">Enviar ao pastor</button>
-    <p class="pn">Suas respostas chegam diretamente ao pastor.<br>Nenhum outro líder terá acesso.</p>
   </div>
-  <div id="secHist" style="display:none">
-    <p class="st">Meu histórico</p>
-    <div id="listaHist"><div class="load">Carregando...</div></div>
+
+  <!-- ══════════════════════════════════
+       HOME SCREEN
+  ══════════════════════════════════ -->
+  <div id="screenHome" class="screen">
+    <div class="home-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div>
+          <div class="greeting">Bem-vindo de volta,</div>
+          <div class="greeting-name" id="homeName">—</div>
+        </div>
+        <div class="avatar-sm" id="homeAvatar" onclick="goTo('perfil')">?</div>
+      </div>
+    </div>
+
+    <!-- Versículo do dia -->
+    <div class="verse-card">
+      <div class="verse-label">✦ Versículo do dia</div>
+      <div class="verse-text" id="verseText">Carregando...</div>
+      <div class="verse-ref" id="verseRef"></div>
+    </div>
+
+    <!-- Ações rápidas -->
+    <div class="section-header"><span class="section-title">Sua Jornada</span></div>
+    <div class="quick-actions">
+      <div class="qa-card" onclick="goTo('diario')">
+        <div class="qa-badge hide" id="badgeDiario">!</div>
+        <div class="qa-icon">📖</div>
+        <div class="qa-title">Diário</div>
+        <div class="qa-sub">Abra seu coração</div>
+      </div>
+      <div class="qa-card" onclick="goTo('discipulos')" id="cardDiscipulos" style="display:none">
+        <div class="qa-badge hide" id="badgePendentes">0</div>
+        <div class="qa-icon">🤝</div>
+        <div class="qa-title">Discípulos</div>
+        <div class="qa-sub">Cuidar e responder</div>
+      </div>
+      <div class="qa-card" onclick="goTo('diario')">
+        <div class="qa-icon">🙏</div>
+        <div class="qa-title">Pedidos</div>
+        <div class="qa-sub">Motivos de oração</div>
+      </div>
+      <div class="qa-card" onclick="goTo('perfil')">
+        <div class="qa-icon">👤</div>
+        <div class="qa-title">Perfil</div>
+        <div class="qa-sub">Seus dados</div>
+      </div>
+    </div>
+
+    <!-- Últimas entradas -->
+    <div class="section-header">
+      <span class="section-title">Últimas reflexões</span>
+      <span class="section-action" onclick="goTo('diario')">Ver todas →</span>
+    </div>
+    <div class="p20" id="homeEntradas">
+      <div class="loading"><div class="spinner"></div>Carregando...</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       DIÁRIO SCREEN
+  ══════════════════════════════════ -->
+  <div id="screenDiario" class="screen">
+    <div class="top-bar">
+      <div>
+        <div class="top-bar-title">Meu Diário</div>
+        <div class="top-bar-sub">Canal privado com seu pastor</div>
+      </div>
+      <div class="avatar-sm" id="diarioAvatar" onclick="goTo('perfil')">?</div>
+    </div>
+
+    <button class="nova-entrada-btn" onclick="abrirNovaEntrada()">
+      <div class="neb-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+      <div class="neb-text">
+        <div class="neb-title">Nova reflexão</div>
+        <div class="neb-sub">Compartilhe o que está no seu coração</div>
+      </div>
+    </button>
+
+    <div class="diario-list" id="diarioList">
+      <div class="loading"><div class="spinner"></div>Carregando...</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       DISCÍPULOS SCREEN (Pastor/Líder)
+  ══════════════════════════════════ -->
+  <div id="screenDiscipulos" class="screen">
+    <div class="top-bar">
+      <div>
+        <div class="top-bar-title">Discípulos</div>
+        <div class="top-bar-sub" id="discipulosSubtitle">Cuide como Cristo cuidou</div>
+      </div>
+    </div>
+
+    <div style="padding:0 20px 12px">
+      <div class="pastor-tabs">
+        <div class="pastor-tab active" onclick="filtrarDiscipulos('pendentes')">Aguardando resposta</div>
+        <div class="pastor-tab" onclick="filtrarDiscipulos('todos')">Todos</div>
+        <div class="pastor-tab" onclick="filtrarDiscipulos('respondidos')">Respondidos</div>
+      </div>
+    </div>
+
+    <div class="p20" id="discipulosList">
+      <div class="loading"><div class="spinner"></div>Carregando...</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PERFIL SCREEN
+  ══════════════════════════════════ -->
+  <div id="screenPerfil" class="screen">
+    <div class="profile-header">
+      <div class="avatar-lg" id="perfilAvatar">?</div>
+      <div class="profile-name" id="perfilNome">—</div>
+      <div class="profile-celula" id="perfilCelula">—</div>
+      <div class="profile-role-badge role-membro" id="perfilRoleBadge">Membro</div>
+    </div>
+
+    <div class="profile-stats">
+      <div class="stat-item"><div class="stat-num" id="statEntradas">0</div><div class="stat-label">Reflexões</div></div>
+      <div class="stat-item"><div class="stat-num" id="statRespostas">0</div><div class="stat-label">Respostas</div></div>
+      <div class="stat-item"><div class="stat-num" id="statDias">0</div><div class="stat-label">Dias na jornada</div></div>
+    </div>
+
+    <div class="settings-list">
+      <div class="settings-group-title">Minha conta</div>
+      <div class="settings-item" onclick="abrirEditarPerfil()">
+        <div class="si-icon">✏️</div>
+        <div class="si-text"><div class="si-title">Editar perfil</div><div class="si-sub">Nome, telefone, endereço</div></div>
+        <svg class="si-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="settings-item" onclick="abrirAlterarSenha()">
+        <div class="si-icon">🔒</div>
+        <div class="si-text"><div class="si-title">Alterar senha</div><div class="si-sub">Segurança da conta</div></div>
+        <svg class="si-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+
+      <div class="settings-group-title" style="margin-top:20px">Suporte</div>
+      <div class="settings-item">
+        <div class="si-icon">📖</div>
+        <div class="si-text"><div class="si-title">Sobre o app</div><div class="si-sub">Monte Sião — Jornada do Discipulado</div></div>
+      </div>
+
+      <div style="margin-top:24px">
+        <button class="btn btn-ghost" onclick="doLogout()">SAIR DA CONTA</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       BOTTOM NAVIGATION
+  ══════════════════════════════════ -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-item active" id="navHome" onclick="goTo('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+      Início
+    </button>
+    <button class="nav-item" id="navDiario" onclick="goTo('diario')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+      Diário
+    </button>
+    <button class="nav-item" id="navDiscipulos" onclick="goTo('discipulos')" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Discípulos
+    </button>
+    <button class="nav-item" id="navPerfil" onclick="goTo('perfil')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Perfil
+    </button>
+  </nav>
+
+</div><!-- /appShell -->
+
+<!-- ══════════════════════════════════
+     CHAT VIEW (overlay)
+══════════════════════════════════ -->
+<div class="chat-view" id="chatView">
+  <div class="chat-header">
+    <button class="chat-back" onclick="fecharChat()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <div class="chat-info">
+      <h3 id="chatTitle">Minha Reflexão</h3>
+      <p id="chatSub">Diário Pastoral Privado</p>
+    </div>
+    <div class="di-tipo reflexao" id="chatTipoBadge" style="font-size:10px">reflexão</div>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-area" id="chatInputArea">
+    <div class="chat-tipo-select" id="tipoSelect">
+      <button class="tipo-chip active" onclick="selectTipo('reflexao',this)">✨ Reflexão</button>
+      <button class="tipo-chip" onclick="selectTipo('pedido',this)">🙏 Pedido</button>
+      <button class="tipo-chip" onclick="selectTipo('testemunho',this)">🔥 Testemunho</button>
+      <button class="tipo-chip" onclick="selectTipo('duvida',this)">❓ Dúvida</button>
+    </div>
+    <div class="chat-input-row">
+      <textarea class="chat-textarea" id="chatInput" placeholder="Escreva aqui..." rows="1" oninput="autoResize(this)"></textarea>
+      <button class="chat-send" onclick="enviarMensagem()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/></svg>
+      </button>
+    </div>
   </div>
 </div>
 
-<!-- PAINEL PASTOR -->
-<div class="tela" id="telaPastor">
-  <div class="dh">
-    <div><div class="dn">Painel pastoral <span class="pb">Pastor</span></div><h2>Jornada do Discipulado</h2></div>
-    <button class="btn btn-o btn-sm" onclick="sair()">Sair</button>
+<!-- ══════════════════════════════════
+     RESPONDER MODAL (Pastor)
+══════════════════════════════════ -->
+<div class="responder-modal" id="responderModal">
+  <div class="rm-header">
+    <button class="chat-back" onclick="fecharResponder()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <div class="chat-info"><h3>Responder discípulo</h3><p>Mentoria Pastoral</p></div>
   </div>
-  <div class="nb">
-    <div class="nb-btn ativo" onclick="showP('disc')">Discípulos</div>
-    <div class="nb-btn" onclick="showP('ent')">Entradas</div>
-    <div class="nb-btn" onclick="showP('sem')">Sem resposta</div>
-    <div class="nb-btn" onclick="showP('cel')">Células</div>
+  <div class="rm-content">
+    <div class="entrada-full" id="entradaFullContent"></div>
+    <div class="field"><label>Sua resposta pastoral</label>
+      <textarea id="respostaTexto" placeholder="Escreva uma palavra de direção, conforto ou mentoria..." rows="5"></textarea>
+    </div>
+    <div class="msg-err" id="errResposta"></div>
   </div>
-  <div class="ok" id="okP"></div>
-  <div class="err" id="errP"></div>
-  <div id="listaP"><div class="load">Carregando...</div></div>
+  <div class="rm-footer">
+    <button class="btn" onclick="enviarResposta()">ENVIAR RESPOSTA</button>
+  </div>
 </div>
 
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════
+     SCRIPT
+══════════════════════════════════ -->
 <script>
-const SB = "https://wvjulupgociujcypsdpv.supabase.co";
-const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2anVsdXBnb2NpdWpjeXBzZHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjAzMTcsImV4cCI6MjA5NTM5NjMxN30.OZWWxryYAqSNcBJyFU2czLqlVD_Yrf3Askr12GvmJmM";
-const PASTOR = "pastoresbrunoedry@gmail.com";
-let S = null, P = null, secP = "disc";
+// ════════════════════════════════════
+// CONFIG SUPABASE — substitua com suas credenciais
+// ════════════════════════════════════
+const SUPA_URL = 'https://wvjulupgociujcypsdpv.supabase.co';
+const SUPA_KEY = 'sb_publishable_BTuLa5Eg14hkkvm0OR1M3Q_bd_6HGa6';
+const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
-// EVENT DELEGATION
-document.addEventListener("click", function(ev) {
-  const bvh = ev.target.closest("#btnVerHist");
-  if (bvh) showSec("hist");
-  const eb = ev.target.closest(".eb[data-target]");
-  if (eb) addE(eb.dataset.target, eb.dataset.emoji);
-  const cc = ev.target.closest("#btnCancelCel");
-  if (cc) { document.getElementById("formCel").style.display = "none"; document.getElementById("formCel").dataset.editId = ""; }
-  const ceb = ev.target.closest(".cel-edit-btn");
-  if (ceb && window._celulas) {
-    const c = window._celulas[parseInt(ceb.dataset.idx)];
-    if (c) editCelula(c.id, c.nome||"", c.endereco||"", c.bairro||"", c.lider_nome||"", c.dia_semana||"", c.horario||"");
+// ════════════════════════════════════
+// ESTADO GLOBAL
+// ════════════════════════════════════
+let currentUser = null;
+let currentPerfil = null;
+let currentScreen = 'home';
+let chatEntradaId = null;
+let chatIsNova = false;
+let chatTipoAtual = 'reflexao';
+let discipulosFiltro = 'pendentes';
+let entradaParaResponder = null;
+let realtimeChannel = null;
+
+// Versículos fallback
+const VERSICULOS = [
+  {text:'Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo o que nele crê não pereça, mas tenha a vida eterna.',ref:'João 3.16'},
+  {text:'Posso tudo naquele que me fortalece.',ref:'Filipenses 4.13'},
+  {text:'O Senhor é o meu pastor, nada me faltará.',ref:'Salmos 23.1'},
+  {text:'Sede fortes e corajosos. Não temais, nem vos aterrorizeis diante deles; porque o Senhor, vosso Deus, é o que vai convosco; não vos deixará, nem vos desamparará.',ref:'Deuteronômio 31.6'},
+  {text:'Confia no Senhor de todo o teu coração e não te estribes no teu próprio entendimento.',ref:'Provérbios 3.5'},
+  {text:'Mas os que esperam no Senhor renovarão as suas forças, subirão com asas como águias, correrão e não se cansarão, caminharão e não se fatigarão.',ref:'Isaías 40.31'},
+  {text:'Eu sou a videira; vós, os ramos. Quem permanece em mim e eu nele, esse dá muito fruto; porque sem mim nada podeis fazer.',ref:'João 15.5'},
+];
+
+// ════════════════════════════════════
+// INIT
+// ════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    currentUser = session.user;
+    await iniciarApp();
   }
-  const csb = ev.target.closest(".csb[data-eid]");
-  if (csb) enviarChat(parseInt(csb.dataset.eid), csb.dataset.p === "true");
-  const dr = ev.target.closest(".disc-row");
-  if (dr) verDisc(dr.dataset.uid, dr.dataset.nome, dr.dataset.celula);
-  const vb = ev.target.closest("[data-back]");
-  if (vb) showP(vb.dataset.back);
+  await carregarCelulas();
+  mostrarVersiculo();
 });
 
-window.onload = async () => {
-  document.getElementById("pLogin").style.display = "block";
-  document.getElementById("pCad").style.display = "none";
-  await loadCelulas();
-  // Handle email confirmation
-  const hash = window.location.hash;
-  if (hash.includes("access_token")) {
-    const p = new URLSearchParams(hash.replace("#","?"));
-    const at = p.get("access_token");
-    const type = p.get("type");
-    if (at && (type === "signup" || type === "recovery")) {
-      try {
-        const r = await fetch(SB + "/auth/v1/user", {
-          headers: { "apikey": KEY, "Authorization": "Bearer " + at }
-        });
-        const u = await r.json();
-        if (u.id) {
-          showTab("login");
-          showOk("okLogin", "E-mail confirmado! Faça seu login abaixo.");
-          window.history.replaceState(null, null, window.location.pathname);
-          return;
-        }
-      } catch(e) {}
-    }
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session?.user) {
+    currentUser = session.user;
+    await iniciarApp();
+  } else if (event === 'SIGNED_OUT') {
+    currentUser = null; currentPerfil = null;
+    showScreen('auth');
+    document.getElementById('bottomNav').classList.remove('visible');
   }
-  const tok = localStorage.getItem("ms_tok");
-  const usr = localStorage.getItem("ms_usr");
-  if (tok && usr) {
-    try {
-      S = { access_token: tok, user: JSON.parse(usr) };
-      await loadPerfil();
-      goHome();
-    } catch(e) { clearSession(); }
-  }
-};
+});
 
-// UTILS
-function cc(el, id) {
-  const max = id === "cc3" ? 1000 : 500;
-  if (el.value.length > max) el.value = el.value.substring(0, max);
-  document.getElementById(id).textContent = el.value.length + " / " + max;
-}
-function addE(id, e) { const el = document.getElementById(id); if(el){el.value+=e;el.focus();} }
-function toggleS(id, el) {
-  const i = document.getElementById(id);
-  i.type = i.type === "password" ? "text" : "password";
-  el.textContent = i.type === "password" ? "👁" : "🙈";
-}
-function maskTel(el) {
-  let v = el.value.replace(/\D/g,"").substring(0,11);
-  if(v.length>10) v=v.replace(/(\d{2})(\d{5})(\d{4})/,"($1) $2-$3");
-  else if(v.length>6) v=v.replace(/(\d{2})(\d{4})(\d*)/,"($1) $2-$3");
-  else if(v.length>2) v=v.replace(/(\d{2})(\d*)/,"($1) $2");
-  el.value=v;
-}
-function getR(n) { const e=document.querySelector("input[name="+n+"]:checked"); return e?e.value:null; }
-function getC() { return Array.from(document.querySelectorAll(".cg input:checked")).map(c=>c.value).join(", ")||null; }
-function showErr(id,m){const e=document.getElementById(id);e.textContent=m;e.style.display="block";setTimeout(()=>e.style.display="none",7000);}
-function showOk(id,m){const e=document.getElementById(id);e.textContent=m;e.style.display="block";setTimeout(()=>e.style.display="none",8000);}
-function showTela(id){document.querySelectorAll(".tela").forEach(t=>t.classList.remove("ativa"));document.getElementById(id).classList.add("ativa");}
-function showTab(t){
-  document.querySelectorAll(".atab").forEach((a,i)=>a.classList.toggle("ativo",(t==="login"&&i===0)||(t==="cad"&&i===1)));
-  document.getElementById("pLogin").style.display=t==="login"?"block":"none";
-  document.getElementById("pCad").style.display=t==="cad"?"block":"none";
-}
-function showSec(s){
-  document.querySelectorAll("#telaDash .nb-btn").forEach((b,i)=>b.classList.toggle("ativo",(s==="novo"&&i===0)||(s==="hist"&&i===1)));
-  document.getElementById("secNovo").style.display=s==="novo"?"block":"none";
-  document.getElementById("secHist").style.display=s==="hist"?"block":"none";
-  if(s==="hist") loadHist();
-}
-function showP(s){
-  secP=s;
-  document.querySelectorAll("#telaPastor .nb-btn").forEach((b,i)=>b.classList.toggle("ativo",(s==="disc"&&i===0)||(s==="ent"&&i===1)||(s==="sem"&&i===2)||(s==="cel"&&i===3)));
-  if(s==="disc") loadDisc();
-  else if(s==="cel") loadCelPastor();
-  else loadEnt();
-}
-function goHome(){
-  if(S.user.email===PASTOR){showTela("telaPastor");showP("disc");}
-  else{if(P)document.getElementById("dNome").textContent="Olá, "+P.nome;showTela("telaDash");}
-}
-function clearSession(){localStorage.removeItem("ms_tok");localStorage.removeItem("ms_usr");S=null;P=null;}
-function sair(){clearSession();showTela("telaAuth");}
-
-// CÉLULAS - carregar para o select
-async function loadCelulas() {
-  try {
-    const r = await fetch(SB + "/rest/v1/celulas?ativa=eq.true&order=nome.asc", {
-      headers: { "apikey": KEY }
-    });
-    const data = await r.json();
-    const sel = document.getElementById("cCelula");
-    if (Array.isArray(data) && data.length) {
-      sel.innerHTML = "<option value=''>Selecione sua célula</option>" +
-        data.map(c => "<option value='" + c.nome + "'>" + c.nome + (c.bairro ? " — " + c.bairro : "") + (c.dia_semana ? " (" + c.dia_semana + " " + (c.horario||"") + ")" : "") + "</option>").join("");
-    } else {
-      sel.innerHTML = "<option value=''>Nenhuma célula cadastrada</option>";
-    }
-  } catch(e) {
-    document.getElementById("cCelula").innerHTML = "<option value=''>Erro ao carregar células</option>";
-  }
-}
-
-async function loadPerfil() {
-  try {
-    const r = await fetch(SB + "/rest/v1/perfis_lideres?user_id=eq." + S.user.id, {
-      headers: { "apikey": KEY, "Authorization": "Bearer " + S.access_token }
-    });
-    const d = await r.json();
-    P = d[0] || null;
-    // If no perfil yet, use metadata
-    if (!P && S.user.user_metadata) {
-      P = { 
-        nome: S.user.user_metadata.nome || "",
-        celula: S.user.user_metadata.celula || "",
-        telefone: S.user.user_metadata.telefone || "",
-        email: S.user.email
-      };
-    }
-  } catch(e) { P = null; }
-}
-
+// ════════════════════════════════════
 // AUTH
-async function doCad() {
-  const btn = document.getElementById("btnCad");
-  btn.disabled = true; btn.textContent = "Aguarde...";
-  const nome = document.getElementById("cNome").value.trim();
-  const email = document.getElementById("cEmail").value.trim();
-  const tel = document.getElementById("cTel").value.trim();
-  const celula = document.getElementById("cCelula").value;
-  const senha = document.getElementById("cSenha").value;
-  const senha2 = document.getElementById("cSenha2").value;
-  const reset = () => { btn.disabled=false; btn.textContent="Iniciar minha jornada de discipulado"; };
-  if (!nome||!email||!celula||!senha) { showErr("eCad","Preencha todos os campos obrigatórios."); reset(); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { showErr("eCad","Digite um e-mail válido."); reset(); return; }
-  if (senha!==senha2) { showErr("eCad","As senhas não coincidem."); reset(); return; }
-  if (senha.length<6) { showErr("eCad","A senha deve ter pelo menos 6 caracteres."); reset(); return; }
-  try {
-    const r = await fetch(SB + "/auth/v1/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "apikey": KEY },
-      body: JSON.stringify({ email, password: senha, data: { nome, telefone: tel, celula } })
-    });
-    const d = await r.json();
-    if (d.error) { showErr("eCad","Erro: "+(d.error.message||JSON.stringify(d.error))); reset(); return; }
-    if (d.user && d.user.identities && d.user.identities.length===0) { showErr("eCad","Este e-mail já está cadastrado. Faça login."); reset(); return; }
-    // Supabase returns user even before email confirmation
-    const userId = d.user ? d.user.id : null;
-    if (userId) {
-      // Save profile
-      await fetch(SB + "/rest/v1/perfis_lideres", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "apikey": KEY, "Authorization": "Bearer "+KEY, "Prefer": "return=minimal" },
-        body: JSON.stringify({ 
-          user_id: userId, nome, email, 
-          telefone: tel, celula,
-          sexo: document.getElementById("cSexo").value || null,
-          data_nascimento: document.getElementById("cNasc").value || null
-        })
-      });
-    }
-    // Always show success if no error
-    showOk("okCad", "✅ Cadastro realizado com sucesso! Enviamos um e-mail para " + email + ". Acesse sua caixa de entrada, confirme seu cadastro e volte aqui para fazer login.");
-    // Clear form
-    ["cNome","cEmail","cTel","cSenha","cSenha2","cNasc"].forEach(id=>{document.getElementById(id).value="";});
-    document.getElementById("cCelula").value="";
-    document.getElementById("cSexo").value="";
-    setTimeout(()=>showTab("login"), 5000);
-  } catch(e) { showErr("eCad","Erro de conexão: "+e.message); }
-  reset();
+// ════════════════════════════════════
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('formLogin').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('formCadastro').style.display = tab === 'cadastro' ? 'block' : 'none';
 }
 
 async function doLogin() {
-  const email = document.getElementById("lEmail").value.trim();
-  const senha = document.getElementById("lSenha").value;
-  if (!email||!senha) return showErr("eLogin","Preencha e-mail e senha.");
-  try {
-    const r = await fetch(SB + "/auth/v1/token?grant_type=password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "apikey": KEY },
-      body: JSON.stringify({ email, password: senha })
-    });
-    const d = await r.json();
-    if (d.error||!d.access_token) return showErr("eLogin", d.error_description||"E-mail ou senha incorretos.");
-    S = d;
-    localStorage.setItem("ms_tok", d.access_token);
-    localStorage.setItem("ms_usr", JSON.stringify(d.user));
-    await loadPerfil();
-    goHome();
-  } catch(e) { showErr("eLogin","Erro de conexão."); }
+  const email = document.getElementById('lEmail').value.trim();
+  const senha = document.getElementById('lSenha').value;
+  const err = document.getElementById('errLogin');
+  const ok = document.getElementById('okLogin');
+  err.style.display = 'none'; ok.style.display = 'none';
+  if (!email || !senha) { showMsg(err, 'Preencha e-mail e senha.'); return; }
+  const btn = document.getElementById('btnLogin');
+  btn.disabled = true; btn.textContent = 'Entrando...';
+  const { error } = await sb.auth.signInWithPassword({ email, password: senha });
+  btn.disabled = false; btn.textContent = 'ENTRAR';
+  if (error) { showMsg(err, traduzirErro(error.message)); return; }
 }
 
-async function forgot() {
-  const email = document.getElementById("lEmail").value.trim();
-  if (!email) return showErr("eLogin","Digite seu e-mail primeiro.");
-  await fetch(SB + "/auth/v1/recover", { method:"POST", headers:{"Content-Type":"application/json","apikey":KEY}, body:JSON.stringify({email}) });
-  showOk("okLogin","Se o e-mail estiver cadastrado, você receberá um link.");
-}
-
-// ENVIAR ENTRADA
-async function enviar() {
-  const btn = document.getElementById("btnEnv");
-  btn.disabled=true; btn.textContent="Enviando...";
-  // Get name from perfil or from stored user metadata
-  const nomeDisc = P?P.nome:(S.user.user_metadata?S.user.user_metadata.nome:"");
-  const celulaDisc = P?P.celula:(S.user.user_metadata?S.user.user_metadata.celula:"");
-  const telDisc = P?P.telefone:(S.user.user_metadata?S.user.user_metadata.telefone:"");
-  const dados = {
-    user_id: S.user.id,
-    nome: nomeDisc,
-    celula: celulaDisc,
-    telefone: telDisc,
-    vida_senhor: getR("vs"),
-    dificuldade: document.getElementById("dific").value.trim()||null,
-    cuidado_discipulos: getR("cu"),
-    situacao_especifica: document.getElementById("situ").value.trim()||null,
-    diario: document.getElementById("diario").value.trim()||null,
-    necessidade: getC(),
-    pedido_oracao: document.getElementById("oracao").value.trim()||null,
-    mensagem_extra: document.getElementById("extra").value.trim()||null
-  };
-  try {
-    const r = await fetch(SB + "/rest/v1/mentoria_lideres", {
-      method: "POST",
-      headers: { "Content-Type":"application/json","apikey":KEY,"Authorization":"Bearer "+S.access_token,"Prefer":"return=minimal" },
-      body: JSON.stringify(dados)
-    });
-    if (r.ok) {
-      document.getElementById("secNovo").innerHTML =
-        "<div style='text-align:center;padding:40px 20px'>" +
-        "<div style='font-size:48px;margin-bottom:16px'>🙏</div>" +
-        "<h2 style='font-family:Cormorant Garamond,serif;font-size:24px;color:var(--brown);margin-bottom:12px'>Mensagem enviada!</h2>" +
-        "<p style='font-size:15px;color:#555;line-height:1.8;margin-bottom:12px'>Sua entrada chegou diretamente ao pastor.<br>Em breve você receberá uma resposta pastoral.</p>" +
-        "<p style='font-family:Cormorant Garamond,serif;font-style:italic;font-size:15px;color:var(--lb);margin-bottom:24px'>Não sou mais eu que vivo, mas Cristo vive em mim. — Gálatas 2.20</p>" +
-        "<button class='btn' style='max-width:280px;margin:0 auto' id='btnVerHist'>Ver meu hist&#243;rico</button></div>";
-      window.scrollTo({top:0,behavior:"smooth"});
-    } else {
-      const e = await r.json();
-      showErr("eForm","Erro: "+(e.message||r.status));
-      btn.disabled=false; btn.textContent="Enviar ao pastor";
-    }
-  } catch(e) { showErr("eForm","Erro de conexão."); btn.disabled=false; btn.textContent="Enviar ao pastor"; }
-}
-
-// HISTÓRICO DISCÍPULO
-async function loadHist() {
-  const lista = document.getElementById("listaHist");
-  lista.innerHTML = "<div class='load'>Carregando...</div>";
-  try {
-    const r = await fetch(SB + "/rest/v1/mentoria_lideres?user_id=eq."+S.user.id+"&order=created_at.desc", {
-      headers: { "apikey":KEY,"Authorization":"Bearer "+S.access_token }
-    });
-    const ents = await r.json();
-    if (!Array.isArray(ents)||!ents.length) { lista.innerHTML="<div class='empty'>Você ainda não tem entradas.</div>"; return; }
-    const bv={"Próximo e em comunhão":"bv","Estável, mas sem profundidade":"ba","Distante e frio":"br","Em luta, mas buscando":"bb"};
-    lista.innerHTML = ents.map(e => {
-      const dt = new Date(e.created_at).toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
-      const cl = bv[e.vida_senhor]||"bb";
-      return "<div class='card'><div class='dt'>"+dt+"</div>"
-        +(e.vida_senhor?"<div class='cp'><strong>Vida com o Senhor</strong><span class='badge "+cl+"'>"+e.vida_senhor+"</span></div>":"")
-        +(e.diario?"<div class='cp'><strong>Diário espiritual</strong>"+e.diario+"</div>":"")
-        +(e.dificuldade?"<div class='cp'><strong>Dificuldade</strong>"+e.dificuldade+"</div>":"")
-        +(e.pedido_oracao?"<div class='cp'><strong>Pedido de oração</strong>"+e.pedido_oracao+"</div>":"")
-        +"<div id='ch_"+e.id+"'></div></div>";
-    }).join("");
-    setTimeout(()=>ents.forEach(e=>loadChat(e.id,false)),50);
-  } catch(err) { lista.innerHTML="<div class='empty'>Erro: "+err.message+"</div>"; }
-}
-
-// CHAT
-async function loadChat(eid, isPastor) {
-  const el = document.getElementById("ch_"+eid);
-  if (!el) return;
-  try {
-    // Get entry info to find owner name
-    const rEnt = await fetch(SB+"/rest/v1/mentoria_lideres?id=eq."+eid+"&select=nome,user_id",{
-      headers:{"apikey":KEY,"Authorization":"Bearer "+S.access_token}
-    });
-    const entData = await rEnt.json();
-    const entNome = entData[0] ? (entData[0].nome || "") : "";
-    const entUserId = entData[0] ? entData[0].user_id : "";
-    
-    // If no nome in entry, try to get from perfis
-    let discNome = entNome;
-    if (!discNome && entUserId) {
-      const rP = await fetch(SB+"/rest/v1/perfis_lideres?user_id=eq."+entUserId+"&select=nome",{
-        headers:{"apikey":KEY,"Authorization":"Bearer "+S.access_token}
-      });
-      const pData = await rP.json();
-      if (pData[0]) discNome = pData[0].nome || "";
-    }
-    discNome = discNome || "Discípulo";
-
-    const r = await fetch(SB+"/rest/v1/conversa_pastoral?entrada_id=eq."+eid+"&order=created_at.asc",{
-      headers:{"apikey":KEY,"Authorization":"Bearer "+S.access_token}
-    });
-    const msgs = await r.json();
-    const titulo = isPastor ? "Conversa com "+discNome : "Conversa com o pastor";
-    let h = "<div class='chat'><div class='chat-t'>"+titulo+"</div><div class='chat-msgs' id='cm_"+eid+"'>";
-    if (!Array.isArray(msgs)||!msgs.length) {
-      h += "<div style='font-size:13px;color:#aaa;font-style:italic;padding:4px'>Nenhuma mensagem ainda. Inicie a conversa!</div>";
-    } else {
-      msgs.forEach(m => {
-        const isP = m.autor==="pastor";
-        const cls = isP?"pastor":"lider";
-        const autor = isPastor ? (isP?"Você (Pastor)":discNome) : (isP?"Pastor":"Você");
-        const dt = new Date(m.created_at).toLocaleString("pt-BR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
-        h += "<div class='msg "+cls+"'><div class='ma'>"+autor+"</div>"+m.mensagem+"<div class='md'>"+dt+"</div></div>";
-      });
-    }
-    h += "</div>";
-    // Emoji bar
-    h += "<div class='emoji-bar'>";
-    ["🙏","❤️","✝️","🔥","😊","😢","💪","🌿","📖","🕊️"].forEach(em => {
-      h += "<button class='eb' data-target='ci_"+eid+"' data-emoji='"+em+"'>"+em+"</button>";
-    });
-    h += "</div>";
-    h += "<div class='cin'><textarea id='ci_"+eid+"' placeholder='Escreva sua mensagem...' rows='2'></textarea>";
-    h += "<button class='csb' data-eid='"+eid+"' data-p='"+isPastor+"'>&#10148;</button></div></div>";
-    el.innerHTML = h;
-    const cm = document.getElementById("cm_"+eid);
-    if (cm) cm.scrollTop = cm.scrollHeight;
-  } catch(e) { el.innerHTML=""; }
-}
-
-async function enviarChat(eid, isPastor) {
-  const inp = document.getElementById("ci_"+eid);
-  const msg = inp?inp.value.trim():"";
-  if (!msg) return;
-  const autor = isPastor?"pastor":"lider";
-  const nome = isPastor?"Pastor":(P?P.nome:"Discípulo");
-  try {
-    const r = await fetch(SB+"/rest/v1/conversa_pastoral",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","apikey":KEY,"Authorization":"Bearer "+S.access_token,"Prefer":"return=minimal"},
-      body:JSON.stringify({entrada_id:eid,user_id:S.user.id,autor,mensagem:msg,nome})
-    });
-    if (r.ok) { inp.value=""; loadChat(eid,isPastor); }
-    else { const e=await r.json(); alert("Erro: "+(e.message||r.status)); }
-  } catch(e) { alert("Erro de conexão."); }
-}
-
-// PAINEL PASTOR — DISCÍPULOS
-async function loadDisc() {
-  const lista = document.getElementById("listaP");
-  lista.innerHTML = "<div class='load'>Carregando discípulos...</div>";
-  try {
-    const [rP, rE] = await Promise.all([
-      fetch(SB+"/rest/v1/perfis_lideres?order=nome.asc&limit=200",{headers:{"apikey":KEY,"Authorization":"Bearer "+S.access_token}}),
-      fetch(SB+"/rest/v1/mentoria_lideres?order=created_at.desc",{headers:{"apikey":KEY,"Authorization":"Bearer "+S.access_token}})
-    ]);
-    const discs = await rP.json();
-    const ents = await rE.json();
-    if (!Array.isArray(discs)||!discs.length) { lista.innerHTML="<div class='empty'>Nenhum discípulo cadastrado ainda.</div>"; return; }
-    let h = "<table class='dt-table'><thead><tr><th>Nome</th><th>Célula</th><th>WhatsApp</th><th>Entradas</th><th>Última</th></tr></thead><tbody>";
-    discs.forEach(d => {
-      const de = Array.isArray(ents)?ents.filter(e=>e.user_id===d.user_id):[];
-      const ul = de.length?new Date(de[0].created_at).toLocaleDateString("pt-BR"):"—";
-      const semResp = de.length > 0 && !de.some(e => {
-        // check if has pastor response in convs - approximate
-        return false;
-      });
-      const statusLabel = de.length === 0 ? "" : "<span class='sl' style='font-size:10px;margin-left:4px'>"+de.length+" entrada"+(de.length>1?"s":"")+"</span>";
-      h += "<tr class='disc-row' data-uid='"+d.user_id+"' data-nome='"+d.nome.replace(/'/g,"")+"' data-celula='"+(d.celula||"").replace(/'/g,"")+"'>"
-        +"<td><span class='ds "+(de.length?"a":"i")+"'></span>"+d.nome+statusLabel+"</td>"
-        +"<td>"+(d.celula||"—")+"</td>"
-        +"<td>"+(d.telefone||"—")+"</td>"
-        +"<td>"+de.length+"</td>"
-        +"<td>"+ul+"</td></tr>";
-    });
-    h += "</tbody></table>";
-    lista.innerHTML = h;
-  } catch(e) { lista.innerHTML="<div class='empty'>Erro ao carregar.</div>"; }
-}
-
-async function verDisc(uid, nome, celula) {
-  const lista = document.getElementById("listaP");
-  lista.innerHTML = "<div class='load'>Carregando...</div>";
-  try {
-    const [rP, rE] = await Promise.all([
-      fetch(SB+"/rest/v1/perfis_lideres?user_id=eq."+uid,{headers:{"apikey":KEY,"Authorization":"Bearer "+S.access_token}}),
-      fetch(SB+"/rest/v1/mentoria_lideres?user_id=eq."+uid+"&order=created_at.desc",{headers:{"apikey":KEY,"Authorization":"Bearer "+S.access_token}})
-    ]);
-    const perf = await rP.json();
-    const ents = await rE.json();
-    const p = perf[0]||{};
-    const bv={"Próximo e em comunhão":"bv","Estável, mas sem profundidade":"ba","Distante e frio":"br","Em luta, mas buscando":"bb"};
-    let h = "<button class='btn btn-o btn-sm' style='margin-bottom:16px' data-back='disc'>&#8592; Voltar</button>";
-    h += "<div class='card' style='background:#fdf8ef'>"
-      +"<div class='ln'>"+(p.nome||nome)+"</div>"
-      +"<div class='li'>"
-      +(p.celula?"&#128205; "+p.celula+" &nbsp;":"")
-      +(p.telefone?"&#128241; "+p.telefone+" &nbsp;":"")
-      +(p.email?"&#9993;&#65039; "+p.email:"")
-      +"</div></div>";
-    if (!Array.isArray(ents)||!ents.length) { h+="<div class='empty'>Este discípulo ainda não tem entradas.</div>"; lista.innerHTML=h; return; }
-    h += ents.map(e => {
-      const dt = new Date(e.created_at).toLocaleDateString("pt-BR",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"});
-      const cl = bv[e.vida_senhor]||"bb";
-      return "<div class='card' id='card_"+e.id+"'>"
-        +"<div class='dt'>"+dt+"</div>"
-        +(e.vida_senhor?"<div class='cp'><strong>Vida com o Senhor</strong><span class='badge "+cl+"'>"+e.vida_senhor+"</span></div>":"")
-        +(e.diario?"<div class='cp'><strong>Diário espiritual</strong>"+e.diario+"</div>":"")
-        +(e.dificuldade?"<div class='cp'><strong>Dificuldade</strong>"+e.dificuldade+"</div>":"")
-        +(e.cuidado_discipulos?"<div class='cp'><strong>Cuidado dos discípulos</strong>"+e.cuidado_discipulos+"</div>":"")
-        +(e.situacao_especifica?"<div class='cp'><strong>Situação específica</strong>"+e.situacao_especifica+"</div>":"")
-        +(e.necessidade?"<div class='cp'><strong>Pedido ao pastor</strong>"+e.necessidade+"</div>":"")
-        +(e.pedido_oracao?"<div class='cp'><strong>Pedido de oração</strong>"+e.pedido_oracao+"</div>":"")
-        +(e.mensagem_extra?"<div class='cp'><strong>Mensagem extra</strong>"+e.mensagem_extra+"</div>":"")
-        +"<div id='ch_"+e.id+"'></div></div>";
-    }).join("");
-    lista.innerHTML = h;
-    setTimeout(()=>ents.forEach(e=>loadChat(e.id,true)),50);
-  } catch(err) { lista.innerHTML="<div class='empty'>Erro: "+err.message+"</div>"; }
-}
-
-// ENTRADAS PASTOR
-async function loadEnt() {
-  const lista = document.getElementById("listaP");
-  lista.innerHTML = "<div class='load'>Carregando entradas...</div>";
-  try {
-    const [rE, rC] = await Promise.all([
-      fetch(SB+"/rest/v1/mentoria_lideres?order=created_at.desc",{headers:{"apikey":KEY,"Authorization":"Bearer "+S.access_token}}),
-      fetch(SB+"/rest/v1/conversa_pastoral?order=created_at.desc",{headers:{"apikey":KEY,"Authorization":"Bearer "+S.access_token}})
-    ]);
-    let ents = await rE.json();
-    const convs = await rC.json();
-    if (secP==="sem") {
-      const comR = new Set(Array.isArray(convs)?convs.filter(c=>c.autor==="pastor").map(c=>c.entrada_id):[]);
-      ents = ents.filter(e=>!comR.has(e.id));
-    }
-    if (!Array.isArray(ents)||!ents.length) { lista.innerHTML="<div class='empty'>Nenhuma entrada.</div>"; return; }
-    const bv={"Próximo e em comunhão":"bv","Estável, mas sem profundidade":"ba","Distante e frio":"br","Em luta, mas buscando":"bb"};
-    lista.innerHTML = ents.map(e => {
-      const dt = new Date(e.created_at).toLocaleDateString("pt-BR",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"});
-      const cl = bv[e.vida_senhor]||"bb";
-      const temR = Array.isArray(convs)&&convs.some(c=>c.entrada_id===e.id&&c.autor==="pastor");
-      return "<div class='card'>"
-        +"<div class='dt'>"+dt+(!temR?"<span class='sl'>sem resposta</span>":"")+"</div>"
-        +"<div class='ln'>"+(e.nome||"Discípulo")+"</div>"
-        +"<div class='li'>"+(e.celula?"&#128205; "+e.celula+" &nbsp;":"")+(e.telefone?"&#128241; "+e.telefone:"")+"</div>"
-        +(e.vida_senhor?"<div class='cp'><strong>Vida com o Senhor</strong><span class='badge "+cl+"'>"+e.vida_senhor+"</span></div>":"")
-        +(e.diario?"<div class='cp'><strong>Diário espiritual</strong>"+e.diario+"</div>":"")
-        +(e.pedido_oracao?"<div class='cp'><strong>Pedido de oração</strong>"+e.pedido_oracao+"</div>":"")
-        +"<div id='ch_"+e.id+"'></div></div>";
-    }).join("");
-    // Load chats after DOM renders
-    requestAnimationFrame(() => {
-      setTimeout(() => { ents.forEach(e => loadChat(e.id, true)); }, 100);
-    });
-  } catch(err) { lista.innerHTML="<div class='empty'>Erro: "+err.message+"</div>"; }
-}
-
-// CÉLULAS — PAINEL PASTOR
-async function loadCelPastor() {
-  const lista = document.getElementById("listaP");
-  lista.innerHTML = "<div class='load'>Carregando células...</div>";
-  try {
-    const r = await fetch(SB+"/rest/v1/celulas?order=nome.asc",{headers:{"apikey":KEY,"Authorization":"Bearer "+S.access_token}});
-    const cels = await r.json();
-    let h = "<div style='margin-bottom:16px;display:flex;justify-content:flex-end'>"
-      +"<button class='btn btn-g btn-sm' onclick='showFormCelula()'>+ Nova célula</button></div>";
-    h += "<div id='formCel' style='display:none' class='card' style='background:#fdf8ef;margin-bottom:16px'>"
-      +"<p class='st' style='margin-bottom:16px'>Nova célula</p>"
-      +"<div class='field'><label>Nome da célula *</label><input type='text' id='celNome' placeholder='Ex: Célula de 12 Pastores'></div>"
-      +"<div class='field'><label>Endereço</label><input type='text' id='celEnd' placeholder='Rua, número'></div>"
-      +"<div class='field'><label>Bairro</label><input type='text' id='celBairro' placeholder='Bairro'></div>"
-      +"<div class='field'><label>Líder responsável</label><input type='text' id='celLider' placeholder='Nome do líder'></div>"
-      +"<div class='field'><label>Dia da semana</label><select id='celDia'><option value=''>Selecione</option><option>Segunda-feira</option><option>Terça-feira</option><option>Quarta-feira</option><option>Quinta-feira</option><option>Sexta-feira</option><option>Sábado</option><option>Domingo</option></select></div>"
-      +"<div class='field'><label>Horário</label><input type='text' id='celHor' placeholder='Ex: 19:30'></div>"
-      +"<button class='btn' onclick='salvarCelula()'>Salvar célula</button>"
-      +"<button class='btn btn-o' style='margin-top:8px' id='btnCancelCel'>Cancelar</button>"
-      +"</div>";
-    if (!Array.isArray(cels)||!cels.length) {
-      h += "<div class='empty'>Nenhuma célula cadastrada ainda.</div>";
-    } else {
-      // Store cells data globally for edit
-      window._celulas = cels;
-      h += cels.map((c,idx) =>
-        "<div class='cel-card'><div class='cel-info'>"
-        +"<h4>"+c.nome+"</h4>"
-        +"<p>"+(c.bairro?"&#128205; "+c.bairro+" &nbsp;":"")
-        +(c.lider_nome?"&#128100; "+c.lider_nome+" &nbsp;":"")
-        +(c.dia_semana?c.dia_semana+" "+(c.horario||""):"")+"</p>"
-        +"</div>"
-        +"<button class='btn btn-g btn-sm cel-edit-btn' data-idx='"+idx+"'>Editar</button>"
-        +"</div>"
-      ).join("");
-    }
-    lista.innerHTML = h;
-  } catch(e) { lista.innerHTML="<div class='empty'>Erro ao carregar.</div>"; }
-}
-
-function editCelula(id, nome, end, bairro, lider, dia, hora) {
-  showFormCelula();
-  document.getElementById("celNome").value = nome;
-  document.getElementById("celEnd").value = end;
-  document.getElementById("celBairro").value = bairro;
-  document.getElementById("celLider").value = lider;
-  document.getElementById("celDia").value = dia;
-  document.getElementById("celHor").value = hora;
-  // Store id for update
-  document.getElementById("formCel").dataset.editId = id;
-  document.getElementById("formCel").querySelector(".btn").textContent = "Salvar alterações";
-}
-
-function showFormCelula() {
-  document.getElementById("formCel").style.display = "block";
-  document.getElementById("formCel").scrollIntoView({behavior:"smooth"});
-}
-
-async function salvarCelula() {
-  const nome = document.getElementById("celNome").value.trim();
-  if (!nome) return alert("Digite o nome da célula.");
-  const form = document.getElementById("formCel");
-  const editId = form.dataset.editId;
-  const body = JSON.stringify({
-    nome,
-    endereco: document.getElementById("celEnd").value.trim()||null,
-    bairro: document.getElementById("celBairro").value.trim()||null,
-    lider_nome: document.getElementById("celLider").value.trim()||null,
-    dia_semana: document.getElementById("celDia").value||null,
-    horario: document.getElementById("celHor").value.trim()||null
+async function doCadastro() {
+  const nome = document.getElementById('cNome').value.trim();
+  const email = document.getElementById('cEmail').value.trim();
+  const tel = document.getElementById('cTel').value.trim();
+  const celula = document.getElementById('cCelula').value;
+  const sexo = document.getElementById('cSexo').value;
+  const nasc = document.getElementById('cNasc').value;
+  const senha = document.getElementById('cSenha').value;
+  const err = document.getElementById('errCad');
+  const ok = document.getElementById('okCad');
+  err.style.display = 'none'; ok.style.display = 'none';
+  if (!nome || !email || !celula || !senha) { showMsg(err, 'Preencha todos os campos obrigatórios.'); return; }
+  if (senha.length < 6) { showMsg(err, 'A senha deve ter pelo menos 6 caracteres.'); return; }
+  const btn = document.getElementById('btnCad');
+  btn.disabled = true; btn.textContent = 'Criando conta...';
+  const { data, error } = await sb.auth.signUp({
+    email, password: senha,
+    options: { data: { nome, telefone: tel, celula_id: celula, sexo, data_nascimento: nasc } }
   });
-  try {
-    let r;
-    if (editId) {
-      // UPDATE
-      r = await fetch(SB+"/rest/v1/celulas?id=eq."+editId, {
-        method: "PATCH",
-        headers: {"Content-Type":"application/json","apikey":KEY,"Authorization":"Bearer "+S.access_token,"Prefer":"return=minimal"},
-        body
-      });
-    } else {
-      // INSERT
-      r = await fetch(SB+"/rest/v1/celulas", {
-        method: "POST",
-        headers: {"Content-Type":"application/json","apikey":KEY,"Authorization":"Bearer "+S.access_token,"Prefer":"return=minimal"},
-        body
-      });
-    }
-    if (r.ok) {
-      showOk("okP", editId ? "Célula atualizada!" : "Célula cadastrada!");
-      form.dataset.editId = "";
-      form.style.display = "none";
-      // Reset form
-      ["celNome","celEnd","celBairro","celLider","celHor"].forEach(id=>{document.getElementById(id).value="";});
-      document.getElementById("celDia").value="";
-      await loadCelulas();
-      loadCelPastor();
-    } else {
-      const e = await r.json();
-      showErr("errP","Erro: "+(e.message||r.status));
-    }
-  } catch(e) { showErr("errP","Erro de conexão."); }
+  btn.disabled = false; btn.textContent = 'CRIAR MINHA CONTA';
+  if (error) { showMsg(err, traduzirErro(error.message)); return; }
+  // Criar perfil
+  if (data.user) {
+    await sb.from('profiles').upsert({
+      id: data.user.id, nome, email, telefone: tel,
+      celula_id: celula || null, sexo, data_nascimento: nasc || null, role: 'membro'
+    });
+  }
+  showMsg(ok, 'Conta criada! Verifique seu e-mail se necessário.', true);
+}
+
+async function doForgot() {
+  const email = document.getElementById('lEmail').value.trim();
+  const err = document.getElementById('errLogin');
+  const ok = document.getElementById('okLogin');
+  if (!email) { showMsg(err, 'Digite seu e-mail primeiro.'); return; }
+  await sb.auth.resetPasswordForEmail(email);
+  showMsg(ok, 'Link enviado para seu e-mail!', true);
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  toast('Até logo! 👋');
+}
+
+// ════════════════════════════════════
+// INICIAR APP
+// ════════════════════════════════════
+async function iniciarApp() {
+  await carregarPerfil();
+  renderAvatar();
+  showScreen('home');
+  document.getElementById('bottomNav').classList.add('visible');
+  await carregarHome();
+  configurarNavPastor();
+  iniciarRealtime();
+}
+
+async function carregarPerfil() {
+  const { data } = await sb.from('profiles')
+    .select('*, celulas(nome)')
+    .eq('id', currentUser.id)
+    .single();
+  if (data) {
+    currentPerfil = data;
+  } else {
+    // criar perfil se não existir
+    const meta = currentUser.user_metadata || {};
+    const insert = { id: currentUser.id, nome: meta.nome || currentUser.email?.split('@')[0] || 'Usuário', email: currentUser.email, role: 'membro' };
+    await sb.from('profiles').insert(insert);
+    currentPerfil = insert;
+  }
+}
+
+function renderAvatar() {
+  if (!currentPerfil) return;
+  const inicial = (currentPerfil.nome || '?')[0].toUpperCase();
+  ['homeAvatar','diarioAvatar'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = inicial;
+  });
+  document.getElementById('homeName').textContent = (currentPerfil.nome||'').split(' ')[0];
+}
+
+function configurarNavPastor() {
+  const isPastor = currentPerfil?.role === 'pastor' || currentPerfil?.role === 'lider';
+  if (isPastor) {
+    document.getElementById('navDiscipulos').style.display = 'flex';
+    document.getElementById('cardDiscipulos').style.display = 'block';
+  }
+}
+
+// ════════════════════════════════════
+// HOME
+// ════════════════════════════════════
+async function carregarHome() {
+  mostrarVersiculo();
+  await carregarEntradasHome();
+  if (currentPerfil?.role === 'pastor' || currentPerfil?.role === 'lider') {
+    await carregarBadgePendentes();
+  }
+}
+
+function mostrarVersiculo() {
+  const v = VERSICULOS[Math.floor(Math.random() * VERSICULOS.length)];
+  document.getElementById('verseText').textContent = v.text;
+  document.getElementById('verseRef').textContent = `— ${v.ref} (NVI)`;
+}
+
+async function carregarEntradasHome() {
+  const el = document.getElementById('homeEntradas');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando...</div>';
+  const { data } = await sb.from('diario_entradas')
+    .select('*')
+    .eq('autor_id', currentUser.id)
+    .order('created_at', { ascending: false })
+    .limit(3);
+  if (!data || data.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📖</div><div class="empty-title">Seu diário está vazio</div><div class="empty-sub">Compartilhe sua primeira reflexão com seu pastor</div></div>';
+    return;
+  }
+  el.innerHTML = data.map(e => renderEntradaCard(e)).join('');
+}
+
+async function carregarBadgePendentes() {
+  const query = sb.from('diario_entradas').select('id', { count: 'exact' }).is('resposta', null);
+  if (currentPerfil.role === 'lider') query.eq('celula_id', currentPerfil.celula_id);
+  const { count } = await query;
+  if (count > 0) {
+    const b = document.getElementById('badgePendentes');
+    b.textContent = count;
+    b.classList.remove('hide');
+  }
+}
+
+// ════════════════════════════════════
+// DIÁRIO
+// ════════════════════════════════════
+async function carregarDiario() {
+  const el = document.getElementById('diarioList');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando...</div>';
+  const { data } = await sb.from('diario_entradas')
+    .select('*')
+    .eq('autor_id', currentUser.id)
+    .order('created_at', { ascending: false });
+  if (!data || data.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🕊️</div><div class="empty-title">Nenhuma reflexão ainda</div><div class="empty-sub">Toque em "Nova reflexão" para compartilhar o que está em seu coração com seu pastor</div></div>';
+    return;
+  }
+  el.innerHTML = data.map(e => renderEntradaCard(e)).join('');
+}
+
+function renderEntradaCard(e) {
+  const temResposta = !!e.resposta;
+  const data = new Date(e.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'short' });
+  const preview = e.conteudo.length > 100 ? e.conteudo.slice(0,100)+'...' : e.conteudo;
+  return `<div class="diario-item ${temResposta ? 'has-reply' : ''}" onclick="abrirEntrada('${e.id}')">
+    <div class="diario-item-header">
+      <span class="di-tipo ${e.tipo||'reflexao'}">${labelTipo(e.tipo)}</span>
+      <span class="di-data">${data}</span>
+    </div>
+    <div class="di-preview">${escHtml(preview)}</div>
+    ${temResposta ? '<div class="di-reply-indicator"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Pastor respondeu</div>' : ''}
+  </div>`;
+}
+
+function abrirNovaEntrada() {
+  chatIsNova = true;
+  chatEntradaId = null;
+  document.getElementById('chatTitle').textContent = 'Nova Reflexão';
+  document.getElementById('chatSub').textContent = 'Somente você e seu pastor verão isto';
+  document.getElementById('chatTipoBadge').textContent = 'nova';
+  document.getElementById('chatMessages').innerHTML = `
+    <div style="text-align:center;padding:30px 20px">
+      <div style="font-size:40px;margin-bottom:12px">🕊️</div>
+      <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text)">Este é um espaço seguro</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7">Compartilhe o que está em seu coração.<br>Seu pastor irá ler e responder com cuidado.</div>
+    </div>`;
+  document.getElementById('tipoSelect').style.display = 'flex';
+  document.getElementById('chatInput').value = '';
+  chatTipoAtual = 'reflexao';
+  document.querySelectorAll('.tipo-chip').forEach(c => c.classList.remove('active'));
+  document.querySelector('.tipo-chip').classList.add('active');
+  document.getElementById('chatView').classList.add('open');
+  setTimeout(() => document.getElementById('chatInput').focus(), 300);
+}
+
+async function abrirEntrada(id) {
+  chatIsNova = false;
+  chatEntradaId = id;
+  const { data: e } = await sb.from('diario_entradas').select('*').eq('id', id).single();
+  if (!e) return;
+  document.getElementById('chatTitle').textContent = labelTipo(e.tipo);
+  document.getElementById('chatSub').textContent = new Date(e.created_at).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('chatTipoBadge').textContent = labelTipo(e.tipo);
+  document.getElementById('chatTipoBadge').className = `di-tipo ${e.tipo||'reflexao'}`;
+  document.getElementById('tipoSelect').style.display = 'none';
+  renderMensagensEntrada(e);
+  document.getElementById('chatView').classList.add('open');
+}
+
+function renderMensagensEntrada(e) {
+  const msgs = document.getElementById('chatMessages');
+  const dataE = new Date(e.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const nome = (currentPerfil?.nome||'Você').split(' ')[0];
+  let html = `<div class="bubble mine">${escHtml(e.conteudo)}<div class="bubble-meta">${nome} · ${dataE}</div></div>`;
+  if (e.resposta) {
+    const dataR = e.respondido_em ? new Date(e.respondido_em).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '';
+    html += `<div class="bubble pastor"><div class="bubble-author">✦ PASTOR</div>${escHtml(e.resposta)}<div class="bubble-meta">Pastor · ${dataR}</div></div>`;
+  }
+  msgs.innerHTML = html;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function enviarMensagem() {
+  const texto = document.getElementById('chatInput').value.trim();
+  if (!texto) return;
+  const btn = document.querySelector('.chat-send');
+  btn.disabled = true;
+
+  if (chatIsNova) {
+    const { data, error } = await sb.from('diario_entradas').insert({
+      autor_id: currentUser.id,
+      conteudo: texto,
+      tipo: chatTipoAtual,
+      celula_id: currentPerfil?.celula_id || null
+    }).select().single();
+    if (error) { toast('Erro ao enviar. Tente novamente.', 'error'); btn.disabled = false; return; }
+    chatEntradaId = data.id;
+    chatIsNova = false;
+    document.getElementById('tipoSelect').style.display = 'none';
+    document.getElementById('chatInput').value = '';
+    autoResize(document.getElementById('chatInput'));
+    renderMensagensEntrada(data);
+    toast('Reflexão enviada ao pastor 🙏', 'success');
+    await carregarDiario();
+  }
+  btn.disabled = false;
+}
+
+function fecharChat() {
+  document.getElementById('chatView').classList.remove('open');
+}
+
+function selectTipo(tipo, el) {
+  chatTipoAtual = tipo;
+  document.querySelectorAll('.tipo-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ════════════════════════════════════
+// DISCÍPULOS (Pastor/Líder)
+// ════════════════════════════════════
+async function carregarDiscipulos() {
+  const el = document.getElementById('discipulosList');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando...</div>';
+
+  let query = sb.from('diario_entradas')
+    .select('*, profiles!diario_entradas_autor_id_fkey(nome, celulas(nome))')
+    .order('created_at', { ascending: false });
+
+  if (discipulosFiltro === 'pendentes') query = query.is('resposta', null);
+  if (discipulosFiltro === 'respondidos') query = query.not('resposta', 'is', null);
+  if (currentPerfil?.role === 'lider') query = query.eq('celula_id', currentPerfil.celula_id);
+
+  const { data } = await query.limit(50);
+
+  document.getElementById('discipulosSubtitle').textContent =
+    `${data?.length || 0} ${discipulosFiltro === 'pendentes' ? 'aguardando resposta' : discipulosFiltro === 'respondidos' ? 'respondidos' : 'entradas'}`;
+
+  if (!data || data.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🤝</div><div class="empty-title">Nenhuma entrada aqui</div><div class="empty-sub">Todos os discípulos estão em dia!</div></div>';
+    return;
+  }
+
+  el.innerHTML = data.map(e => {
+    const autor = e.profiles?.nome || 'Discípulo';
+    const inicial = autor[0].toUpperCase();
+    const celulaNome = e.profiles?.celulas?.nome || '';
+    const data = new Date(e.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+    const preview = e.conteudo.length > 80 ? e.conteudo.slice(0,80)+'...' : e.conteudo;
+    const temResposta = !!e.resposta;
+    return `<div class="membro-card" onclick="abrirResponder('${e.id}')">
+      <div class="mc-av">${inicial}</div>
+      <div class="mc-info">
+        <div class="mc-name">${escHtml(autor)}</div>
+        <div class="mc-meta"><span class="di-tipo ${e.tipo||'reflexao'}" style="font-size:9px;padding:2px 6px">${labelTipo(e.tipo)}</span> ${celulaNome ? '· '+celulaNome : ''} · ${data}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">${escHtml(preview)}</div>
+      </div>
+      ${!temResposta ? '<div class="mc-badge">!</div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function filtrarDiscipulos(filtro) {
+  discipulosFiltro = filtro;
+  document.querySelectorAll('.pastor-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  carregarDiscipulos();
+}
+
+async function abrirResponder(id) {
+  const { data: e } = await sb.from('diario_entradas')
+    .select('*, profiles!diario_entradas_autor_id_fkey(nome)')
+    .eq('id', id).single();
+  if (!e) return;
+  entradaParaResponder = e;
+  const autor = e.profiles?.nome || 'Discípulo';
+  const dataStr = new Date(e.created_at).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('entradaFullContent').innerHTML = `
+    <div class="ef-author">
+      <div class="ef-av">${autor[0].toUpperCase()}</div>
+      <div><div class="ef-name">${escHtml(autor)}</div><div class="ef-date">${dataStr}</div></div>
+      <div class="di-tipo ${e.tipo||'reflexao'}" style="margin-left:auto;font-size:9px">${labelTipo(e.tipo)}</div>
+    </div>
+    <div class="ef-text">${escHtml(e.conteudo)}</div>
+    ${e.resposta ? `<hr style="border-color:var(--border);margin:14px 0"><div style="font-size:12px;color:var(--orange);font-weight:600;margin-bottom:6px">✦ SUA RESPOSTA ANTERIOR</div><div style="font-size:14px;color:var(--text2)">${escHtml(e.resposta)}</div>` : ''}`;
+  document.getElementById('respostaTexto').value = e.resposta || '';
+  document.getElementById('errResposta').style.display = 'none';
+  document.getElementById('responderModal').classList.add('open');
+}
+
+async function enviarResposta() {
+  if (!entradaParaResponder) return;
+  const resposta = document.getElementById('respostaTexto').value.trim();
+  const err = document.getElementById('errResposta');
+  if (!resposta) { showMsg(err, 'Escreva uma resposta antes de enviar.'); return; }
+  const btn = document.querySelector('#responderModal .btn');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  const { error } = await sb.from('diario_entradas')
+    .update({ resposta, respondido_por: currentUser.id, respondido_em: new Date().toISOString() })
+    .eq('id', entradaParaResponder.id);
+  btn.disabled = false; btn.textContent = 'ENVIAR RESPOSTA';
+  if (error) { showMsg(err, 'Erro ao enviar. Tente novamente.'); return; }
+  fecharResponder();
+  toast('Resposta enviada! 🙏', 'success');
+  await carregarDiscipulos();
+}
+
+function fecharResponder() {
+  document.getElementById('responderModal').classList.remove('open');
+  entradaParaResponder = null;
+}
+
+// ════════════════════════════════════
+// PERFIL
+// ════════════════════════════════════
+async function carregarPerfil() {
+  const { data } = await sb.from('profiles')
+    .select('*, celulas(nome)')
+    .eq('id', currentUser.id)
+    .single();
+  if (data) currentPerfil = data;
+  else { currentPerfil = { id: currentUser.id, nome: currentUser.email?.split('@')[0]||'Usuário', role:'membro' }; }
+}
+
+async function renderPerfil() {
+  if (!currentPerfil) return;
+  const nome = currentPerfil.nome || 'Usuário';
+  const inicial = nome[0].toUpperCase();
+  document.getElementById('perfilAvatar').textContent = inicial;
+  document.getElementById('perfilNome').textContent = nome;
+  document.getElementById('perfilCelula').textContent = currentPerfil.celulas?.nome || 'Sem grupo atribuído';
+  const roleBadge = document.getElementById('perfilRoleBadge');
+  const roleLabel = { pastor:'Pastor', lider:'Líder', membro:'Membro' };
+  const roleClass = { pastor:'role-pastor', lider:'role-lider', membro:'role-membro' };
+  roleBadge.textContent = roleLabel[currentPerfil.role] || 'Membro';
+  roleBadge.className = `profile-role-badge ${roleClass[currentPerfil.role]||'role-membro'}`;
+
+  // Stats
+  const [{ count: cEntradas }, { count: cRespostas }] = await Promise.all([
+    sb.from('diario_entradas').select('id',{count:'exact'}).eq('autor_id', currentUser.id),
+    sb.from('diario_entradas').select('id',{count:'exact'}).eq('autor_id', currentUser.id).not('resposta','is',null)
+  ]);
+  document.getElementById('statEntradas').textContent = cEntradas || 0;
+  document.getElementById('statRespostas').textContent = cRespostas || 0;
+  const criado = new Date(currentPerfil.created_at || currentUser.created_at || Date.now());
+  const dias = Math.floor((Date.now() - criado.getTime()) / 86400000);
+  document.getElementById('statDias').textContent = dias;
+}
+
+function abrirEditarPerfil() {
+  toast('Em breve: edição de perfil 🛠️');
+}
+function abrirAlterarSenha() {
+  toast('Em breve: alteração de senha 🛠️');
+}
+
+// ════════════════════════════════════
+// CÉLULAS
+// ════════════════════════════════════
+async function carregarCelulas() {
+  const sel = document.getElementById('cCelula');
+  const { data } = await sb.from('celulas').select('id, nome').eq('ativo', true).order('nome');
+  if (!data || data.length === 0) {
+    sel.innerHTML = '<option value="">Nenhum grupo disponível</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">Selecione seu grupo</option>' + data.map(c => `<option value="${c.id}">${escHtml(c.nome)}</option>`).join('');
+}
+
+// ════════════════════════════════════
+// REALTIME
+// ════════════════════════════════════
+function iniciarRealtime() {
+  if (realtimeChannel) sb.removeChannel(realtimeChannel);
+  realtimeChannel = sb.channel('diario-updates')
+    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'diario_entradas', filter:`autor_id=eq.${currentUser.id}` },
+      async (payload) => {
+        if (payload.new.resposta && !payload.old.resposta) {
+          toast('✦ Seu pastor respondeu seu diário!', 'success');
+          if (currentScreen === 'diario') await carregarDiario();
+          if (currentScreen === 'home') await carregarEntradasHome();
+          if (chatEntradaId === payload.new.id) renderMensagensEntrada(payload.new);
+        }
+      })
+    .subscribe();
+}
+
+// ════════════════════════════════════
+// NAVEGAÇÃO
+// ════════════════════════════════════
+function goTo(screen) {
+  currentScreen = screen;
+  showScreen(screen);
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navMap = { home:'navHome', diario:'navDiario', discipulos:'navDiscipulos', perfil:'navPerfil' };
+  if (navMap[screen]) document.getElementById(navMap[screen])?.classList.add('active');
+
+  if (screen === 'home') carregarHome();
+  else if (screen === 'diario') carregarDiario();
+  else if (screen === 'discipulos') carregarDiscipulos();
+  else if (screen === 'perfil') renderPerfil();
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const map = { auth:'screenAuth', home:'screenHome', diario:'screenDiario', discipulos:'screenDiscipulos', perfil:'screenPerfil' };
+  const el = document.getElementById(map[name]);
+  if (el) el.classList.add('active');
+  if (name === 'auth') { document.getElementById('appShell').style.maxWidth = '480px'; }
+}
+
+// ════════════════════════════════════
+// UTILS
+// ════════════════════════════════════
+function showMsg(el, msg, isOk = false) {
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 5000);
+}
+
+function toast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+function togglePass(id, el) {
+  const input = document.getElementById(id);
+  input.type = input.type === 'password' ? 'text' : 'password';
+  el.textContent = input.type === 'password' ? '👁' : '🙈';
+}
+
+function maskTel(el) {
+  let v = el.value.replace(/\D/g,'');
+  if (v.length <= 10) v = v.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3');
+  else v = v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');
+  el.value = v;
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function labelTipo(tipo) {
+  const map = { reflexao:'Reflexão', pedido:'Pedido', testemunho:'Testemunho', duvida:'Dúvida' };
+  return map[tipo] || 'Reflexão';
+}
+
+function traduzirErro(msg) {
+  if (!msg) return 'Erro desconhecido.';
+  if (msg.includes('Invalid login')) return 'E-mail ou senha incorretos.';
+  if (msg.includes('Email not confirmed')) return 'Confirme seu e-mail antes de entrar.';
+  if (msg.includes('already registered')) return 'E-mail já cadastrado.';
+  if (msg.includes('Password should be')) return 'Senha muito curta (mínimo 6 caracteres).';
+  return msg;
 }
 </script>
 </body>
