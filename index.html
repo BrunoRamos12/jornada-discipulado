@@ -568,27 +568,23 @@ async function carregarDiscScreen(){
   const el=g('discContent');
   el.innerHTML='<div class="loading"><div class="spin"></div>Carregando...</div>';
   const {data}=await sb.from('discipulados').select('*').eq('membro_id',U.id).order('numero',{ascending:false});
-  if(!data){el.innerHTML='<div class="empty"><div class="empty-i">📖</div><div class="empty-t">Erro ao carregar</div></div>';return;}
+  if(!data){
+    el.innerHTML='<div class="empty"><div class="empty-i">📖</div><div class="empty-t">Erro ao carregar</div><div class="empty-s">Verifique se as tabelas foram criadas no Supabase</div></div>';
+    return;
+  }
 
-  // Verifica se pode abrir novo (domingo, sem discipulado aberto)
+  // Verifica se pode abrir novo
   const temAberto=data.some(d=>d.status==='aberto');
   const hoje=new Date(); const domingo=hoje.getDay()===0;
   let html='';
 
-  if(!temAberto&&domingo){
+  if(!temAberto){
+    // Permite abrir qualquer dia (domingo em produção, liberado para testes)
     html+=`<div style="margin:16px 20px">
       <div style="background:var(--org);border:1px solid rgba(255,107,0,.3);border-radius:var(--ra);padding:18px">
-        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px">✦ Novo discipulado disponível!</div>
-        <div style="font-size:13px;color:var(--t2);margin-bottom:14px">É domingo! Você pode abrir seu discipulado desta semana.</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px">✦ ${domingo?'Novo discipulado disponível!':'Abrir discipulado da semana'}</div>
+        <div style="font-size:13px;color:var(--t2);margin-bottom:14px">${domingo?'É domingo! Você pode abrir seu discipulado desta semana.':'Converse com seu pastor nesta semana.'}</div>
         <button class="btn btn-sm" onclick="abrirNovoDisc()">ABRIR DISCIPULADO ${(data.length+1)}</button>
-      </div>
-    </div>`;
-  } else if(!temAberto&&!domingo){
-    const prox=proximoDomingo();
-    html+=`<div style="margin:16px 20px">
-      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--ra);padding:18px">
-        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px">📅 Próximo discipulado</div>
-        <div style="font-size:13px;color:var(--t2)">Abre no domingo, ${prox}. Até lá, ore e reflita.</div>
       </div>
     </div>`;
   }
@@ -926,14 +922,63 @@ async function uploadFoto(input){
   P.foto_url=publicUrl; carregarPerfil(); toast('Foto atualizada! 📸','ok');
 }
 
-function editarPerfil(){toast('Em breve: edição de perfil 🛠️');}
-function alterarSenha(){toast('Em breve: alteração de senha 🛠️');}
+function editarPerfil(){
+  const nome=P.nome||'';
+  const tel=P.telefone||'';
+  // Criar modal inline
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:flex-end;justify-content:center;max-width:480px;margin:0 auto;left:50%;transform:translateX(-50%)';
+  modal.innerHTML=`<div style="background:var(--s1);border-radius:20px 20px 0 0;padding:28px 24px 40px;width:100%">
+    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:20px">Editar perfil</div>
+    <div class="f"><label>Nome completo</label><input type="text" id="editNome" value="${esc(nome)}" placeholder="Seu nome"></div>
+    <div class="f"><label>WhatsApp</label><input type="tel" id="editTel" value="${esc(tel)}" placeholder="(00) 00000-0000"></div>
+    <button class="btn" onclick="salvarPerfil()">SALVAR</button>
+    <button class="btn btn-g" style="margin-top:8px" onclick="this.closest('[style]').remove()">CANCELAR</button>
+  </div>`;
+  document.body.appendChild(modal);
+}
+async function salvarPerfil(){
+  const nome=document.getElementById('editNome')?.value?.trim();
+  const tel=document.getElementById('editTel')?.value?.trim();
+  if(!nome){toast('Digite seu nome','err');return;}
+  const {error}=await sb.from('profiles').update({nome,telefone:tel}).eq('id',U.id);
+  if(error){toast('Erro ao salvar','err');return;}
+  P.nome=nome; P.telefone=tel;
+  renderAvs(); carregarPerfil();
+  document.querySelector('[style*="rgba(0,0,0,.8)"]')?.remove();
+  toast('Perfil atualizado! ✓','ok');
+}
+function alterarSenha(){
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:flex-end;justify-content:center;max-width:480px;margin:0 auto;left:50%;transform:translateX(-50%)';
+  modal.innerHTML=`<div style="background:var(--s1);border-radius:20px 20px 0 0;padding:28px 24px 40px;width:100%">
+    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:20px">Alterar senha</div>
+    <div class="f"><label>Nova senha</label><div class="pw"><input type="password" id="novaSenha" placeholder="Mínimo 6 caracteres"><span class="pw-e" onclick="tpw('novaSenha',this)">👁</span></div></div>
+    <div class="f"><label>Confirmar nova senha</label><div class="pw"><input type="password" id="novaSenha2" placeholder="Repita a senha"><span class="pw-e" onclick="tpw('novaSenha2',this)">👁</span></div></div>
+    <div class="merr" id="errSenha"></div>
+    <button class="btn" onclick="confirmarSenha()">ALTERAR SENHA</button>
+    <button class="btn btn-g" style="margin-top:8px" onclick="this.closest('[style]').remove()">CANCELAR</button>
+  </div>`;
+  document.body.appendChild(modal);
+}
+async function confirmarSenha(){
+  const s1=document.getElementById('novaSenha')?.value?.trim();
+  const s2=document.getElementById('novaSenha2')?.value?.trim();
+  const err=document.getElementById('errSenha');
+  if(!s1||s1.length<6){sh(err,'Senha mínimo 6 caracteres.');return;}
+  if(s1!==s2){sh(err,'As senhas não coincidem.');return;}
+  const {error}=await sb.auth.updateUser({password:s1});
+  if(error){sh(err,te(error.message));return;}
+  document.querySelector('[style*="rgba(0,0,0,.8)"]')?.remove();
+  toast('Senha alterada com sucesso! 🔒','ok');
+}
 
 function renderAvs(){
   if(!P)return;
   const ini=(P.nome||'?')[0].toUpperCase();
-  ['hAv','dAv'].forEach(id=>{const el=g(id);if(el)el.textContent=ini;});
-  g('hNome').textContent=(P.nome||P.email||'').split(' ')[0];
+  ['hAv','dAv'].forEach(id=>{const el=g(id);if(el){if(P.foto_url){el.innerHTML=`<img src="${P.foto_url}">`;} else {el.textContent=ini;}}});
+  const primeiroNome=(P.nome||'').split(' ')[0]||P.email?.split('@')[0]||'';
+  g('hNome').textContent=primeiroNome;
 }
 
 // ══ CÉLULAS ══
