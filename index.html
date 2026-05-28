@@ -423,6 +423,27 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
     </div>
   </div>
 
+  <!-- BÍBLIA -->
+  <div id="sBiblia" class="scr">
+    <div class="tbar">
+      <div><div class="tbar-t">Bíblia</div><div class="tbar-s" id="bibliaSubtit">Nova Versão Internacional</div></div>
+      <button onclick="abrirBuscaBiblia()" style="background:none;border:none;color:var(--or);cursor:pointer;font-size:20px">🔍</button>
+    </div>
+    <!-- Navegação livro/capítulo -->
+    <div style="padding:12px 20px;background:var(--s1);border-bottom:1px solid var(--bd);display:flex;gap:10px;align-items:center">
+      <select id="bibliaLivro" onchange="carregarCapitulos()" style="flex:1;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--tx);outline:none;-webkit-appearance:none">
+        <option value="">Selecione o livro...</option>
+      </select>
+      <select id="bibliaCapitulo" onchange="carregarVersos()" style="width:80px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--tx);outline:none;-webkit-appearance:none">
+        <option value="">Cap.</option>
+      </select>
+    </div>
+    <!-- Versos -->
+    <div id="bibliaContent" style="padding:20px;line-height:2;font-size:15px">
+      <div class="empty"><div class="empty-i">📖</div><div class="empty-t">Selecione um livro</div><div class="empty-s">Escolha o livro e capítulo para começar a leitura</div></div>
+    </div>
+  </div>
+
   <!-- DEVOCIONAIS -->
   <div id="sDevoc" class="scr">
     <div class="tbar">
@@ -455,6 +476,9 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
   <nav class="bnav">
     <button class="nb on" id="nHome" onclick="goScr('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>Início</button>
     <button class="nb" id="nDisc" onclick="goScr('disc')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Discipulado</button>
+    <button class="nb" id="nBiblia" onclick="goScr('biblia')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Bíblia
+    </button>
     <button class="nb" id="nCelula" style="display:none" onclick="goScr('celula')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Célula</button>
     <button class="nb" id="nPastor" style="display:none" onclick="goScr('pastor')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Pastor</button>
     <button class="nb" id="nPerfil" onclick="goScr('perfil')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
@@ -658,8 +682,8 @@ function nivelLabel(p){
 function goScr(s){
   document.querySelectorAll('.scr').forEach(el=>el.classList.remove('show'));
   document.querySelectorAll('.nb').forEach(el=>el.classList.remove('on'));
-  const sm={home:'sHome',disc:'sDisc',pastor:'sPastor',celula:'sCelula',devoc:'sDevoc',perfil:'sPerfil'};
-  const nm={home:'nHome',disc:'nDisc',pastor:'nPastor',celula:'nCelula',devoc:'nDevoc',perfil:'nPerfil'};
+  const sm={home:'sHome',disc:'sDisc',pastor:'sPastor',celula:'sCelula',devoc:'sDevoc',biblia:'sBiblia',perfil:'sPerfil'};
+  const nm={home:'nHome',disc:'nDisc',pastor:'nPastor',celula:'nCelula',devoc:'nDevoc',biblia:'nBiblia',perfil:'nPerfil'};
   g(sm[s])?.classList.add('show');
   g(nm[s])?.classList.add('on');
   if(s==='home') carregarHome();
@@ -667,6 +691,7 @@ function goScr(s){
   else if(s==='pastor') carregarPastor();
   else if(s==='celula') carregarCelula();
   else if(s==='devoc') carregarDevocionais();
+  else if(s==='biblia') carregarBiblia();
   else if(s==='perfil') carregarPerfil();
 }
 
@@ -1588,6 +1613,245 @@ async function executarSolicitacao(s){
   } else if(s.tipo==='promover_lider'){
     await sb.from('profiles').update({role:'lider',nivel:'lider',lider_direto_id:U.id}).eq('id',s.payload.membro_id);
   }
+}
+
+// ══ BÍBLIA NVI ══
+// Usando A Bíblia Digital API (gratuita)
+const BIBLIA_TOKEN = 'Token gratuito - cadastre em https://www.abibliadigital.com.br';
+
+const LIVROS = [
+  {id:'gn',nome:'Gênesis',caps:50,nomeApi:'genesis',abbr:'genesis'},{id:'ex',nome:'Êxodo',caps:40,nomeApi:'exodus',abbr:'exodus'},{id:'lv',nome:'Levítico',caps:27},
+  {id:'nm',nome:'Números',caps:36},{id:'dt',nome:'Deuteronômio',caps:34},{id:'js',nome:'Josué',caps:24},
+  {id:'jz',nome:'Juízes',caps:21},{id:'rt',nome:'Rute',caps:4},{id:'1sm',nome:'1 Samuel',caps:31},
+  {id:'2sm',nome:'2 Samuel',caps:24},{id:'1rs',nome:'1 Reis',caps:22},{id:'2rs',nome:'2 Reis',caps:25},
+  {id:'1cr',nome:'1 Crônicas',caps:29},{id:'2cr',nome:'2 Crônicas',caps:36},{id:'ed',nome:'Esdras',caps:10},
+  {id:'ne',nome:'Neemias',caps:13},{id:'et',nome:'Ester',caps:10},{id:'jó',nome:'Jó',caps:42},
+  {id:'sl',nome:'Salmos',caps:150,nomeApi:'psalms',abbr:'psalms'},{id:'pv',nome:'Provérbios',caps:31,nomeApi:'proverbs',abbr:'proverbs'},{id:'ec',nome:'Eclesiastes',caps:12},
+  {id:'ct',nome:'Cânticos',caps:8},{id:'is',nome:'Isaías',caps:66,nomeApi:'isaiah',abbr:'isaiah'},{id:'jr',nome:'Jeremias',caps:52,nomeApi:'jeremiah',abbr:'jeremiah'},
+  {id:'lm',nome:'Lamentações',caps:5},{id:'ez',nome:'Ezequiel',caps:48},{id:'dn',nome:'Daniel',caps:12,nomeApi:'daniel',abbr:'daniel'},
+  {id:'os',nome:'Oséias',caps:14},{id:'jl',nome:'Joel',caps:3},{id:'am',nome:'Amós',caps:9},
+  {id:'ob',nome:'Obadias',caps:1},{id:'jn',nome:'Jonas',caps:4},{id:'mq',nome:'Miquéias',caps:7},
+  {id:'na',nome:'Naum',caps:3},{id:'hc',nome:'Habacuque',caps:3},{id:'sf',nome:'Sofonias',caps:3},
+  {id:'ag',nome:'Ageu',caps:2},{id:'zc',nome:'Zacarias',caps:14},{id:'ml',nome:'Malaquias',caps:4},
+  {id:'mt',nome:'Mateus',caps:28,nomeApi:'matthew',abbr:'matthew'},{id:'mc',nome:'Marcos',caps:16,nomeApi:'mark',abbr:'mark'},{id:'lc',nome:'Lucas',caps:24,nomeApi:'luke',abbr:'luke'},
+  {id:'jo',nome:'João',caps:21,nomeApi:'john',abbr:'john'},{id:'at',nome:'Atos',caps:28,nomeApi:'acts',abbr:'acts'},{id:'rm',nome:'Romanos',caps:16,nomeApi:'romans',abbr:'romans'},
+  {id:'1co',nome:'1 Coríntios',caps:16,nomeApi:'1corinthians',abbr:'1corinthians'},{id:'2co',nome:'2 Coríntios',caps:13},{id:'gl',nome:'Gálatas',caps:6,nomeApi:'galatians',abbr:'galatians'},
+  {id:'ef',nome:'Efésios',caps:6,nomeApi:'ephesians',abbr:'ephesians'},{id:'fp',nome:'Filipenses',caps:4,nomeApi:'philippians',abbr:'philippians'},{id:'cl',nome:'Colossenses',caps:4},
+  {id:'1ts',nome:'1 Tessalonicenses',caps:5},{id:'2ts',nome:'2 Tessalonicenses',caps:3},
+  {id:'1tm',nome:'1 Timóteo',caps:6},{id:'2tm',nome:'2 Timóteo',caps:4},{id:'tt',nome:'Tito',caps:3},
+  {id:'fm',nome:'Filemom',caps:1},{id:'hb',nome:'Hebreus',caps:13,nomeApi:'hebrews',abbr:'hebrews'},{id:'tg',nome:'Tiago',caps:5,nomeApi:'james',abbr:'james'},
+  {id:'1pe',nome:'1 Pedro',caps:5},{id:'2pe',nome:'2 Pedro',caps:3},{id:'1jo',nome:'1 João',caps:5,nomeApi:'1john',abbr:'1john'},
+  {id:'2jo',nome:'2 João',caps:1},{id:'3jo',nome:'3 João',caps:1},{id:'jd',nome:'Judas',caps:1},
+  {id:'ap',nome:'Apocalipse',caps:22,nomeApi:'revelation',abbr:'revelation'}
+];
+
+let bibliaLivroAtual=null, bibliaCapAtual=1, versosCarregados=[];
+
+async function carregarBiblia(){
+  // Preencher select de livros
+  const sel=g('bibliaLivro');
+  if(sel.options.length<=1){
+    sel.innerHTML='<option value="">Selecione o livro...</option>'+LIVROS.map(l=>`<option value="${l.id}">${l.nome}</option>`).join('');
+  }
+}
+
+function carregarCapitulos(){
+  const livroId=g('bibliaLivro').value;
+  if(!livroId)return;
+  const livro=LIVROS.find(l=>l.id===livroId);
+  if(!livro)return;
+  bibliaLivroAtual=livro;
+  bibliaCapAtual=1;
+  const sel=g('bibliaCapitulo');
+  sel.innerHTML=Array.from({length:livro.caps},(_,i)=>`<option value="${i+1}" ${i===0?'selected':''}>${i+1}</option>`).join('');
+  carregarVersos();
+}
+
+async function carregarVersos(){
+  const livroId=g('bibliaLivro').value;
+  const cap=g('bibliaCapitulo').value;
+  if(!livroId||!cap)return;
+  bibliaCapAtual=parseInt(cap);
+  const livro=LIVROS.find(l=>l.id===livroId);
+  const el=g('bibliaContent');
+  el.innerHTML='<div class="loading"><div class="spin"></div>Carregando...</div>';
+  g('bibliaSubtit').textContent=`${livro?.nome||''} ${cap} — Almeida`;
+  try{
+    // bible-api.com — gratuita, sem cadastro, suporta português
+    const nomeUrl=encodeURIComponent(livro.nomeApi||livro.nome);
+    const res=await fetch(`https://bible-api.com/${nomeUrl}+${cap}?translation=almeida`);
+    if(!res.ok) throw new Error('Livro não encontrado');
+    const data=await res.json();
+    if(data.error) throw new Error(data.error);
+    // Montar versos do formato da API
+    const versos=(data.verses||[]).map(v=>({number:v.verse,text:v.text.trim()}));
+    versosCarregados=versos;
+    renderVersos(versos, livro?.nome||'', cap);
+  }catch(e){
+    // Tentar formato alternativo
+    try{
+      const abbr=livro.abbr||livroId;
+      const res2=await fetch(`https://bible-api.com/${abbr}+${cap}?translation=almeida`);
+      const data2=await res2.json();
+      if(data2.error||!data2.verses) throw new Error('Não encontrado');
+      const versos=(data2.verses||[]).map(v=>({number:v.verse,text:v.text.trim()}));
+      versosCarregados=versos;
+      renderVersos(versos, livro?.nome||'', cap);
+    }catch(e2){
+      el.innerHTML=`<div class="empty">
+        <div class="empty-i">📖</div>
+        <div class="empty-t">Erro ao carregar</div>
+        <div class="empty-s">Tente outro livro ou capítulo.<br><small style="color:var(--t3)">${e.message}</small></div>
+      </div>`;
+    }
+  }
+}
+
+function renderVersos(versos, livroNome, cap){
+  const el=g('bibliaContent');
+  if(!versos||!versos.length){el.innerHTML='<div class="empty"><div class="empty-t">Capítulo não encontrado</div></div>';return;}
+  el.innerHTML=`
+    <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--or);margin-bottom:16px;letter-spacing:.5px">${livroNome.toUpperCase()} ${cap}</div>
+    ${versos.map(v=>`
+      <span class="verso" id="v${v.number}" onclick="selecionarVerso(${v.number},'${esc(v.text)}')"
+        style="cursor:pointer;padding:2px 0;border-radius:4px;transition:background .15s">
+        <sup style="color:var(--or);font-size:11px;font-weight:700;margin-right:4px">${v.number}</sup>${esc(v.text)}
+      </span> `).join('')}
+    <div style="display:flex;gap:10px;margin-top:24px;padding-top:16px;border-top:1px solid var(--bd)">
+      ${bibliaCapAtual>1?`<button onclick="navCap(-1)" class="btn btn-g btn-sm">← Cap. ${bibliaCapAtual-1}</button>`:''}
+      ${bibliaCapAtual<(bibliaLivroAtual?.caps||1)?`<button onclick="navCap(1)" class="btn btn-sm" style="margin-left:auto">Cap. ${bibliaCapAtual+1} →</button>`:''}
+    </div>`;
+}
+
+function navCap(dir){
+  bibliaCapAtual+=dir;
+  g('bibliaCapitulo').value=bibliaCapAtual;
+  carregarVersos();
+}
+
+let versoSelecionado=null;
+function selecionarVerso(num, texto){
+  // Destacar verso selecionado
+  document.querySelectorAll('.verso').forEach(v=>v.style.background='');
+  const el=document.getElementById('v'+num);
+  if(versoSelecionado===num){
+    versoSelecionado=null;
+    document.getElementById('versoAcoes')?.remove();
+    return;
+  }
+  versoSelecionado=num;
+  if(el) el.style.background='var(--org)';
+  // Mostrar ações
+  document.getElementById('versoAcoes')?.remove();
+  const acoes=document.createElement('div');
+  acoes.id='versoAcoes';
+  acoes.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--s1);border:1px solid var(--bd2);border-radius:12px;padding:10px 14px;display:flex;gap:10px;z-index:300;max-width:440px;box-shadow:0 8px 32px rgba(0,0,0,.5)';
+  const livro=g('bibliaLivro')?.options[g('bibliaLivro')?.selectedIndex]?.text||'';
+  const cap=g('bibliaCapitulo')?.value||'';
+  const ref=`${livro} ${cap}:${num}`;
+  acoes.innerHTML=`
+    <button onclick="usarNoDevocional('${esc(texto)}','${esc(ref)}')" style="background:var(--or);border:none;border-radius:8px;padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">📝 Usar no devocional</button>
+    <button onclick="compartilharVerso('${esc(texto)}','${esc(ref)}')" style="background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:8px 14px;color:var(--tx);font-size:12px;cursor:pointer">💬 Postar</button>
+    <button onclick="document.getElementById('versoAcoes').remove();versoSelecionado=null;document.querySelectorAll('.verso').forEach(v=>v.style.background='')" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:18px;padding:4px">✕</button>`;
+  document.body.appendChild(acoes);
+}
+
+function usarNoDevocional(texto, ref){
+  document.getElementById('versoAcoes')?.remove();
+  // Abrir form de devocional com versículo pré-preenchido
+  abrirFormDevoc(null, texto, ref);
+  goScr('devoc');
+}
+
+async function compartilharVerso(texto, ref){
+  document.getElementById('versoAcoes')?.remove();
+  // Criar devocional rápido com só o versículo
+  const {error}=await sb.from('devocionais').insert({
+    autor_id:U.id, titulo:`${ref}`, conteudo:texto,
+    versiculo:texto, referencia:ref, publicado:true
+  });
+  if(error){toast('Erro ao compartilhar','err');return;}
+  toast('Versículo compartilhado! 🙏','ok');
+  goScr('devoc');
+}
+
+function abrirBuscaBiblia(){
+  document.getElementById('buscaModal')?.remove();
+  const m=document.createElement('div');
+  m.id='buscaModal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:500;display:flex;flex-direction:column;max-width:480px;left:50%;transform:translateX(-50%)';
+  m.innerHTML=`<div style="background:var(--s1);padding:20px;flex:1;overflow-y:auto">
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:20px">
+      <button onclick="document.getElementById('buscaModal').remove()" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:22px">←</button>
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700">Buscar na Bíblia</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <input id="buscaInput" type="text" placeholder="Ex: João 3:16 ou amor" style="flex:1;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:12px;font-size:14px;color:var(--tx);outline:none" onkeydown="if(event.key==='Enter')buscarVersiculos()">
+      <button onclick="buscarVersiculos()" style="background:var(--or);border:none;border-radius:8px;padding:12px 16px;color:#fff;font-size:14px;cursor:pointer">🔍</button>
+    </div>
+    <div id="buscaResultados"></div>
+  </div>`;
+  document.body.appendChild(m);
+  setTimeout(()=>g('buscaInput')?.focus(),200);
+}
+
+async function buscarVersiculos(){
+  const q=g('buscaInput')?.value?.trim();
+  if(!q)return;
+  const el=g('buscaResultados');
+  el.innerHTML='<div class="loading"><div class="spin"></div>Buscando...</div>';
+  try{
+    // Tentar interpretar como referência (ex: João 3:16)
+    const refMatch=q.match(/^(.+?)\s+(\d+):(\d+)$/);
+    if(refMatch){
+      const [,livroNome,cap,verso]=refMatch;
+      const res=await fetch(`https://bible-api.com/${encodeURIComponent(livroNome)}+${cap}:${verso}?translation=almeida`);
+      const data=await res.json();
+      if(data.text){
+        el.innerHTML=`<div style="background:var(--s2);border-radius:8px;padding:14px;margin-bottom:8px">
+          <div style="font-size:11px;color:var(--or);font-weight:700;margin-bottom:6px">${data.reference||q}</div>
+          <div style="font-size:14px;line-height:1.6">${esc(data.text.trim())}</div>
+          <button onclick="irParaVerso('${encodeURIComponent(livroNome)}',${cap},${verso})" style="margin-top:10px;background:none;border:1px solid var(--or);color:var(--or);border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer">Abrir capítulo →</button>
+        </div>`;
+        return;
+      }
+    }
+    // Busca por palavra — mostrar sugestões de livros
+    const sugestoes=LIVROS.filter(l=>l.nome.toLowerCase().includes(q.toLowerCase())).slice(0,8);
+    if(sugestoes.length){
+      el.innerHTML=`<div style="font-size:12px;color:var(--t2);margin-bottom:10px">Livros encontrados:</div>`+
+        sugestoes.map(l=>`<div style="background:var(--s2);border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="irParaLivro('${l.id}')">
+          <div style="font-size:14px;font-weight:600">${esc(l.nome)}</div>
+          <div style="font-size:11px;color:var(--t3)">${l.caps} capítulos →</div>
+        </div>`).join('');
+      return;
+    }
+    el.innerHTML='<div style="text-align:center;color:var(--t3);padding:20px;font-size:13px">Digite uma referência como "João 3:16" ou o nome de um livro</div>';
+  }catch(e){
+    el.innerHTML=`<div style="color:var(--er);font-size:13px;padding:12px">Erro: ${e.message}</div>`;
+  }
+}
+
+function irParaLivro(livroId){
+  document.getElementById('buscaModal')?.remove();
+  const sel=g('bibliaLivro');
+  sel.value=livroId;
+  carregarCapitulos();
+  goScr('biblia');
+}
+
+function irParaVerso(livroId, cap, verso){
+  document.getElementById('buscaModal')?.remove();
+  const sel=g('bibliaLivro');
+  sel.value=livroId;
+  carregarCapitulos();
+  g('bibliaCapitulo').value=cap;
+  carregarVersos();
+  goScr('biblia');
+  setTimeout(()=>{
+    const el=document.getElementById('v'+verso);
+    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.background='var(--org)';}
+  },1000);
 }
 
 // ══ DEVOCIONAIS ══
