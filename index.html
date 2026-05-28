@@ -1117,11 +1117,17 @@ function goTo(screen) {
 
 function showScreen(name) {
   console.log('SHOW SCREEN:', name);
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const all = ['screenAuth','screenHome','screenDiario','screenDiscipulos','screenPerfil'];
+  all.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.display = 'none'; el.classList.remove('active'); }
+  });
   const map = { auth:'screenAuth', home:'screenHome', diario:'screenDiario', discipulos:'screenDiscipulos', perfil:'screenPerfil' };
   const el = document.getElementById(map[name]);
-  if (el) el.classList.add('active');
-  if (name === 'auth') { document.getElementById('appShell').style.maxWidth = '480px'; }
+  if (el) {
+    el.style.display = name === 'auth' ? 'flex' : 'block';
+    el.classList.add('active');
+  }
 }
 
 // ════════════════════════════════════
