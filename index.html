@@ -249,6 +249,22 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
 .feed-divider{display:flex;align-items:center;gap:10px;margin:20px 0 14px;color:var(--t3);font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
 .feed-divider::before,.feed-divider::after{content:'';flex:1;border-top:1px solid var(--bd)}
 
+/* PLAYER AUDIO */
+.audio-playing #audioPlayBtn{background:var(--ord)}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.audio-playing #audioPlayBtn{animation:pulse 1.5s infinite}
+/* PLANO LEITURA */
+.plano-dia{background:var(--s1);border:1px solid var(--bd);border-radius:var(--ra);padding:14px 16px;margin-bottom:10px}
+.plano-dia.hoje{border-color:var(--or);background:var(--org)}
+.plano-dia.lido{opacity:.6}
+.pd-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.pd-dia{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--or)}
+.pd-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--bd2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0}
+.pd-check.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.pd-caps{display:flex;flex-wrap:wrap;gap:6px}
+.pd-cap{background:var(--s2);border:1px solid var(--bd2);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;transition:all .15s;color:var(--t2)}
+.pd-cap:hover{border-color:var(--or);color:var(--or)}
+.pd-cap.lido{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:#86efac}
 /* UTILS */
 .empty{text-align:center;padding:50px 32px}
 .empty-i{font-size:44px;margin-bottom:14px;opacity:.35}
@@ -385,7 +401,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
     <div class="ptabs" id="painelTabs">
       <button class="ptab on" onclick="ptab('disc',this)">Discipulados</button>
       <button class="ptab" onclick="ptab('membros',this)">Discípulos</button>
-      <button class="ptab" id="tabCelulas" onclick="ptab('celulas',this)" style="display:none">Células</button>
+      <button class="ptab" id="tabCelulas" onclick="ptab('celulas',this)">Células</button>
       <button class="ptab" id="tabSolic" style="display:none" onclick="ptab('solic',this)">Solicitações</button>
       <button class="ptab" id="tabAvisos" style="display:none" onclick="ptab('avisos',this)">Avisos</button>
     </div>
@@ -426,21 +442,82 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
   <!-- BÍBLIA -->
   <div id="sBiblia" class="scr">
     <div class="tbar">
-      <div><div class="tbar-t">Bíblia</div><div class="tbar-s" id="bibliaSubtit">Nova Versão Internacional</div></div>
+      <div><div class="tbar-t">Bíblia</div><div class="tbar-s" id="bibliaSubtit">Almeida Revisada</div></div>
       <button onclick="abrirBuscaBiblia()" style="background:none;border:none;color:var(--or);cursor:pointer;font-size:20px">🔍</button>
     </div>
-    <!-- Navegação livro/capítulo -->
-    <div style="padding:12px 20px;background:var(--s1);border-bottom:1px solid var(--bd);display:flex;gap:10px;align-items:center">
-      <select id="bibliaLivro" onchange="carregarCapitulos()" style="flex:1;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--tx);outline:none;-webkit-appearance:none">
-        <option value="">Selecione o livro...</option>
-      </select>
-      <select id="bibliaCapitulo" onchange="carregarVersos()" style="width:80px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--tx);outline:none;-webkit-appearance:none">
-        <option value="">Cap.</option>
-      </select>
+
+    <!-- TABS: Leitura / Plano ══ -->
+    <div style="display:flex;border-bottom:1px solid var(--bd);background:var(--s1)">
+      <button class="ptab on" id="bTabLeitura" onclick="bibliaTab('leitura',this)" style="flex:1">📖 Leitura</button>
+      <button class="ptab" id="bTabPlano" onclick="bibliaTab('plano',this)" style="flex:1">📅 Plano Anual</button>
     </div>
-    <!-- Versos -->
-    <div id="bibliaContent" style="padding:20px;line-height:2;font-size:15px">
-      <div class="empty"><div class="empty-i">📖</div><div class="empty-t">Selecione um livro</div><div class="empty-s">Escolha o livro e capítulo para começar a leitura</div></div>
+
+    <!-- LEITURA ══ -->
+    <div id="bSecLeitura">
+      <!-- Navegação livro/capítulo -->
+      <div style="padding:12px 20px;background:var(--s1);border-bottom:1px solid var(--bd);display:flex;gap:10px;align-items:center">
+        <select id="bibliaLivro" onchange="carregarCapitulos()" style="flex:1;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--tx);outline:none;-webkit-appearance:none">
+          <option value="">Selecione o livro...</option>
+        </select>
+        <select id="bibliaCapitulo" onchange="carregarVersos()" style="width:80px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--tx);outline:none;-webkit-appearance:none">
+          <option value="">Cap.</option>
+        </select>
+      </div>
+      <!-- Player de Áudio ══ -->
+      <div id="audioPlayer" style="display:none;padding:12px 20px;background:var(--s2);border-bottom:1px solid var(--bd)">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button id="audioPrevBtn" onclick="audioNav(-1)" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:20px">⏮</button>
+          <button id="audioPlayBtn" onclick="toggleAudio()" style="width:44px;height:44px;background:var(--or);border:none;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0">▶</button>
+          <button id="audioNextBtn" onclick="audioNav(1)" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:20px">⏭</button>
+          <div style="flex:1">
+            <div id="audioTitulo" style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:4px">Carregando...</div>
+            <div style="background:var(--bd);border-radius:4px;height:4px;overflow:hidden">
+              <div id="audioProgress" style="background:var(--or);height:100%;width:0%;transition:width .5s"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:3px">
+              <span id="audioTime" style="font-size:10px;color:var(--t3)">0:00</span>
+              <span id="audioDur" style="font-size:10px;color:var(--t3)">--:--</span>
+            </div>
+          </div>
+          <button onclick="toggleAudioOff()" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px">✕</button>
+        </div>
+      </div>
+      <!-- Botão ligar áudio -->
+      <div id="audioBtn" style="padding:10px 20px;background:var(--s1);border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:center">
+        <button onclick="ativarAudio()" style="background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:8px 14px;color:var(--t2);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:6px">
+          🎧 <span>Ouvir este capítulo</span>
+        </button>
+        <span style="font-size:11px;color:var(--t3)">Bíblia em áudio</span>
+      </div>
+      <!-- Versos -->
+      <div id="bibliaContent" style="padding:20px;line-height:2;font-size:15px;padding-bottom:100px">
+        <div class="empty"><div class="empty-i">📖</div><div class="empty-t">Selecione um livro</div><div class="empty-s">Escolha o livro e capítulo para começar a leitura</div></div>
+      </div>
+    </div>
+
+    <!-- PLANO ANUAL ══ -->
+    <div id="bSecPlano" style="display:none;padding-bottom:80px">
+      <!-- Progress bar -->
+      <div style="padding:16px 20px;background:var(--s1);border-bottom:1px solid var(--bd)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Meu progresso</div>
+          <div style="font-size:13px;color:var(--or);font-weight:600" id="planoPercent">0%</div>
+        </div>
+        <div style="background:var(--bd);border-radius:6px;height:8px;overflow:hidden">
+          <div id="planoBar" style="background:linear-gradient(90deg,var(--or),#ff9500);height:100%;width:0%;transition:width .8s;border-radius:6px"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px">
+          <span style="font-size:11px;color:var(--t3)" id="planoLidos">0 capítulos lidos</span>
+          <span style="font-size:11px;color:var(--t3)">365 dias</span>
+        </div>
+      </div>
+      <!-- Dia de hoje -->
+      <div style="padding:14px 20px 0">
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--or);margin-bottom:10px">📅 LEITURA DE HOJE</div>
+        <div id="planoHoje"><div class="loading"><div class="spin"></div></div></div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--t2);margin:16px 0 10px">PRÓXIMAS LEITURAS</div>
+        <div id="planoProximas"><div class="loading"><div class="spin"></div></div></div>
+      </div>
     </div>
   </div>
 
@@ -680,6 +757,8 @@ function nivelLabel(p){
 
 // ══ NAVEGAÇÃO ══
 function goScr(s){
+  // Parar áudio ao navegar
+  if(s!=='biblia') window.speechSynthesis?.cancel();
   document.querySelectorAll('.scr').forEach(el=>el.classList.remove('show'));
   document.querySelectorAll('.nb').forEach(el=>el.classList.remove('on'));
   const sm={home:'sHome',disc:'sDisc',pastor:'sPastor',celula:'sCelula',devoc:'sDevoc',biblia:'sBiblia',perfil:'sPerfil'};
@@ -993,7 +1072,6 @@ async function carregarPastor(){
   if(!isPastor()&&!isLider())return;
   // Título dinâmico e abas
   if(isPastor()){
-    g('tabCelulas').style.display='block';
     g('tabSolic').style.display='block';
     g('tabAvisos').style.display='block';
   } else if(isLider()){
@@ -1615,6 +1693,265 @@ async function executarSolicitacao(s){
   }
 }
 
+// ══ PLANO DE LEITURA ANUAL ══
+const PLANO_ANUAL = [{"d": 1, "l": "gn", "a": "genesis", "c": 1}, {"d": 1, "l": "gn", "a": "genesis", "c": 2}, {"d": 1, "l": "gn", "a": "genesis", "c": 3}, {"d": 2, "l": "gn", "a": "genesis", "c": 4}, {"d": 2, "l": "gn", "a": "genesis", "c": 5}, {"d": 2, "l": "gn", "a": "genesis", "c": 6}, {"d": 3, "l": "gn", "a": "genesis", "c": 7}, {"d": 3, "l": "gn", "a": "genesis", "c": 8}, {"d": 3, "l": "gn", "a": "genesis", "c": 9}, {"d": 4, "l": "gn", "a": "genesis", "c": 10}, {"d": 4, "l": "gn", "a": "genesis", "c": 11}, {"d": 4, "l": "gn", "a": "genesis", "c": 12}, {"d": 5, "l": "gn", "a": "genesis", "c": 13}, {"d": 5, "l": "gn", "a": "genesis", "c": 14}, {"d": 5, "l": "gn", "a": "genesis", "c": 15}, {"d": 6, "l": "gn", "a": "genesis", "c": 16}, {"d": 6, "l": "gn", "a": "genesis", "c": 17}, {"d": 6, "l": "gn", "a": "genesis", "c": 18}, {"d": 7, "l": "gn", "a": "genesis", "c": 19}, {"d": 7, "l": "gn", "a": "genesis", "c": 20}, {"d": 7, "l": "gn", "a": "genesis", "c": 21}, {"d": 8, "l": "gn", "a": "genesis", "c": 22}, {"d": 8, "l": "gn", "a": "genesis", "c": 23}, {"d": 8, "l": "gn", "a": "genesis", "c": 24}, {"d": 9, "l": "gn", "a": "genesis", "c": 25}, {"d": 9, "l": "gn", "a": "genesis", "c": 26}, {"d": 9, "l": "gn", "a": "genesis", "c": 27}, {"d": 10, "l": "gn", "a": "genesis", "c": 28}, {"d": 10, "l": "gn", "a": "genesis", "c": 29}, {"d": 10, "l": "gn", "a": "genesis", "c": 30}, {"d": 11, "l": "gn", "a": "genesis", "c": 31}, {"d": 11, "l": "gn", "a": "genesis", "c": 32}, {"d": 11, "l": "gn", "a": "genesis", "c": 33}, {"d": 12, "l": "gn", "a": "genesis", "c": 34}, {"d": 12, "l": "gn", "a": "genesis", "c": 35}, {"d": 12, "l": "gn", "a": "genesis", "c": 36}, {"d": 13, "l": "gn", "a": "genesis", "c": 37}, {"d": 13, "l": "gn", "a": "genesis", "c": 38}, {"d": 13, "l": "gn", "a": "genesis", "c": 39}, {"d": 14, "l": "gn", "a": "genesis", "c": 40}, {"d": 14, "l": "gn", "a": "genesis", "c": 41}, {"d": 14, "l": "gn", "a": "genesis", "c": 42}, {"d": 15, "l": "gn", "a": "genesis", "c": 43}, {"d": 15, "l": "gn", "a": "genesis", "c": 44}, {"d": 15, "l": "gn", "a": "genesis", "c": 45}, {"d": 16, "l": "gn", "a": "genesis", "c": 46}, {"d": 16, "l": "gn", "a": "genesis", "c": 47}, {"d": 16, "l": "gn", "a": "genesis", "c": 48}, {"d": 17, "l": "gn", "a": "genesis", "c": 49}, {"d": 17, "l": "gn", "a": "genesis", "c": 50}, {"d": 17, "l": "ex", "a": "exodus", "c": 1}, {"d": 18, "l": "ex", "a": "exodus", "c": 2}, {"d": 18, "l": "ex", "a": "exodus", "c": 3}, {"d": 18, "l": "ex", "a": "exodus", "c": 4}, {"d": 19, "l": "ex", "a": "exodus", "c": 5}, {"d": 19, "l": "ex", "a": "exodus", "c": 6}, {"d": 19, "l": "ex", "a": "exodus", "c": 7}, {"d": 20, "l": "ex", "a": "exodus", "c": 8}, {"d": 20, "l": "ex", "a": "exodus", "c": 9}, {"d": 20, "l": "ex", "a": "exodus", "c": 10}, {"d": 21, "l": "ex", "a": "exodus", "c": 11}, {"d": 21, "l": "ex", "a": "exodus", "c": 12}, {"d": 21, "l": "ex", "a": "exodus", "c": 13}, {"d": 22, "l": "ex", "a": "exodus", "c": 14}, {"d": 22, "l": "ex", "a": "exodus", "c": 15}, {"d": 22, "l": "ex", "a": "exodus", "c": 16}, {"d": 23, "l": "ex", "a": "exodus", "c": 17}, {"d": 23, "l": "ex", "a": "exodus", "c": 18}, {"d": 23, "l": "ex", "a": "exodus", "c": 19}, {"d": 24, "l": "ex", "a": "exodus", "c": 20}, {"d": 24, "l": "ex", "a": "exodus", "c": 21}, {"d": 24, "l": "ex", "a": "exodus", "c": 22}, {"d": 25, "l": "ex", "a": "exodus", "c": 23}, {"d": 25, "l": "ex", "a": "exodus", "c": 24}, {"d": 25, "l": "ex", "a": "exodus", "c": 25}, {"d": 26, "l": "ex", "a": "exodus", "c": 26}, {"d": 26, "l": "ex", "a": "exodus", "c": 27}, {"d": 26, "l": "ex", "a": "exodus", "c": 28}, {"d": 27, "l": "ex", "a": "exodus", "c": 29}, {"d": 27, "l": "ex", "a": "exodus", "c": 30}, {"d": 27, "l": "ex", "a": "exodus", "c": 31}, {"d": 28, "l": "ex", "a": "exodus", "c": 32}, {"d": 28, "l": "ex", "a": "exodus", "c": 33}, {"d": 28, "l": "ex", "a": "exodus", "c": 34}, {"d": 29, "l": "ex", "a": "exodus", "c": 35}, {"d": 29, "l": "ex", "a": "exodus", "c": 36}, {"d": 29, "l": "ex", "a": "exodus", "c": 37}, {"d": 30, "l": "ex", "a": "exodus", "c": 38}, {"d": 30, "l": "ex", "a": "exodus", "c": 39}, {"d": 30, "l": "ex", "a": "exodus", "c": 40}, {"d": 31, "l": "lv", "a": "leviticus", "c": 1}, {"d": 31, "l": "lv", "a": "leviticus", "c": 2}, {"d": 31, "l": "lv", "a": "leviticus", "c": 3}, {"d": 32, "l": "lv", "a": "leviticus", "c": 4}, {"d": 32, "l": "lv", "a": "leviticus", "c": 5}, {"d": 32, "l": "lv", "a": "leviticus", "c": 6}, {"d": 33, "l": "lv", "a": "leviticus", "c": 7}, {"d": 33, "l": "lv", "a": "leviticus", "c": 8}, {"d": 33, "l": "lv", "a": "leviticus", "c": 9}, {"d": 34, "l": "lv", "a": "leviticus", "c": 10}, {"d": 34, "l": "lv", "a": "leviticus", "c": 11}, {"d": 34, "l": "lv", "a": "leviticus", "c": 12}, {"d": 35, "l": "lv", "a": "leviticus", "c": 13}, {"d": 35, "l": "lv", "a": "leviticus", "c": 14}, {"d": 35, "l": "lv", "a": "leviticus", "c": 15}, {"d": 36, "l": "lv", "a": "leviticus", "c": 16}, {"d": 36, "l": "lv", "a": "leviticus", "c": 17}, {"d": 36, "l": "lv", "a": "leviticus", "c": 18}, {"d": 37, "l": "lv", "a": "leviticus", "c": 19}, {"d": 37, "l": "lv", "a": "leviticus", "c": 20}, {"d": 37, "l": "lv", "a": "leviticus", "c": 21}, {"d": 38, "l": "lv", "a": "leviticus", "c": 22}, {"d": 38, "l": "lv", "a": "leviticus", "c": 23}, {"d": 38, "l": "lv", "a": "leviticus", "c": 24}, {"d": 39, "l": "lv", "a": "leviticus", "c": 25}, {"d": 39, "l": "lv", "a": "leviticus", "c": 26}, {"d": 39, "l": "lv", "a": "leviticus", "c": 27}, {"d": 40, "l": "nm", "a": "numbers", "c": 1}, {"d": 40, "l": "nm", "a": "numbers", "c": 2}, {"d": 40, "l": "nm", "a": "numbers", "c": 3}, {"d": 41, "l": "nm", "a": "numbers", "c": 4}, {"d": 41, "l": "nm", "a": "numbers", "c": 5}, {"d": 41, "l": "nm", "a": "numbers", "c": 6}, {"d": 42, "l": "nm", "a": "numbers", "c": 7}, {"d": 42, "l": "nm", "a": "numbers", "c": 8}, {"d": 42, "l": "nm", "a": "numbers", "c": 9}, {"d": 43, "l": "nm", "a": "numbers", "c": 10}, {"d": 43, "l": "nm", "a": "numbers", "c": 11}, {"d": 43, "l": "nm", "a": "numbers", "c": 12}, {"d": 44, "l": "nm", "a": "numbers", "c": 13}, {"d": 44, "l": "nm", "a": "numbers", "c": 14}, {"d": 44, "l": "nm", "a": "numbers", "c": 15}, {"d": 45, "l": "nm", "a": "numbers", "c": 16}, {"d": 45, "l": "nm", "a": "numbers", "c": 17}, {"d": 45, "l": "nm", "a": "numbers", "c": 18}, {"d": 46, "l": "nm", "a": "numbers", "c": 19}, {"d": 46, "l": "nm", "a": "numbers", "c": 20}, {"d": 46, "l": "nm", "a": "numbers", "c": 21}, {"d": 47, "l": "nm", "a": "numbers", "c": 22}, {"d": 47, "l": "nm", "a": "numbers", "c": 23}, {"d": 47, "l": "nm", "a": "numbers", "c": 24}, {"d": 48, "l": "nm", "a": "numbers", "c": 25}, {"d": 48, "l": "nm", "a": "numbers", "c": 26}, {"d": 48, "l": "nm", "a": "numbers", "c": 27}, {"d": 49, "l": "nm", "a": "numbers", "c": 28}, {"d": 49, "l": "nm", "a": "numbers", "c": 29}, {"d": 49, "l": "nm", "a": "numbers", "c": 30}, {"d": 50, "l": "nm", "a": "numbers", "c": 31}, {"d": 50, "l": "nm", "a": "numbers", "c": 32}, {"d": 50, "l": "nm", "a": "numbers", "c": 33}, {"d": 51, "l": "nm", "a": "numbers", "c": 34}, {"d": 51, "l": "nm", "a": "numbers", "c": 35}, {"d": 51, "l": "nm", "a": "numbers", "c": 36}, {"d": 52, "l": "dt", "a": "deuteronomy", "c": 1}, {"d": 52, "l": "dt", "a": "deuteronomy", "c": 2}, {"d": 52, "l": "dt", "a": "deuteronomy", "c": 3}, {"d": 53, "l": "dt", "a": "deuteronomy", "c": 4}, {"d": 53, "l": "dt", "a": "deuteronomy", "c": 5}, {"d": 53, "l": "dt", "a": "deuteronomy", "c": 6}, {"d": 54, "l": "dt", "a": "deuteronomy", "c": 7}, {"d": 54, "l": "dt", "a": "deuteronomy", "c": 8}, {"d": 54, "l": "dt", "a": "deuteronomy", "c": 9}, {"d": 55, "l": "dt", "a": "deuteronomy", "c": 10}, {"d": 55, "l": "dt", "a": "deuteronomy", "c": 11}, {"d": 55, "l": "dt", "a": "deuteronomy", "c": 12}, {"d": 56, "l": "dt", "a": "deuteronomy", "c": 13}, {"d": 56, "l": "dt", "a": "deuteronomy", "c": 14}, {"d": 56, "l": "dt", "a": "deuteronomy", "c": 15}, {"d": 57, "l": "dt", "a": "deuteronomy", "c": 16}, {"d": 57, "l": "dt", "a": "deuteronomy", "c": 17}, {"d": 57, "l": "dt", "a": "deuteronomy", "c": 18}, {"d": 58, "l": "dt", "a": "deuteronomy", "c": 19}, {"d": 58, "l": "dt", "a": "deuteronomy", "c": 20}, {"d": 58, "l": "dt", "a": "deuteronomy", "c": 21}, {"d": 59, "l": "dt", "a": "deuteronomy", "c": 22}, {"d": 59, "l": "dt", "a": "deuteronomy", "c": 23}, {"d": 59, "l": "dt", "a": "deuteronomy", "c": 24}, {"d": 60, "l": "dt", "a": "deuteronomy", "c": 25}, {"d": 60, "l": "dt", "a": "deuteronomy", "c": 26}, {"d": 60, "l": "dt", "a": "deuteronomy", "c": 27}, {"d": 61, "l": "dt", "a": "deuteronomy", "c": 28}, {"d": 61, "l": "dt", "a": "deuteronomy", "c": 29}, {"d": 61, "l": "dt", "a": "deuteronomy", "c": 30}, {"d": 62, "l": "dt", "a": "deuteronomy", "c": 31}, {"d": 62, "l": "dt", "a": "deuteronomy", "c": 32}, {"d": 62, "l": "dt", "a": "deuteronomy", "c": 33}, {"d": 63, "l": "dt", "a": "deuteronomy", "c": 34}, {"d": 63, "l": "js", "a": "joshua", "c": 1}, {"d": 63, "l": "js", "a": "joshua", "c": 2}, {"d": 64, "l": "js", "a": "joshua", "c": 3}, {"d": 64, "l": "js", "a": "joshua", "c": 4}, {"d": 64, "l": "js", "a": "joshua", "c": 5}, {"d": 65, "l": "js", "a": "joshua", "c": 6}, {"d": 65, "l": "js", "a": "joshua", "c": 7}, {"d": 65, "l": "js", "a": "joshua", "c": 8}, {"d": 66, "l": "js", "a": "joshua", "c": 9}, {"d": 66, "l": "js", "a": "joshua", "c": 10}, {"d": 66, "l": "js", "a": "joshua", "c": 11}, {"d": 67, "l": "js", "a": "joshua", "c": 12}, {"d": 67, "l": "js", "a": "joshua", "c": 13}, {"d": 67, "l": "js", "a": "joshua", "c": 14}, {"d": 68, "l": "js", "a": "joshua", "c": 15}, {"d": 68, "l": "js", "a": "joshua", "c": 16}, {"d": 68, "l": "js", "a": "joshua", "c": 17}, {"d": 69, "l": "js", "a": "joshua", "c": 18}, {"d": 69, "l": "js", "a": "joshua", "c": 19}, {"d": 69, "l": "js", "a": "joshua", "c": 20}, {"d": 70, "l": "js", "a": "joshua", "c": 21}, {"d": 70, "l": "js", "a": "joshua", "c": 22}, {"d": 70, "l": "js", "a": "joshua", "c": 23}, {"d": 71, "l": "js", "a": "joshua", "c": 24}, {"d": 71, "l": "jz", "a": "judges", "c": 1}, {"d": 71, "l": "jz", "a": "judges", "c": 2}, {"d": 72, "l": "jz", "a": "judges", "c": 3}, {"d": 72, "l": "jz", "a": "judges", "c": 4}, {"d": 72, "l": "jz", "a": "judges", "c": 5}, {"d": 73, "l": "jz", "a": "judges", "c": 6}, {"d": 73, "l": "jz", "a": "judges", "c": 7}, {"d": 73, "l": "jz", "a": "judges", "c": 8}, {"d": 74, "l": "jz", "a": "judges", "c": 9}, {"d": 74, "l": "jz", "a": "judges", "c": 10}, {"d": 74, "l": "jz", "a": "judges", "c": 11}, {"d": 75, "l": "jz", "a": "judges", "c": 12}, {"d": 75, "l": "jz", "a": "judges", "c": 13}, {"d": 75, "l": "jz", "a": "judges", "c": 14}, {"d": 76, "l": "jz", "a": "judges", "c": 15}, {"d": 76, "l": "jz", "a": "judges", "c": 16}, {"d": 76, "l": "jz", "a": "judges", "c": 17}, {"d": 77, "l": "jz", "a": "judges", "c": 18}, {"d": 77, "l": "jz", "a": "judges", "c": 19}, {"d": 77, "l": "jz", "a": "judges", "c": 20}, {"d": 78, "l": "jz", "a": "judges", "c": 21}, {"d": 78, "l": "rt", "a": "ruth", "c": 1}, {"d": 78, "l": "rt", "a": "ruth", "c": 2}, {"d": 79, "l": "rt", "a": "ruth", "c": 3}, {"d": 79, "l": "rt", "a": "ruth", "c": 4}, {"d": 79, "l": "1sm", "a": "1samuel", "c": 1}, {"d": 80, "l": "1sm", "a": "1samuel", "c": 2}, {"d": 80, "l": "1sm", "a": "1samuel", "c": 3}, {"d": 80, "l": "1sm", "a": "1samuel", "c": 4}, {"d": 81, "l": "1sm", "a": "1samuel", "c": 5}, {"d": 81, "l": "1sm", "a": "1samuel", "c": 6}, {"d": 81, "l": "1sm", "a": "1samuel", "c": 7}, {"d": 82, "l": "1sm", "a": "1samuel", "c": 8}, {"d": 82, "l": "1sm", "a": "1samuel", "c": 9}, {"d": 82, "l": "1sm", "a": "1samuel", "c": 10}, {"d": 83, "l": "1sm", "a": "1samuel", "c": 11}, {"d": 83, "l": "1sm", "a": "1samuel", "c": 12}, {"d": 83, "l": "1sm", "a": "1samuel", "c": 13}, {"d": 84, "l": "1sm", "a": "1samuel", "c": 14}, {"d": 84, "l": "1sm", "a": "1samuel", "c": 15}, {"d": 84, "l": "1sm", "a": "1samuel", "c": 16}, {"d": 85, "l": "1sm", "a": "1samuel", "c": 17}, {"d": 85, "l": "1sm", "a": "1samuel", "c": 18}, {"d": 85, "l": "1sm", "a": "1samuel", "c": 19}, {"d": 86, "l": "1sm", "a": "1samuel", "c": 20}, {"d": 86, "l": "1sm", "a": "1samuel", "c": 21}, {"d": 86, "l": "1sm", "a": "1samuel", "c": 22}, {"d": 87, "l": "1sm", "a": "1samuel", "c": 23}, {"d": 87, "l": "1sm", "a": "1samuel", "c": 24}, {"d": 87, "l": "1sm", "a": "1samuel", "c": 25}, {"d": 88, "l": "1sm", "a": "1samuel", "c": 26}, {"d": 88, "l": "1sm", "a": "1samuel", "c": 27}, {"d": 88, "l": "1sm", "a": "1samuel", "c": 28}, {"d": 89, "l": "1sm", "a": "1samuel", "c": 29}, {"d": 89, "l": "1sm", "a": "1samuel", "c": 30}, {"d": 89, "l": "1sm", "a": "1samuel", "c": 31}, {"d": 90, "l": "2sm", "a": "2samuel", "c": 1}, {"d": 90, "l": "2sm", "a": "2samuel", "c": 2}, {"d": 90, "l": "2sm", "a": "2samuel", "c": 3}, {"d": 91, "l": "2sm", "a": "2samuel", "c": 4}, {"d": 91, "l": "2sm", "a": "2samuel", "c": 5}, {"d": 91, "l": "2sm", "a": "2samuel", "c": 6}, {"d": 92, "l": "2sm", "a": "2samuel", "c": 7}, {"d": 92, "l": "2sm", "a": "2samuel", "c": 8}, {"d": 92, "l": "2sm", "a": "2samuel", "c": 9}, {"d": 93, "l": "2sm", "a": "2samuel", "c": 10}, {"d": 93, "l": "2sm", "a": "2samuel", "c": 11}, {"d": 93, "l": "2sm", "a": "2samuel", "c": 12}, {"d": 94, "l": "2sm", "a": "2samuel", "c": 13}, {"d": 94, "l": "2sm", "a": "2samuel", "c": 14}, {"d": 94, "l": "2sm", "a": "2samuel", "c": 15}, {"d": 95, "l": "2sm", "a": "2samuel", "c": 16}, {"d": 95, "l": "2sm", "a": "2samuel", "c": 17}, {"d": 95, "l": "2sm", "a": "2samuel", "c": 18}, {"d": 96, "l": "2sm", "a": "2samuel", "c": 19}, {"d": 96, "l": "2sm", "a": "2samuel", "c": 20}, {"d": 96, "l": "2sm", "a": "2samuel", "c": 21}, {"d": 97, "l": "2sm", "a": "2samuel", "c": 22}, {"d": 97, "l": "2sm", "a": "2samuel", "c": 23}, {"d": 97, "l": "2sm", "a": "2samuel", "c": 24}, {"d": 98, "l": "1rs", "a": "1kings", "c": 1}, {"d": 98, "l": "1rs", "a": "1kings", "c": 2}, {"d": 98, "l": "1rs", "a": "1kings", "c": 3}, {"d": 99, "l": "1rs", "a": "1kings", "c": 4}, {"d": 99, "l": "1rs", "a": "1kings", "c": 5}, {"d": 99, "l": "1rs", "a": "1kings", "c": 6}, {"d": 100, "l": "1rs", "a": "1kings", "c": 7}, {"d": 100, "l": "1rs", "a": "1kings", "c": 8}, {"d": 100, "l": "1rs", "a": "1kings", "c": 9}, {"d": 101, "l": "1rs", "a": "1kings", "c": 10}, {"d": 101, "l": "1rs", "a": "1kings", "c": 11}, {"d": 101, "l": "1rs", "a": "1kings", "c": 12}, {"d": 102, "l": "1rs", "a": "1kings", "c": 13}, {"d": 102, "l": "1rs", "a": "1kings", "c": 14}, {"d": 102, "l": "1rs", "a": "1kings", "c": 15}, {"d": 103, "l": "1rs", "a": "1kings", "c": 16}, {"d": 103, "l": "1rs", "a": "1kings", "c": 17}, {"d": 103, "l": "1rs", "a": "1kings", "c": 18}, {"d": 104, "l": "1rs", "a": "1kings", "c": 19}, {"d": 104, "l": "1rs", "a": "1kings", "c": 20}, {"d": 104, "l": "1rs", "a": "1kings", "c": 21}, {"d": 105, "l": "1rs", "a": "1kings", "c": 22}, {"d": 105, "l": "2rs", "a": "2kings", "c": 1}, {"d": 105, "l": "2rs", "a": "2kings", "c": 2}, {"d": 106, "l": "2rs", "a": "2kings", "c": 3}, {"d": 106, "l": "2rs", "a": "2kings", "c": 4}, {"d": 106, "l": "2rs", "a": "2kings", "c": 5}, {"d": 107, "l": "2rs", "a": "2kings", "c": 6}, {"d": 107, "l": "2rs", "a": "2kings", "c": 7}, {"d": 107, "l": "2rs", "a": "2kings", "c": 8}, {"d": 108, "l": "2rs", "a": "2kings", "c": 9}, {"d": 108, "l": "2rs", "a": "2kings", "c": 10}, {"d": 108, "l": "2rs", "a": "2kings", "c": 11}, {"d": 109, "l": "2rs", "a": "2kings", "c": 12}, {"d": 109, "l": "2rs", "a": "2kings", "c": 13}, {"d": 109, "l": "2rs", "a": "2kings", "c": 14}, {"d": 110, "l": "2rs", "a": "2kings", "c": 15}, {"d": 110, "l": "2rs", "a": "2kings", "c": 16}, {"d": 110, "l": "2rs", "a": "2kings", "c": 17}, {"d": 111, "l": "2rs", "a": "2kings", "c": 18}, {"d": 111, "l": "2rs", "a": "2kings", "c": 19}, {"d": 111, "l": "2rs", "a": "2kings", "c": 20}, {"d": 112, "l": "2rs", "a": "2kings", "c": 21}, {"d": 112, "l": "2rs", "a": "2kings", "c": 22}, {"d": 112, "l": "2rs", "a": "2kings", "c": 23}, {"d": 113, "l": "2rs", "a": "2kings", "c": 24}, {"d": 113, "l": "2rs", "a": "2kings", "c": 25}, {"d": 113, "l": "1cr", "a": "1chronicles", "c": 1}, {"d": 114, "l": "1cr", "a": "1chronicles", "c": 2}, {"d": 114, "l": "1cr", "a": "1chronicles", "c": 3}, {"d": 114, "l": "1cr", "a": "1chronicles", "c": 4}, {"d": 115, "l": "1cr", "a": "1chronicles", "c": 5}, {"d": 115, "l": "1cr", "a": "1chronicles", "c": 6}, {"d": 115, "l": "1cr", "a": "1chronicles", "c": 7}, {"d": 116, "l": "1cr", "a": "1chronicles", "c": 8}, {"d": 116, "l": "1cr", "a": "1chronicles", "c": 9}, {"d": 116, "l": "1cr", "a": "1chronicles", "c": 10}, {"d": 117, "l": "1cr", "a": "1chronicles", "c": 11}, {"d": 117, "l": "1cr", "a": "1chronicles", "c": 12}, {"d": 117, "l": "1cr", "a": "1chronicles", "c": 13}, {"d": 118, "l": "1cr", "a": "1chronicles", "c": 14}, {"d": 118, "l": "1cr", "a": "1chronicles", "c": 15}, {"d": 118, "l": "1cr", "a": "1chronicles", "c": 16}, {"d": 119, "l": "1cr", "a": "1chronicles", "c": 17}, {"d": 119, "l": "1cr", "a": "1chronicles", "c": 18}, {"d": 119, "l": "1cr", "a": "1chronicles", "c": 19}, {"d": 120, "l": "1cr", "a": "1chronicles", "c": 20}, {"d": 120, "l": "1cr", "a": "1chronicles", "c": 21}, {"d": 120, "l": "1cr", "a": "1chronicles", "c": 22}, {"d": 121, "l": "1cr", "a": "1chronicles", "c": 23}, {"d": 121, "l": "1cr", "a": "1chronicles", "c": 24}, {"d": 121, "l": "1cr", "a": "1chronicles", "c": 25}, {"d": 122, "l": "1cr", "a": "1chronicles", "c": 26}, {"d": 122, "l": "1cr", "a": "1chronicles", "c": 27}, {"d": 122, "l": "1cr", "a": "1chronicles", "c": 28}, {"d": 123, "l": "1cr", "a": "1chronicles", "c": 29}, {"d": 123, "l": "2cr", "a": "2chronicles", "c": 1}, {"d": 123, "l": "2cr", "a": "2chronicles", "c": 2}, {"d": 124, "l": "2cr", "a": "2chronicles", "c": 3}, {"d": 124, "l": "2cr", "a": "2chronicles", "c": 4}, {"d": 124, "l": "2cr", "a": "2chronicles", "c": 5}, {"d": 125, "l": "2cr", "a": "2chronicles", "c": 6}, {"d": 125, "l": "2cr", "a": "2chronicles", "c": 7}, {"d": 125, "l": "2cr", "a": "2chronicles", "c": 8}, {"d": 126, "l": "2cr", "a": "2chronicles", "c": 9}, {"d": 126, "l": "2cr", "a": "2chronicles", "c": 10}, {"d": 126, "l": "2cr", "a": "2chronicles", "c": 11}, {"d": 127, "l": "2cr", "a": "2chronicles", "c": 12}, {"d": 127, "l": "2cr", "a": "2chronicles", "c": 13}, {"d": 127, "l": "2cr", "a": "2chronicles", "c": 14}, {"d": 128, "l": "2cr", "a": "2chronicles", "c": 15}, {"d": 128, "l": "2cr", "a": "2chronicles", "c": 16}, {"d": 128, "l": "2cr", "a": "2chronicles", "c": 17}, {"d": 129, "l": "2cr", "a": "2chronicles", "c": 18}, {"d": 129, "l": "2cr", "a": "2chronicles", "c": 19}, {"d": 129, "l": "2cr", "a": "2chronicles", "c": 20}, {"d": 130, "l": "2cr", "a": "2chronicles", "c": 21}, {"d": 130, "l": "2cr", "a": "2chronicles", "c": 22}, {"d": 130, "l": "2cr", "a": "2chronicles", "c": 23}, {"d": 131, "l": "2cr", "a": "2chronicles", "c": 24}, {"d": 131, "l": "2cr", "a": "2chronicles", "c": 25}, {"d": 131, "l": "2cr", "a": "2chronicles", "c": 26}, {"d": 132, "l": "2cr", "a": "2chronicles", "c": 27}, {"d": 132, "l": "2cr", "a": "2chronicles", "c": 28}, {"d": 132, "l": "2cr", "a": "2chronicles", "c": 29}, {"d": 133, "l": "2cr", "a": "2chronicles", "c": 30}, {"d": 133, "l": "2cr", "a": "2chronicles", "c": 31}, {"d": 133, "l": "2cr", "a": "2chronicles", "c": 32}, {"d": 134, "l": "2cr", "a": "2chronicles", "c": 33}, {"d": 134, "l": "2cr", "a": "2chronicles", "c": 34}, {"d": 134, "l": "2cr", "a": "2chronicles", "c": 35}, {"d": 135, "l": "2cr", "a": "2chronicles", "c": 36}, {"d": 135, "l": "ed", "a": "ezra", "c": 1}, {"d": 135, "l": "ed", "a": "ezra", "c": 2}, {"d": 136, "l": "ed", "a": "ezra", "c": 3}, {"d": 136, "l": "ed", "a": "ezra", "c": 4}, {"d": 136, "l": "ed", "a": "ezra", "c": 5}, {"d": 137, "l": "ed", "a": "ezra", "c": 6}, {"d": 137, "l": "ed", "a": "ezra", "c": 7}, {"d": 137, "l": "ed", "a": "ezra", "c": 8}, {"d": 138, "l": "ed", "a": "ezra", "c": 9}, {"d": 138, "l": "ed", "a": "ezra", "c": 10}, {"d": 138, "l": "ne", "a": "nehemiah", "c": 1}, {"d": 139, "l": "ne", "a": "nehemiah", "c": 2}, {"d": 139, "l": "ne", "a": "nehemiah", "c": 3}, {"d": 139, "l": "ne", "a": "nehemiah", "c": 4}, {"d": 140, "l": "ne", "a": "nehemiah", "c": 5}, {"d": 140, "l": "ne", "a": "nehemiah", "c": 6}, {"d": 140, "l": "ne", "a": "nehemiah", "c": 7}, {"d": 141, "l": "ne", "a": "nehemiah", "c": 8}, {"d": 141, "l": "ne", "a": "nehemiah", "c": 9}, {"d": 141, "l": "ne", "a": "nehemiah", "c": 10}, {"d": 142, "l": "ne", "a": "nehemiah", "c": 11}, {"d": 142, "l": "ne", "a": "nehemiah", "c": 12}, {"d": 142, "l": "ne", "a": "nehemiah", "c": 13}, {"d": 143, "l": "et", "a": "esther", "c": 1}, {"d": 143, "l": "et", "a": "esther", "c": 2}, {"d": 143, "l": "et", "a": "esther", "c": 3}, {"d": 144, "l": "et", "a": "esther", "c": 4}, {"d": 144, "l": "et", "a": "esther", "c": 5}, {"d": 144, "l": "et", "a": "esther", "c": 6}, {"d": 145, "l": "et", "a": "esther", "c": 7}, {"d": 145, "l": "et", "a": "esther", "c": 8}, {"d": 145, "l": "et", "a": "esther", "c": 9}, {"d": 146, "l": "et", "a": "esther", "c": 10}, {"d": 146, "l": "jo", "a": "job", "c": 1}, {"d": 146, "l": "jo", "a": "job", "c": 2}, {"d": 147, "l": "jo", "a": "job", "c": 3}, {"d": 147, "l": "jo", "a": "job", "c": 4}, {"d": 147, "l": "jo", "a": "job", "c": 5}, {"d": 148, "l": "jo", "a": "job", "c": 6}, {"d": 148, "l": "jo", "a": "job", "c": 7}, {"d": 148, "l": "jo", "a": "job", "c": 8}, {"d": 149, "l": "jo", "a": "job", "c": 9}, {"d": 149, "l": "jo", "a": "job", "c": 10}, {"d": 149, "l": "jo", "a": "job", "c": 11}, {"d": 150, "l": "jo", "a": "job", "c": 12}, {"d": 150, "l": "jo", "a": "job", "c": 13}, {"d": 150, "l": "jo", "a": "job", "c": 14}, {"d": 151, "l": "jo", "a": "job", "c": 15}, {"d": 151, "l": "jo", "a": "job", "c": 16}, {"d": 151, "l": "jo", "a": "job", "c": 17}, {"d": 152, "l": "jo", "a": "job", "c": 18}, {"d": 152, "l": "jo", "a": "job", "c": 19}, {"d": 152, "l": "jo", "a": "job", "c": 20}, {"d": 153, "l": "jo", "a": "job", "c": 21}, {"d": 153, "l": "jo", "a": "job", "c": 22}, {"d": 153, "l": "jo", "a": "job", "c": 23}, {"d": 154, "l": "jo", "a": "job", "c": 24}, {"d": 154, "l": "jo", "a": "job", "c": 25}, {"d": 154, "l": "jo", "a": "job", "c": 26}, {"d": 155, "l": "jo", "a": "job", "c": 27}, {"d": 155, "l": "jo", "a": "job", "c": 28}, {"d": 155, "l": "jo", "a": "job", "c": 29}, {"d": 156, "l": "jo", "a": "job", "c": 30}, {"d": 156, "l": "jo", "a": "job", "c": 31}, {"d": 156, "l": "jo", "a": "job", "c": 32}, {"d": 157, "l": "jo", "a": "job", "c": 33}, {"d": 157, "l": "jo", "a": "job", "c": 34}, {"d": 157, "l": "jo", "a": "job", "c": 35}, {"d": 158, "l": "jo", "a": "job", "c": 36}, {"d": 158, "l": "jo", "a": "job", "c": 37}, {"d": 158, "l": "jo", "a": "job", "c": 38}, {"d": 159, "l": "jo", "a": "job", "c": 39}, {"d": 159, "l": "jo", "a": "job", "c": 40}, {"d": 159, "l": "jo", "a": "job", "c": 41}, {"d": 160, "l": "jo", "a": "job", "c": 42}, {"d": 160, "l": "sl", "a": "psalms", "c": 1}, {"d": 160, "l": "sl", "a": "psalms", "c": 2}, {"d": 161, "l": "sl", "a": "psalms", "c": 3}, {"d": 161, "l": "sl", "a": "psalms", "c": 4}, {"d": 161, "l": "sl", "a": "psalms", "c": 5}, {"d": 162, "l": "sl", "a": "psalms", "c": 6}, {"d": 162, "l": "sl", "a": "psalms", "c": 7}, {"d": 162, "l": "sl", "a": "psalms", "c": 8}, {"d": 163, "l": "sl", "a": "psalms", "c": 9}, {"d": 163, "l": "sl", "a": "psalms", "c": 10}, {"d": 163, "l": "sl", "a": "psalms", "c": 11}, {"d": 164, "l": "sl", "a": "psalms", "c": 12}, {"d": 164, "l": "sl", "a": "psalms", "c": 13}, {"d": 164, "l": "sl", "a": "psalms", "c": 14}, {"d": 165, "l": "sl", "a": "psalms", "c": 15}, {"d": 165, "l": "sl", "a": "psalms", "c": 16}, {"d": 165, "l": "sl", "a": "psalms", "c": 17}, {"d": 166, "l": "sl", "a": "psalms", "c": 18}, {"d": 166, "l": "sl", "a": "psalms", "c": 19}, {"d": 166, "l": "sl", "a": "psalms", "c": 20}, {"d": 167, "l": "sl", "a": "psalms", "c": 21}, {"d": 167, "l": "sl", "a": "psalms", "c": 22}, {"d": 167, "l": "sl", "a": "psalms", "c": 23}, {"d": 168, "l": "sl", "a": "psalms", "c": 24}, {"d": 168, "l": "sl", "a": "psalms", "c": 25}, {"d": 168, "l": "sl", "a": "psalms", "c": 26}, {"d": 169, "l": "sl", "a": "psalms", "c": 27}, {"d": 169, "l": "sl", "a": "psalms", "c": 28}, {"d": 169, "l": "sl", "a": "psalms", "c": 29}, {"d": 170, "l": "sl", "a": "psalms", "c": 30}, {"d": 170, "l": "sl", "a": "psalms", "c": 31}, {"d": 170, "l": "sl", "a": "psalms", "c": 32}, {"d": 171, "l": "sl", "a": "psalms", "c": 33}, {"d": 171, "l": "sl", "a": "psalms", "c": 34}, {"d": 171, "l": "sl", "a": "psalms", "c": 35}, {"d": 172, "l": "sl", "a": "psalms", "c": 36}, {"d": 172, "l": "sl", "a": "psalms", "c": 37}, {"d": 172, "l": "sl", "a": "psalms", "c": 38}, {"d": 173, "l": "sl", "a": "psalms", "c": 39}, {"d": 173, "l": "sl", "a": "psalms", "c": 40}, {"d": 173, "l": "sl", "a": "psalms", "c": 41}, {"d": 174, "l": "sl", "a": "psalms", "c": 42}, {"d": 174, "l": "sl", "a": "psalms", "c": 43}, {"d": 174, "l": "sl", "a": "psalms", "c": 44}, {"d": 175, "l": "sl", "a": "psalms", "c": 45}, {"d": 175, "l": "sl", "a": "psalms", "c": 46}, {"d": 175, "l": "sl", "a": "psalms", "c": 47}, {"d": 176, "l": "sl", "a": "psalms", "c": 48}, {"d": 176, "l": "sl", "a": "psalms", "c": 49}, {"d": 176, "l": "sl", "a": "psalms", "c": 50}, {"d": 177, "l": "sl", "a": "psalms", "c": 51}, {"d": 177, "l": "sl", "a": "psalms", "c": 52}, {"d": 177, "l": "sl", "a": "psalms", "c": 53}, {"d": 178, "l": "sl", "a": "psalms", "c": 54}, {"d": 178, "l": "sl", "a": "psalms", "c": 55}, {"d": 178, "l": "sl", "a": "psalms", "c": 56}, {"d": 179, "l": "sl", "a": "psalms", "c": 57}, {"d": 179, "l": "sl", "a": "psalms", "c": 58}, {"d": 179, "l": "sl", "a": "psalms", "c": 59}, {"d": 180, "l": "sl", "a": "psalms", "c": 60}, {"d": 180, "l": "sl", "a": "psalms", "c": 61}, {"d": 180, "l": "sl", "a": "psalms", "c": 62}, {"d": 181, "l": "sl", "a": "psalms", "c": 63}, {"d": 181, "l": "sl", "a": "psalms", "c": 64}, {"d": 181, "l": "sl", "a": "psalms", "c": 65}, {"d": 182, "l": "sl", "a": "psalms", "c": 66}, {"d": 182, "l": "sl", "a": "psalms", "c": 67}, {"d": 182, "l": "sl", "a": "psalms", "c": 68}, {"d": 183, "l": "sl", "a": "psalms", "c": 69}, {"d": 183, "l": "sl", "a": "psalms", "c": 70}, {"d": 183, "l": "sl", "a": "psalms", "c": 71}, {"d": 184, "l": "sl", "a": "psalms", "c": 72}, {"d": 184, "l": "sl", "a": "psalms", "c": 73}, {"d": 184, "l": "sl", "a": "psalms", "c": 74}, {"d": 185, "l": "sl", "a": "psalms", "c": 75}, {"d": 185, "l": "sl", "a": "psalms", "c": 76}, {"d": 185, "l": "sl", "a": "psalms", "c": 77}, {"d": 186, "l": "sl", "a": "psalms", "c": 78}, {"d": 186, "l": "sl", "a": "psalms", "c": 79}, {"d": 186, "l": "sl", "a": "psalms", "c": 80}, {"d": 187, "l": "sl", "a": "psalms", "c": 81}, {"d": 187, "l": "sl", "a": "psalms", "c": 82}, {"d": 187, "l": "sl", "a": "psalms", "c": 83}, {"d": 188, "l": "sl", "a": "psalms", "c": 84}, {"d": 188, "l": "sl", "a": "psalms", "c": 85}, {"d": 188, "l": "sl", "a": "psalms", "c": 86}, {"d": 189, "l": "sl", "a": "psalms", "c": 87}, {"d": 189, "l": "sl", "a": "psalms", "c": 88}, {"d": 189, "l": "sl", "a": "psalms", "c": 89}, {"d": 190, "l": "sl", "a": "psalms", "c": 90}, {"d": 190, "l": "sl", "a": "psalms", "c": 91}, {"d": 190, "l": "sl", "a": "psalms", "c": 92}, {"d": 191, "l": "sl", "a": "psalms", "c": 93}, {"d": 191, "l": "sl", "a": "psalms", "c": 94}, {"d": 191, "l": "sl", "a": "psalms", "c": 95}, {"d": 192, "l": "sl", "a": "psalms", "c": 96}, {"d": 192, "l": "sl", "a": "psalms", "c": 97}, {"d": 192, "l": "sl", "a": "psalms", "c": 98}, {"d": 193, "l": "sl", "a": "psalms", "c": 99}, {"d": 193, "l": "sl", "a": "psalms", "c": 100}, {"d": 193, "l": "sl", "a": "psalms", "c": 101}, {"d": 194, "l": "sl", "a": "psalms", "c": 102}, {"d": 194, "l": "sl", "a": "psalms", "c": 103}, {"d": 194, "l": "sl", "a": "psalms", "c": 104}, {"d": 195, "l": "sl", "a": "psalms", "c": 105}, {"d": 195, "l": "sl", "a": "psalms", "c": 106}, {"d": 195, "l": "sl", "a": "psalms", "c": 107}, {"d": 196, "l": "sl", "a": "psalms", "c": 108}, {"d": 196, "l": "sl", "a": "psalms", "c": 109}, {"d": 196, "l": "sl", "a": "psalms", "c": 110}, {"d": 197, "l": "sl", "a": "psalms", "c": 111}, {"d": 197, "l": "sl", "a": "psalms", "c": 112}, {"d": 197, "l": "sl", "a": "psalms", "c": 113}, {"d": 198, "l": "sl", "a": "psalms", "c": 114}, {"d": 198, "l": "sl", "a": "psalms", "c": 115}, {"d": 198, "l": "sl", "a": "psalms", "c": 116}, {"d": 199, "l": "sl", "a": "psalms", "c": 117}, {"d": 199, "l": "sl", "a": "psalms", "c": 118}, {"d": 199, "l": "sl", "a": "psalms", "c": 119}, {"d": 200, "l": "sl", "a": "psalms", "c": 120}, {"d": 200, "l": "sl", "a": "psalms", "c": 121}, {"d": 200, "l": "sl", "a": "psalms", "c": 122}, {"d": 201, "l": "sl", "a": "psalms", "c": 123}, {"d": 201, "l": "sl", "a": "psalms", "c": 124}, {"d": 201, "l": "sl", "a": "psalms", "c": 125}, {"d": 202, "l": "sl", "a": "psalms", "c": 126}, {"d": 202, "l": "sl", "a": "psalms", "c": 127}, {"d": 202, "l": "sl", "a": "psalms", "c": 128}, {"d": 203, "l": "sl", "a": "psalms", "c": 129}, {"d": 203, "l": "sl", "a": "psalms", "c": 130}, {"d": 203, "l": "sl", "a": "psalms", "c": 131}, {"d": 204, "l": "sl", "a": "psalms", "c": 132}, {"d": 204, "l": "sl", "a": "psalms", "c": 133}, {"d": 204, "l": "sl", "a": "psalms", "c": 134}, {"d": 205, "l": "sl", "a": "psalms", "c": 135}, {"d": 205, "l": "sl", "a": "psalms", "c": 136}, {"d": 205, "l": "sl", "a": "psalms", "c": 137}, {"d": 206, "l": "sl", "a": "psalms", "c": 138}, {"d": 206, "l": "sl", "a": "psalms", "c": 139}, {"d": 206, "l": "sl", "a": "psalms", "c": 140}, {"d": 207, "l": "sl", "a": "psalms", "c": 141}, {"d": 207, "l": "sl", "a": "psalms", "c": 142}, {"d": 207, "l": "sl", "a": "psalms", "c": 143}, {"d": 208, "l": "sl", "a": "psalms", "c": 144}, {"d": 208, "l": "sl", "a": "psalms", "c": 145}, {"d": 208, "l": "sl", "a": "psalms", "c": 146}, {"d": 209, "l": "sl", "a": "psalms", "c": 147}, {"d": 209, "l": "sl", "a": "psalms", "c": 148}, {"d": 209, "l": "sl", "a": "psalms", "c": 149}, {"d": 210, "l": "sl", "a": "psalms", "c": 150}, {"d": 210, "l": "pv", "a": "proverbs", "c": 1}, {"d": 210, "l": "pv", "a": "proverbs", "c": 2}, {"d": 211, "l": "pv", "a": "proverbs", "c": 3}, {"d": 211, "l": "pv", "a": "proverbs", "c": 4}, {"d": 211, "l": "pv", "a": "proverbs", "c": 5}, {"d": 212, "l": "pv", "a": "proverbs", "c": 6}, {"d": 212, "l": "pv", "a": "proverbs", "c": 7}, {"d": 212, "l": "pv", "a": "proverbs", "c": 8}, {"d": 213, "l": "pv", "a": "proverbs", "c": 9}, {"d": 213, "l": "pv", "a": "proverbs", "c": 10}, {"d": 213, "l": "pv", "a": "proverbs", "c": 11}, {"d": 214, "l": "pv", "a": "proverbs", "c": 12}, {"d": 214, "l": "pv", "a": "proverbs", "c": 13}, {"d": 214, "l": "pv", "a": "proverbs", "c": 14}, {"d": 215, "l": "pv", "a": "proverbs", "c": 15}, {"d": 215, "l": "pv", "a": "proverbs", "c": 16}, {"d": 215, "l": "pv", "a": "proverbs", "c": 17}, {"d": 216, "l": "pv", "a": "proverbs", "c": 18}, {"d": 216, "l": "pv", "a": "proverbs", "c": 19}, {"d": 216, "l": "pv", "a": "proverbs", "c": 20}, {"d": 217, "l": "pv", "a": "proverbs", "c": 21}, {"d": 217, "l": "pv", "a": "proverbs", "c": 22}, {"d": 217, "l": "pv", "a": "proverbs", "c": 23}, {"d": 218, "l": "pv", "a": "proverbs", "c": 24}, {"d": 218, "l": "pv", "a": "proverbs", "c": 25}, {"d": 218, "l": "pv", "a": "proverbs", "c": 26}, {"d": 219, "l": "pv", "a": "proverbs", "c": 27}, {"d": 219, "l": "pv", "a": "proverbs", "c": 28}, {"d": 219, "l": "pv", "a": "proverbs", "c": 29}, {"d": 220, "l": "pv", "a": "proverbs", "c": 30}, {"d": 220, "l": "pv", "a": "proverbs", "c": 31}, {"d": 220, "l": "ec", "a": "ecclesiastes", "c": 1}, {"d": 221, "l": "ec", "a": "ecclesiastes", "c": 2}, {"d": 221, "l": "ec", "a": "ecclesiastes", "c": 3}, {"d": 221, "l": "ec", "a": "ecclesiastes", "c": 4}, {"d": 222, "l": "ec", "a": "ecclesiastes", "c": 5}, {"d": 222, "l": "ec", "a": "ecclesiastes", "c": 6}, {"d": 222, "l": "ec", "a": "ecclesiastes", "c": 7}, {"d": 223, "l": "ec", "a": "ecclesiastes", "c": 8}, {"d": 223, "l": "ec", "a": "ecclesiastes", "c": 9}, {"d": 223, "l": "ec", "a": "ecclesiastes", "c": 10}, {"d": 224, "l": "ec", "a": "ecclesiastes", "c": 11}, {"d": 224, "l": "ec", "a": "ecclesiastes", "c": 12}, {"d": 224, "l": "ct", "a": "songofsolomon", "c": 1}, {"d": 225, "l": "ct", "a": "songofsolomon", "c": 2}, {"d": 225, "l": "ct", "a": "songofsolomon", "c": 3}, {"d": 225, "l": "ct", "a": "songofsolomon", "c": 4}, {"d": 226, "l": "ct", "a": "songofsolomon", "c": 5}, {"d": 226, "l": "ct", "a": "songofsolomon", "c": 6}, {"d": 226, "l": "ct", "a": "songofsolomon", "c": 7}, {"d": 227, "l": "ct", "a": "songofsolomon", "c": 8}, {"d": 227, "l": "is", "a": "isaiah", "c": 1}, {"d": 227, "l": "is", "a": "isaiah", "c": 2}, {"d": 228, "l": "is", "a": "isaiah", "c": 3}, {"d": 228, "l": "is", "a": "isaiah", "c": 4}, {"d": 228, "l": "is", "a": "isaiah", "c": 5}, {"d": 229, "l": "is", "a": "isaiah", "c": 6}, {"d": 229, "l": "is", "a": "isaiah", "c": 7}, {"d": 229, "l": "is", "a": "isaiah", "c": 8}, {"d": 230, "l": "is", "a": "isaiah", "c": 9}, {"d": 230, "l": "is", "a": "isaiah", "c": 10}, {"d": 230, "l": "is", "a": "isaiah", "c": 11}, {"d": 231, "l": "is", "a": "isaiah", "c": 12}, {"d": 231, "l": "is", "a": "isaiah", "c": 13}, {"d": 231, "l": "is", "a": "isaiah", "c": 14}, {"d": 232, "l": "is", "a": "isaiah", "c": 15}, {"d": 232, "l": "is", "a": "isaiah", "c": 16}, {"d": 232, "l": "is", "a": "isaiah", "c": 17}, {"d": 233, "l": "is", "a": "isaiah", "c": 18}, {"d": 233, "l": "is", "a": "isaiah", "c": 19}, {"d": 233, "l": "is", "a": "isaiah", "c": 20}, {"d": 234, "l": "is", "a": "isaiah", "c": 21}, {"d": 234, "l": "is", "a": "isaiah", "c": 22}, {"d": 234, "l": "is", "a": "isaiah", "c": 23}, {"d": 235, "l": "is", "a": "isaiah", "c": 24}, {"d": 235, "l": "is", "a": "isaiah", "c": 25}, {"d": 235, "l": "is", "a": "isaiah", "c": 26}, {"d": 236, "l": "is", "a": "isaiah", "c": 27}, {"d": 236, "l": "is", "a": "isaiah", "c": 28}, {"d": 236, "l": "is", "a": "isaiah", "c": 29}, {"d": 237, "l": "is", "a": "isaiah", "c": 30}, {"d": 237, "l": "is", "a": "isaiah", "c": 31}, {"d": 237, "l": "is", "a": "isaiah", "c": 32}, {"d": 238, "l": "is", "a": "isaiah", "c": 33}, {"d": 238, "l": "is", "a": "isaiah", "c": 34}, {"d": 238, "l": "is", "a": "isaiah", "c": 35}, {"d": 239, "l": "is", "a": "isaiah", "c": 36}, {"d": 239, "l": "is", "a": "isaiah", "c": 37}, {"d": 239, "l": "is", "a": "isaiah", "c": 38}, {"d": 240, "l": "is", "a": "isaiah", "c": 39}, {"d": 240, "l": "is", "a": "isaiah", "c": 40}, {"d": 240, "l": "is", "a": "isaiah", "c": 41}, {"d": 241, "l": "is", "a": "isaiah", "c": 42}, {"d": 241, "l": "is", "a": "isaiah", "c": 43}, {"d": 241, "l": "is", "a": "isaiah", "c": 44}, {"d": 242, "l": "is", "a": "isaiah", "c": 45}, {"d": 242, "l": "is", "a": "isaiah", "c": 46}, {"d": 242, "l": "is", "a": "isaiah", "c": 47}, {"d": 243, "l": "is", "a": "isaiah", "c": 48}, {"d": 243, "l": "is", "a": "isaiah", "c": 49}, {"d": 243, "l": "is", "a": "isaiah", "c": 50}, {"d": 244, "l": "is", "a": "isaiah", "c": 51}, {"d": 244, "l": "is", "a": "isaiah", "c": 52}, {"d": 244, "l": "is", "a": "isaiah", "c": 53}, {"d": 245, "l": "is", "a": "isaiah", "c": 54}, {"d": 245, "l": "is", "a": "isaiah", "c": 55}, {"d": 245, "l": "is", "a": "isaiah", "c": 56}, {"d": 246, "l": "is", "a": "isaiah", "c": 57}, {"d": 246, "l": "is", "a": "isaiah", "c": 58}, {"d": 246, "l": "is", "a": "isaiah", "c": 59}, {"d": 247, "l": "is", "a": "isaiah", "c": 60}, {"d": 247, "l": "is", "a": "isaiah", "c": 61}, {"d": 247, "l": "is", "a": "isaiah", "c": 62}, {"d": 248, "l": "is", "a": "isaiah", "c": 63}, {"d": 248, "l": "is", "a": "isaiah", "c": 64}, {"d": 248, "l": "is", "a": "isaiah", "c": 65}, {"d": 249, "l": "is", "a": "isaiah", "c": 66}, {"d": 249, "l": "jr", "a": "jeremiah", "c": 1}, {"d": 249, "l": "jr", "a": "jeremiah", "c": 2}, {"d": 250, "l": "jr", "a": "jeremiah", "c": 3}, {"d": 250, "l": "jr", "a": "jeremiah", "c": 4}, {"d": 250, "l": "jr", "a": "jeremiah", "c": 5}, {"d": 251, "l": "jr", "a": "jeremiah", "c": 6}, {"d": 251, "l": "jr", "a": "jeremiah", "c": 7}, {"d": 251, "l": "jr", "a": "jeremiah", "c": 8}, {"d": 252, "l": "jr", "a": "jeremiah", "c": 9}, {"d": 252, "l": "jr", "a": "jeremiah", "c": 10}, {"d": 252, "l": "jr", "a": "jeremiah", "c": 11}, {"d": 253, "l": "jr", "a": "jeremiah", "c": 12}, {"d": 253, "l": "jr", "a": "jeremiah", "c": 13}, {"d": 253, "l": "jr", "a": "jeremiah", "c": 14}, {"d": 254, "l": "jr", "a": "jeremiah", "c": 15}, {"d": 254, "l": "jr", "a": "jeremiah", "c": 16}, {"d": 254, "l": "jr", "a": "jeremiah", "c": 17}, {"d": 255, "l": "jr", "a": "jeremiah", "c": 18}, {"d": 255, "l": "jr", "a": "jeremiah", "c": 19}, {"d": 255, "l": "jr", "a": "jeremiah", "c": 20}, {"d": 256, "l": "jr", "a": "jeremiah", "c": 21}, {"d": 256, "l": "jr", "a": "jeremiah", "c": 22}, {"d": 256, "l": "jr", "a": "jeremiah", "c": 23}, {"d": 257, "l": "jr", "a": "jeremiah", "c": 24}, {"d": 257, "l": "jr", "a": "jeremiah", "c": 25}, {"d": 257, "l": "jr", "a": "jeremiah", "c": 26}, {"d": 258, "l": "jr", "a": "jeremiah", "c": 27}, {"d": 258, "l": "jr", "a": "jeremiah", "c": 28}, {"d": 258, "l": "jr", "a": "jeremiah", "c": 29}, {"d": 259, "l": "jr", "a": "jeremiah", "c": 30}, {"d": 259, "l": "jr", "a": "jeremiah", "c": 31}, {"d": 259, "l": "jr", "a": "jeremiah", "c": 32}, {"d": 260, "l": "jr", "a": "jeremiah", "c": 33}, {"d": 260, "l": "jr", "a": "jeremiah", "c": 34}, {"d": 260, "l": "jr", "a": "jeremiah", "c": 35}, {"d": 261, "l": "jr", "a": "jeremiah", "c": 36}, {"d": 261, "l": "jr", "a": "jeremiah", "c": 37}, {"d": 261, "l": "jr", "a": "jeremiah", "c": 38}, {"d": 262, "l": "jr", "a": "jeremiah", "c": 39}, {"d": 262, "l": "jr", "a": "jeremiah", "c": 40}, {"d": 262, "l": "jr", "a": "jeremiah", "c": 41}, {"d": 263, "l": "jr", "a": "jeremiah", "c": 42}, {"d": 263, "l": "jr", "a": "jeremiah", "c": 43}, {"d": 263, "l": "jr", "a": "jeremiah", "c": 44}, {"d": 264, "l": "jr", "a": "jeremiah", "c": 45}, {"d": 264, "l": "jr", "a": "jeremiah", "c": 46}, {"d": 264, "l": "jr", "a": "jeremiah", "c": 47}, {"d": 265, "l": "jr", "a": "jeremiah", "c": 48}, {"d": 265, "l": "jr", "a": "jeremiah", "c": 49}, {"d": 265, "l": "jr", "a": "jeremiah", "c": 50}, {"d": 266, "l": "jr", "a": "jeremiah", "c": 51}, {"d": 266, "l": "jr", "a": "jeremiah", "c": 52}, {"d": 266, "l": "lm", "a": "lamentations", "c": 1}, {"d": 267, "l": "lm", "a": "lamentations", "c": 2}, {"d": 267, "l": "lm", "a": "lamentations", "c": 3}, {"d": 267, "l": "lm", "a": "lamentations", "c": 4}, {"d": 268, "l": "lm", "a": "lamentations", "c": 5}, {"d": 268, "l": "ez", "a": "ezekiel", "c": 1}, {"d": 268, "l": "ez", "a": "ezekiel", "c": 2}, {"d": 269, "l": "ez", "a": "ezekiel", "c": 3}, {"d": 269, "l": "ez", "a": "ezekiel", "c": 4}, {"d": 269, "l": "ez", "a": "ezekiel", "c": 5}, {"d": 270, "l": "ez", "a": "ezekiel", "c": 6}, {"d": 270, "l": "ez", "a": "ezekiel", "c": 7}, {"d": 270, "l": "ez", "a": "ezekiel", "c": 8}, {"d": 271, "l": "ez", "a": "ezekiel", "c": 9}, {"d": 271, "l": "ez", "a": "ezekiel", "c": 10}, {"d": 271, "l": "ez", "a": "ezekiel", "c": 11}, {"d": 272, "l": "ez", "a": "ezekiel", "c": 12}, {"d": 272, "l": "ez", "a": "ezekiel", "c": 13}, {"d": 272, "l": "ez", "a": "ezekiel", "c": 14}, {"d": 272, "l": "ez", "a": "ezekiel", "c": 15}, {"d": 273, "l": "ez", "a": "ezekiel", "c": 16}, {"d": 273, "l": "ez", "a": "ezekiel", "c": 17}, {"d": 273, "l": "ez", "a": "ezekiel", "c": 18}, {"d": 273, "l": "ez", "a": "ezekiel", "c": 19}, {"d": 274, "l": "ez", "a": "ezekiel", "c": 20}, {"d": 274, "l": "ez", "a": "ezekiel", "c": 21}, {"d": 274, "l": "ez", "a": "ezekiel", "c": 22}, {"d": 274, "l": "ez", "a": "ezekiel", "c": 23}, {"d": 275, "l": "ez", "a": "ezekiel", "c": 24}, {"d": 275, "l": "ez", "a": "ezekiel", "c": 25}, {"d": 275, "l": "ez", "a": "ezekiel", "c": 26}, {"d": 275, "l": "ez", "a": "ezekiel", "c": 27}, {"d": 276, "l": "ez", "a": "ezekiel", "c": 28}, {"d": 276, "l": "ez", "a": "ezekiel", "c": 29}, {"d": 276, "l": "ez", "a": "ezekiel", "c": 30}, {"d": 276, "l": "ez", "a": "ezekiel", "c": 31}, {"d": 277, "l": "ez", "a": "ezekiel", "c": 32}, {"d": 277, "l": "ez", "a": "ezekiel", "c": 33}, {"d": 277, "l": "ez", "a": "ezekiel", "c": 34}, {"d": 277, "l": "ez", "a": "ezekiel", "c": 35}, {"d": 278, "l": "ez", "a": "ezekiel", "c": 36}, {"d": 278, "l": "ez", "a": "ezekiel", "c": 37}, {"d": 278, "l": "ez", "a": "ezekiel", "c": 38}, {"d": 278, "l": "ez", "a": "ezekiel", "c": 39}, {"d": 279, "l": "ez", "a": "ezekiel", "c": 40}, {"d": 279, "l": "ez", "a": "ezekiel", "c": 41}, {"d": 279, "l": "ez", "a": "ezekiel", "c": 42}, {"d": 279, "l": "ez", "a": "ezekiel", "c": 43}, {"d": 280, "l": "ez", "a": "ezekiel", "c": 44}, {"d": 280, "l": "ez", "a": "ezekiel", "c": 45}, {"d": 280, "l": "ez", "a": "ezekiel", "c": 46}, {"d": 280, "l": "ez", "a": "ezekiel", "c": 47}, {"d": 281, "l": "ez", "a": "ezekiel", "c": 48}, {"d": 281, "l": "dn", "a": "daniel", "c": 1}, {"d": 281, "l": "dn", "a": "daniel", "c": 2}, {"d": 281, "l": "dn", "a": "daniel", "c": 3}, {"d": 282, "l": "dn", "a": "daniel", "c": 4}, {"d": 282, "l": "dn", "a": "daniel", "c": 5}, {"d": 282, "l": "dn", "a": "daniel", "c": 6}, {"d": 282, "l": "dn", "a": "daniel", "c": 7}, {"d": 283, "l": "dn", "a": "daniel", "c": 8}, {"d": 283, "l": "dn", "a": "daniel", "c": 9}, {"d": 283, "l": "dn", "a": "daniel", "c": 10}, {"d": 283, "l": "dn", "a": "daniel", "c": 11}, {"d": 284, "l": "dn", "a": "daniel", "c": 12}, {"d": 284, "l": "os", "a": "hosea", "c": 1}, {"d": 284, "l": "os", "a": "hosea", "c": 2}, {"d": 284, "l": "os", "a": "hosea", "c": 3}, {"d": 285, "l": "os", "a": "hosea", "c": 4}, {"d": 285, "l": "os", "a": "hosea", "c": 5}, {"d": 285, "l": "os", "a": "hosea", "c": 6}, {"d": 285, "l": "os", "a": "hosea", "c": 7}, {"d": 286, "l": "os", "a": "hosea", "c": 8}, {"d": 286, "l": "os", "a": "hosea", "c": 9}, {"d": 286, "l": "os", "a": "hosea", "c": 10}, {"d": 286, "l": "os", "a": "hosea", "c": 11}, {"d": 287, "l": "os", "a": "hosea", "c": 12}, {"d": 287, "l": "os", "a": "hosea", "c": 13}, {"d": 287, "l": "os", "a": "hosea", "c": 14}, {"d": 287, "l": "jl", "a": "joel", "c": 1}, {"d": 288, "l": "jl", "a": "joel", "c": 2}, {"d": 288, "l": "jl", "a": "joel", "c": 3}, {"d": 288, "l": "am", "a": "amos", "c": 1}, {"d": 288, "l": "am", "a": "amos", "c": 2}, {"d": 289, "l": "am", "a": "amos", "c": 3}, {"d": 289, "l": "am", "a": "amos", "c": 4}, {"d": 289, "l": "am", "a": "amos", "c": 5}, {"d": 289, "l": "am", "a": "amos", "c": 6}, {"d": 290, "l": "am", "a": "amos", "c": 7}, {"d": 290, "l": "am", "a": "amos", "c": 8}, {"d": 290, "l": "am", "a": "amos", "c": 9}, {"d": 290, "l": "ob", "a": "obadiah", "c": 1}, {"d": 291, "l": "jn", "a": "jonah", "c": 1}, {"d": 291, "l": "jn", "a": "jonah", "c": 2}, {"d": 291, "l": "jn", "a": "jonah", "c": 3}, {"d": 291, "l": "jn", "a": "jonah", "c": 4}, {"d": 292, "l": "mq", "a": "micah", "c": 1}, {"d": 292, "l": "mq", "a": "micah", "c": 2}, {"d": 292, "l": "mq", "a": "micah", "c": 3}, {"d": 292, "l": "mq", "a": "micah", "c": 4}, {"d": 293, "l": "mq", "a": "micah", "c": 5}, {"d": 293, "l": "mq", "a": "micah", "c": 6}, {"d": 293, "l": "mq", "a": "micah", "c": 7}, {"d": 293, "l": "na", "a": "nahum", "c": 1}, {"d": 294, "l": "na", "a": "nahum", "c": 2}, {"d": 294, "l": "na", "a": "nahum", "c": 3}, {"d": 294, "l": "hc", "a": "habakkuk", "c": 1}, {"d": 294, "l": "hc", "a": "habakkuk", "c": 2}, {"d": 295, "l": "hc", "a": "habakkuk", "c": 3}, {"d": 295, "l": "sf", "a": "zephaniah", "c": 1}, {"d": 295, "l": "sf", "a": "zephaniah", "c": 2}, {"d": 295, "l": "sf", "a": "zephaniah", "c": 3}, {"d": 296, "l": "ag", "a": "haggai", "c": 1}, {"d": 296, "l": "ag", "a": "haggai", "c": 2}, {"d": 296, "l": "zc", "a": "zechariah", "c": 1}, {"d": 296, "l": "zc", "a": "zechariah", "c": 2}, {"d": 297, "l": "zc", "a": "zechariah", "c": 3}, {"d": 297, "l": "zc", "a": "zechariah", "c": 4}, {"d": 297, "l": "zc", "a": "zechariah", "c": 5}, {"d": 297, "l": "zc", "a": "zechariah", "c": 6}, {"d": 298, "l": "zc", "a": "zechariah", "c": 7}, {"d": 298, "l": "zc", "a": "zechariah", "c": 8}, {"d": 298, "l": "zc", "a": "zechariah", "c": 9}, {"d": 298, "l": "zc", "a": "zechariah", "c": 10}, {"d": 299, "l": "zc", "a": "zechariah", "c": 11}, {"d": 299, "l": "zc", "a": "zechariah", "c": 12}, {"d": 299, "l": "zc", "a": "zechariah", "c": 13}, {"d": 299, "l": "zc", "a": "zechariah", "c": 14}, {"d": 300, "l": "ml", "a": "malachi", "c": 1}, {"d": 300, "l": "ml", "a": "malachi", "c": 2}, {"d": 300, "l": "ml", "a": "malachi", "c": 3}, {"d": 300, "l": "ml", "a": "malachi", "c": 4}, {"d": 301, "l": "mt", "a": "matthew", "c": 1}, {"d": 301, "l": "mt", "a": "matthew", "c": 2}, {"d": 301, "l": "mt", "a": "matthew", "c": 3}, {"d": 301, "l": "mt", "a": "matthew", "c": 4}, {"d": 302, "l": "mt", "a": "matthew", "c": 5}, {"d": 302, "l": "mt", "a": "matthew", "c": 6}, {"d": 302, "l": "mt", "a": "matthew", "c": 7}, {"d": 302, "l": "mt", "a": "matthew", "c": 8}, {"d": 303, "l": "mt", "a": "matthew", "c": 9}, {"d": 303, "l": "mt", "a": "matthew", "c": 10}, {"d": 303, "l": "mt", "a": "matthew", "c": 11}, {"d": 303, "l": "mt", "a": "matthew", "c": 12}, {"d": 304, "l": "mt", "a": "matthew", "c": 13}, {"d": 304, "l": "mt", "a": "matthew", "c": 14}, {"d": 304, "l": "mt", "a": "matthew", "c": 15}, {"d": 304, "l": "mt", "a": "matthew", "c": 16}, {"d": 305, "l": "mt", "a": "matthew", "c": 17}, {"d": 305, "l": "mt", "a": "matthew", "c": 18}, {"d": 305, "l": "mt", "a": "matthew", "c": 19}, {"d": 305, "l": "mt", "a": "matthew", "c": 20}, {"d": 306, "l": "mt", "a": "matthew", "c": 21}, {"d": 306, "l": "mt", "a": "matthew", "c": 22}, {"d": 306, "l": "mt", "a": "matthew", "c": 23}, {"d": 306, "l": "mt", "a": "matthew", "c": 24}, {"d": 307, "l": "mt", "a": "matthew", "c": 25}, {"d": 307, "l": "mt", "a": "matthew", "c": 26}, {"d": 307, "l": "mt", "a": "matthew", "c": 27}, {"d": 307, "l": "mt", "a": "matthew", "c": 28}, {"d": 308, "l": "mc", "a": "mark", "c": 1}, {"d": 308, "l": "mc", "a": "mark", "c": 2}, {"d": 308, "l": "mc", "a": "mark", "c": 3}, {"d": 308, "l": "mc", "a": "mark", "c": 4}, {"d": 309, "l": "mc", "a": "mark", "c": 5}, {"d": 309, "l": "mc", "a": "mark", "c": 6}, {"d": 309, "l": "mc", "a": "mark", "c": 7}, {"d": 309, "l": "mc", "a": "mark", "c": 8}, {"d": 310, "l": "mc", "a": "mark", "c": 9}, {"d": 310, "l": "mc", "a": "mark", "c": 10}, {"d": 310, "l": "mc", "a": "mark", "c": 11}, {"d": 310, "l": "mc", "a": "mark", "c": 12}, {"d": 311, "l": "mc", "a": "mark", "c": 13}, {"d": 311, "l": "mc", "a": "mark", "c": 14}, {"d": 311, "l": "mc", "a": "mark", "c": 15}, {"d": 311, "l": "mc", "a": "mark", "c": 16}, {"d": 312, "l": "lc", "a": "luke", "c": 1}, {"d": 312, "l": "lc", "a": "luke", "c": 2}, {"d": 312, "l": "lc", "a": "luke", "c": 3}, {"d": 312, "l": "lc", "a": "luke", "c": 4}, {"d": 313, "l": "lc", "a": "luke", "c": 5}, {"d": 313, "l": "lc", "a": "luke", "c": 6}, {"d": 313, "l": "lc", "a": "luke", "c": 7}, {"d": 313, "l": "lc", "a": "luke", "c": 8}, {"d": 314, "l": "lc", "a": "luke", "c": 9}, {"d": 314, "l": "lc", "a": "luke", "c": 10}, {"d": 314, "l": "lc", "a": "luke", "c": 11}, {"d": 314, "l": "lc", "a": "luke", "c": 12}, {"d": 315, "l": "lc", "a": "luke", "c": 13}, {"d": 315, "l": "lc", "a": "luke", "c": 14}, {"d": 315, "l": "lc", "a": "luke", "c": 15}, {"d": 315, "l": "lc", "a": "luke", "c": 16}, {"d": 316, "l": "lc", "a": "luke", "c": 17}, {"d": 316, "l": "lc", "a": "luke", "c": 18}, {"d": 316, "l": "lc", "a": "luke", "c": 19}, {"d": 316, "l": "lc", "a": "luke", "c": 20}, {"d": 317, "l": "lc", "a": "luke", "c": 21}, {"d": 317, "l": "lc", "a": "luke", "c": 22}, {"d": 317, "l": "lc", "a": "luke", "c": 23}, {"d": 317, "l": "lc", "a": "luke", "c": 24}, {"d": 318, "l": "jo2", "a": "john", "c": 1}, {"d": 318, "l": "jo2", "a": "john", "c": 2}, {"d": 318, "l": "jo2", "a": "john", "c": 3}, {"d": 318, "l": "jo2", "a": "john", "c": 4}, {"d": 319, "l": "jo2", "a": "john", "c": 5}, {"d": 319, "l": "jo2", "a": "john", "c": 6}, {"d": 319, "l": "jo2", "a": "john", "c": 7}, {"d": 319, "l": "jo2", "a": "john", "c": 8}, {"d": 320, "l": "jo2", "a": "john", "c": 9}, {"d": 320, "l": "jo2", "a": "john", "c": 10}, {"d": 320, "l": "jo2", "a": "john", "c": 11}, {"d": 320, "l": "jo2", "a": "john", "c": 12}, {"d": 321, "l": "jo2", "a": "john", "c": 13}, {"d": 321, "l": "jo2", "a": "john", "c": 14}, {"d": 321, "l": "jo2", "a": "john", "c": 15}, {"d": 321, "l": "jo2", "a": "john", "c": 16}, {"d": 322, "l": "jo2", "a": "john", "c": 17}, {"d": 322, "l": "jo2", "a": "john", "c": 18}, {"d": 322, "l": "jo2", "a": "john", "c": 19}, {"d": 322, "l": "jo2", "a": "john", "c": 20}, {"d": 323, "l": "jo2", "a": "john", "c": 21}, {"d": 323, "l": "at", "a": "acts", "c": 1}, {"d": 323, "l": "at", "a": "acts", "c": 2}, {"d": 323, "l": "at", "a": "acts", "c": 3}, {"d": 324, "l": "at", "a": "acts", "c": 4}, {"d": 324, "l": "at", "a": "acts", "c": 5}, {"d": 324, "l": "at", "a": "acts", "c": 6}, {"d": 324, "l": "at", "a": "acts", "c": 7}, {"d": 325, "l": "at", "a": "acts", "c": 8}, {"d": 325, "l": "at", "a": "acts", "c": 9}, {"d": 325, "l": "at", "a": "acts", "c": 10}, {"d": 325, "l": "at", "a": "acts", "c": 11}, {"d": 326, "l": "at", "a": "acts", "c": 12}, {"d": 326, "l": "at", "a": "acts", "c": 13}, {"d": 326, "l": "at", "a": "acts", "c": 14}, {"d": 326, "l": "at", "a": "acts", "c": 15}, {"d": 327, "l": "at", "a": "acts", "c": 16}, {"d": 327, "l": "at", "a": "acts", "c": 17}, {"d": 327, "l": "at", "a": "acts", "c": 18}, {"d": 327, "l": "at", "a": "acts", "c": 19}, {"d": 328, "l": "at", "a": "acts", "c": 20}, {"d": 328, "l": "at", "a": "acts", "c": 21}, {"d": 328, "l": "at", "a": "acts", "c": 22}, {"d": 328, "l": "at", "a": "acts", "c": 23}, {"d": 329, "l": "at", "a": "acts", "c": 24}, {"d": 329, "l": "at", "a": "acts", "c": 25}, {"d": 329, "l": "at", "a": "acts", "c": 26}, {"d": 329, "l": "at", "a": "acts", "c": 27}, {"d": 330, "l": "at", "a": "acts", "c": 28}, {"d": 330, "l": "rm", "a": "romans", "c": 1}, {"d": 330, "l": "rm", "a": "romans", "c": 2}, {"d": 330, "l": "rm", "a": "romans", "c": 3}, {"d": 331, "l": "rm", "a": "romans", "c": 4}, {"d": 331, "l": "rm", "a": "romans", "c": 5}, {"d": 331, "l": "rm", "a": "romans", "c": 6}, {"d": 331, "l": "rm", "a": "romans", "c": 7}, {"d": 332, "l": "rm", "a": "romans", "c": 8}, {"d": 332, "l": "rm", "a": "romans", "c": 9}, {"d": 332, "l": "rm", "a": "romans", "c": 10}, {"d": 332, "l": "rm", "a": "romans", "c": 11}, {"d": 333, "l": "rm", "a": "romans", "c": 12}, {"d": 333, "l": "rm", "a": "romans", "c": 13}, {"d": 333, "l": "rm", "a": "romans", "c": 14}, {"d": 333, "l": "rm", "a": "romans", "c": 15}, {"d": 334, "l": "rm", "a": "romans", "c": 16}, {"d": 334, "l": "1co", "a": "1corinthians", "c": 1}, {"d": 334, "l": "1co", "a": "1corinthians", "c": 2}, {"d": 334, "l": "1co", "a": "1corinthians", "c": 3}, {"d": 335, "l": "1co", "a": "1corinthians", "c": 4}, {"d": 335, "l": "1co", "a": "1corinthians", "c": 5}, {"d": 335, "l": "1co", "a": "1corinthians", "c": 6}, {"d": 335, "l": "1co", "a": "1corinthians", "c": 7}, {"d": 336, "l": "1co", "a": "1corinthians", "c": 8}, {"d": 336, "l": "1co", "a": "1corinthians", "c": 9}, {"d": 336, "l": "1co", "a": "1corinthians", "c": 10}, {"d": 336, "l": "1co", "a": "1corinthians", "c": 11}, {"d": 337, "l": "1co", "a": "1corinthians", "c": 12}, {"d": 337, "l": "1co", "a": "1corinthians", "c": 13}, {"d": 337, "l": "1co", "a": "1corinthians", "c": 14}, {"d": 337, "l": "1co", "a": "1corinthians", "c": 15}, {"d": 338, "l": "1co", "a": "1corinthians", "c": 16}, {"d": 338, "l": "2co", "a": "2corinthians", "c": 1}, {"d": 338, "l": "2co", "a": "2corinthians", "c": 2}, {"d": 338, "l": "2co", "a": "2corinthians", "c": 3}, {"d": 339, "l": "2co", "a": "2corinthians", "c": 4}, {"d": 339, "l": "2co", "a": "2corinthians", "c": 5}, {"d": 339, "l": "2co", "a": "2corinthians", "c": 6}, {"d": 339, "l": "2co", "a": "2corinthians", "c": 7}, {"d": 340, "l": "2co", "a": "2corinthians", "c": 8}, {"d": 340, "l": "2co", "a": "2corinthians", "c": 9}, {"d": 340, "l": "2co", "a": "2corinthians", "c": 10}, {"d": 340, "l": "2co", "a": "2corinthians", "c": 11}, {"d": 341, "l": "2co", "a": "2corinthians", "c": 12}, {"d": 341, "l": "2co", "a": "2corinthians", "c": 13}, {"d": 341, "l": "gl", "a": "galatians", "c": 1}, {"d": 341, "l": "gl", "a": "galatians", "c": 2}, {"d": 342, "l": "gl", "a": "galatians", "c": 3}, {"d": 342, "l": "gl", "a": "galatians", "c": 4}, {"d": 342, "l": "gl", "a": "galatians", "c": 5}, {"d": 342, "l": "gl", "a": "galatians", "c": 6}, {"d": 343, "l": "ef", "a": "ephesians", "c": 1}, {"d": 343, "l": "ef", "a": "ephesians", "c": 2}, {"d": 343, "l": "ef", "a": "ephesians", "c": 3}, {"d": 343, "l": "ef", "a": "ephesians", "c": 4}, {"d": 344, "l": "ef", "a": "ephesians", "c": 5}, {"d": 344, "l": "ef", "a": "ephesians", "c": 6}, {"d": 344, "l": "fp", "a": "philippians", "c": 1}, {"d": 344, "l": "fp", "a": "philippians", "c": 2}, {"d": 345, "l": "fp", "a": "philippians", "c": 3}, {"d": 345, "l": "fp", "a": "philippians", "c": 4}, {"d": 345, "l": "cl", "a": "colossians", "c": 1}, {"d": 345, "l": "cl", "a": "colossians", "c": 2}, {"d": 346, "l": "cl", "a": "colossians", "c": 3}, {"d": 346, "l": "cl", "a": "colossians", "c": 4}, {"d": 346, "l": "1ts", "a": "1thessalonians", "c": 1}, {"d": 346, "l": "1ts", "a": "1thessalonians", "c": 2}, {"d": 347, "l": "1ts", "a": "1thessalonians", "c": 3}, {"d": 347, "l": "1ts", "a": "1thessalonians", "c": 4}, {"d": 347, "l": "1ts", "a": "1thessalonians", "c": 5}, {"d": 347, "l": "2ts", "a": "2thessalonians", "c": 1}, {"d": 348, "l": "2ts", "a": "2thessalonians", "c": 2}, {"d": 348, "l": "2ts", "a": "2thessalonians", "c": 3}, {"d": 348, "l": "1tm", "a": "1timothy", "c": 1}, {"d": 348, "l": "1tm", "a": "1timothy", "c": 2}, {"d": 349, "l": "1tm", "a": "1timothy", "c": 3}, {"d": 349, "l": "1tm", "a": "1timothy", "c": 4}, {"d": 349, "l": "1tm", "a": "1timothy", "c": 5}, {"d": 349, "l": "1tm", "a": "1timothy", "c": 6}, {"d": 350, "l": "2tm", "a": "2timothy", "c": 1}, {"d": 350, "l": "2tm", "a": "2timothy", "c": 2}, {"d": 350, "l": "2tm", "a": "2timothy", "c": 3}, {"d": 350, "l": "2tm", "a": "2timothy", "c": 4}, {"d": 351, "l": "tt", "a": "titus", "c": 1}, {"d": 351, "l": "tt", "a": "titus", "c": 2}, {"d": 351, "l": "tt", "a": "titus", "c": 3}, {"d": 351, "l": "fm", "a": "philemon", "c": 1}, {"d": 352, "l": "hb", "a": "hebrews", "c": 1}, {"d": 352, "l": "hb", "a": "hebrews", "c": 2}, {"d": 352, "l": "hb", "a": "hebrews", "c": 3}, {"d": 352, "l": "hb", "a": "hebrews", "c": 4}, {"d": 353, "l": "hb", "a": "hebrews", "c": 5}, {"d": 353, "l": "hb", "a": "hebrews", "c": 6}, {"d": 353, "l": "hb", "a": "hebrews", "c": 7}, {"d": 353, "l": "hb", "a": "hebrews", "c": 8}, {"d": 354, "l": "hb", "a": "hebrews", "c": 9}, {"d": 354, "l": "hb", "a": "hebrews", "c": 10}, {"d": 354, "l": "hb", "a": "hebrews", "c": 11}, {"d": 354, "l": "hb", "a": "hebrews", "c": 12}, {"d": 355, "l": "hb", "a": "hebrews", "c": 13}, {"d": 355, "l": "tg", "a": "james", "c": 1}, {"d": 355, "l": "tg", "a": "james", "c": 2}, {"d": 355, "l": "tg", "a": "james", "c": 3}, {"d": 356, "l": "tg", "a": "james", "c": 4}, {"d": 356, "l": "tg", "a": "james", "c": 5}, {"d": 356, "l": "1pe", "a": "1peter", "c": 1}, {"d": 356, "l": "1pe", "a": "1peter", "c": 2}, {"d": 357, "l": "1pe", "a": "1peter", "c": 3}, {"d": 357, "l": "1pe", "a": "1peter", "c": 4}, {"d": 357, "l": "1pe", "a": "1peter", "c": 5}, {"d": 357, "l": "2pe", "a": "2peter", "c": 1}, {"d": 358, "l": "2pe", "a": "2peter", "c": 2}, {"d": 358, "l": "2pe", "a": "2peter", "c": 3}, {"d": 358, "l": "1jo", "a": "1john", "c": 1}, {"d": 358, "l": "1jo", "a": "1john", "c": 2}, {"d": 359, "l": "1jo", "a": "1john", "c": 3}, {"d": 359, "l": "1jo", "a": "1john", "c": 4}, {"d": 359, "l": "1jo", "a": "1john", "c": 5}, {"d": 359, "l": "2jo", "a": "2john", "c": 1}, {"d": 360, "l": "3jo", "a": "3john", "c": 1}, {"d": 360, "l": "jd", "a": "jude", "c": 1}, {"d": 360, "l": "ap", "a": "revelation", "c": 1}, {"d": 360, "l": "ap", "a": "revelation", "c": 2}, {"d": 361, "l": "ap", "a": "revelation", "c": 3}, {"d": 361, "l": "ap", "a": "revelation", "c": 4}, {"d": 361, "l": "ap", "a": "revelation", "c": 5}, {"d": 361, "l": "ap", "a": "revelation", "c": 6}, {"d": 362, "l": "ap", "a": "revelation", "c": 7}, {"d": 362, "l": "ap", "a": "revelation", "c": 8}, {"d": 362, "l": "ap", "a": "revelation", "c": 9}, {"d": 362, "l": "ap", "a": "revelation", "c": 10}, {"d": 363, "l": "ap", "a": "revelation", "c": 11}, {"d": 363, "l": "ap", "a": "revelation", "c": 12}, {"d": 363, "l": "ap", "a": "revelation", "c": 13}, {"d": 363, "l": "ap", "a": "revelation", "c": 14}, {"d": 364, "l": "ap", "a": "revelation", "c": 15}, {"d": 364, "l": "ap", "a": "revelation", "c": 16}, {"d": 364, "l": "ap", "a": "revelation", "c": 17}, {"d": 364, "l": "ap", "a": "revelation", "c": 18}, {"d": 365, "l": "ap", "a": "revelation", "c": 19}, {"d": 365, "l": "ap", "a": "revelation", "c": 20}, {"d": 365, "l": "ap", "a": "revelation", "c": 21}, {"d": 365, "l": "ap", "a": "revelation", "c": 22}];
+
+// Nomes dos livros para exibição
+const LIVRO_NOMES = {
+  gn:'Gênesis',ex:'Êxodo',lv:'Levítico',nm:'Números',dt:'Deuteronômio',
+  js:'Josué',jz:'Juízes',rt:'Rute','1sm':'1 Samuel','2sm':'2 Samuel',
+  '1rs':'1 Reis','2rs':'2 Reis','1cr':'1 Crônicas','2cr':'2 Crônicas',
+  ed:'Esdras',ne:'Neemias',et:'Ester',jo:'Jó',sl:'Salmos',pv:'Provérbios',
+  ec:'Eclesiastes',ct:'Cânticos',is:'Isaías',jr:'Jeremias',lm:'Lamentações',
+  ez:'Ezequiel',dn:'Daniel',os:'Oséias',jl:'Joel',am:'Amós',ob:'Obadias',
+  jn:'Jonas',mq:'Miquéias',na:'Naum',hc:'Habacuque',sf:'Sofonias',
+  ag:'Ageu',zc:'Zacarias',ml:'Malaquias',mt:'Mateus',mc:'Marcos',
+  lc:'Lucas',jo2:'João',at:'Atos',rm:'Romanos','1co':'1 Coríntios',
+  '2co':'2 Coríntios',gl:'Gálatas',ef:'Efésios',fp:'Filipenses',
+  cl:'Colossenses','1ts':'1 Tessalonicenses','2ts':'2 Tessalonicenses',
+  '1tm':'1 Timóteo','2tm':'2 Timóteo',tt:'Tito',fm:'Filemom',
+  hb:'Hebreus',tg:'Tiago','1pe':'1 Pedro','2pe':'2 Pedro',
+  '1jo':'1 João','2jo':'2 João','3jo':'3 João',jd:'Judas',ap:'Apocalipse'
+};
+
+let planoProgresso = {};  // {dia: true/false}
+
+function diaDoAno(){
+  const agora=new Date();
+  const inicio=new Date(agora.getFullYear(),0,0);
+  return Math.floor((agora-inicio)/86400000);
+}
+
+async function carregarPlano(){
+  // Buscar progresso do banco
+  const {data}=await sb.from('plano_leitura').select('dia,lido').eq('usuario_id',U.id);
+  planoProgresso={};
+  (data||[]).forEach(r=>{if(r.lido) planoProgresso[r.dia]=true;});
+  renderPlanoStats();
+  renderPlanoHoje();
+  renderPlanoProximas();
+}
+
+function renderPlanoStats(){
+  const total=Object.keys(planoProgresso).length;
+  const pct=Math.round(total/365*100);
+  const bar=g('planoBar');
+  const pct2=g('planoPercent');
+  const lidos=g('planoLidos');
+  if(bar) bar.style.width=pct+'%';
+  if(pct2) pct2.textContent=pct+'%';
+  // Contar capítulos lidos (cada dia tem múltiplos)
+  const capsLidas=PLANO_ANUAL.filter(p=>planoProgresso[p.d]).length;
+  if(lidos) lidos.textContent=capsLidas+' capítulos lidos';
+}
+
+function renderPlanoHoje(){
+  const dia=diaDoAno();
+  const el=g('planoHoje');
+  if(!el)return;
+  const capsHoje=PLANO_ANUAL.filter(p=>p.d===dia);
+  if(!capsHoje.length){
+    el.innerHTML='<div style="color:var(--t3);font-size:13px;padding:8px 0">Plano completo para hoje! 🎉</div>';
+    return;
+  }
+  const todosLidos=capsHoje.every(c=>planoProgresso[c.d]);
+  el.innerHTML=`<div class="plano-dia hoje ${todosLidos?'lido':''}">
+    <div class="pd-header">
+      <div class="pd-dia">DIA ${dia} — ${todosLidos?'✓ Concluído':'Pendente'}</div>
+      <div class="pd-check ${todosLidos?'done':''}" onclick="marcarDia(${dia},${!todosLidos})">
+        ${todosLidos?'✓':''}
+      </div>
+    </div>
+    <div class="pd-caps">
+      ${capsHoje.map(c=>`<div class="pd-cap ${planoProgresso[c.d]?'lido':''}" onclick="abrirCapPlano('${c.l}','${c.a}','${LIVRO_NOMES[c.l]||c.l}',${c.c})">
+        ${LIVRO_NOMES[c.l]||c.l} ${c.c}
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderPlanoProximas(){
+  const dia=diaDoAno();
+  const el=g('planoProximas');
+  if(!el)return;
+  // Próximos 7 dias não lidos
+  const proxDias=[];
+  for(let d=dia+1;d<=Math.min(dia+7,365);d++){
+    const caps=PLANO_ANUAL.filter(p=>p.d===d);
+    if(caps.length) proxDias.push({dia:d,caps});
+  }
+  // Também dias atrasados (antes de hoje, não lidos)
+  const atrasados=[];
+  for(let d=1;d<dia;d++){
+    if(!planoProgresso[d]){
+      const caps=PLANO_ANUAL.filter(p=>p.d===d);
+      if(caps.length) atrasados.push({dia:d,caps});
+    }
+  }
+  let html='';
+  if(atrasados.length){
+    html+=`<div style="font-size:11px;color:var(--er);font-weight:600;margin-bottom:8px">${atrasados.length} dias em atraso</div>`;
+    atrasados.slice(0,3).forEach(({dia:d,caps})=>{
+      html+=diaCard(d,caps,false,true);
+    });
+  }
+  proxDias.forEach(({dia:d,caps})=>{
+    html+=diaCard(d,caps,false,false);
+  });
+  el.innerHTML=html||'<div style="color:var(--t3);font-size:13px">Nada mais por esta semana</div>';
+}
+
+function diaCard(d,caps,hoje,atrasado){
+  const lido=planoProgresso[d];
+  return `<div class="plano-dia ${lido?'lido':''} ${atrasado?'':''}" style="${atrasado?'border-color:rgba(239,68,68,.3)':''}">
+    <div class="pd-header">
+      <div class="pd-dia" style="${atrasado?'color:var(--er)':''}">${atrasado?'⚠️ ':''}DIA ${d}</div>
+      <div class="pd-check ${lido?'done':''}" onclick="marcarDia(${d},${!lido})">${lido?'✓':''}</div>
+    </div>
+    <div class="pd-caps">
+      ${caps.map(c=>`<div class="pd-cap ${planoProgresso[c.d]?'lido':''}" onclick="abrirCapPlano('${c.l}','${c.a}','${LIVRO_NOMES[c.l]||c.l}',${c.c})">
+        ${LIVRO_NOMES[c.l]||c.l} ${c.c}
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+async function marcarDia(dia, lido){
+  planoProgresso[dia]=lido;
+  await sb.from('plano_leitura').upsert({
+    usuario_id:U.id, dia, livro_id:'multi', capitulo:0, lido,
+    lido_em:lido?new Date().toISOString():null
+  },{onConflict:'usuario_id,dia'});
+  renderPlanoStats();
+  renderPlanoHoje();
+  renderPlanoProximas();
+  if(lido) toast('Leitura marcada! 🙏','ok');
+}
+
+function abrirCapPlano(livroId, livroApi, livroNome, cap){
+  // Ir para a leitura desse capítulo
+  bibliaTab('leitura',g('bTabLeitura'));
+  const sel=g('bibliaLivro');
+  // Encontrar o livro no select
+  for(let i=0;i<sel.options.length;i++){
+    if(sel.options[i].value===livroId){sel.selectedIndex=i;break;}
+  }
+  carregarCapitulos();
+  setTimeout(()=>{g('bibliaCapitulo').value=cap;carregarVersos();},100);
+}
+
+function bibliaTab(tab, el){
+  document.querySelectorAll('#sBiblia .ptab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  g('bSecLeitura').style.display=tab==='leitura'?'block':'none';
+  g('bSecPlano').style.display=tab==='plano'?'block':'none';
+  if(tab==='plano') carregarPlano();
+}
+
+// ══ ÁUDIO DA BÍBLIA ══
+let audioEl=null, audioAtivo=false;
+
+function ativarAudio(){
+  g('audioBtn').style.display='none';
+  g('audioPlayer').style.display='block';
+  carregarAudioCapitulo();
+}
+
+function toggleAudioOff(){
+  if(audioEl){audioEl.pause();audioEl=null;}
+  g('audioPlayer').style.display='none';
+  g('audioBtn').style.display='flex';
+  audioAtivo=false;
+  g('audioPlayBtn').textContent='▶';
+  document.getElementById('sBiblia').classList.remove('audio-playing');
+}
+
+function carregarAudioCapitulo(){
+  const livroId=g('bibliaLivro').value;
+  const cap=g('bibliaCapitulo').value;
+  if(!livroId||!cap){toast('Selecione um capítulo primeiro','err');return;}
+  const livro=LIVROS.find(l=>l.id===livroId);
+  const apiNome=livro?.nomeApi||livroId;
+  const livroNome=LIVRO_NOMES[livroId]||livro?.nome||livroId;
+  g('audioTitulo').textContent=`${livroNome} ${cap}`;
+  g('audioProgress').style.width='0%';
+  g('audioTime').textContent='0:00';
+  g('audioDur').textContent='--:--';
+  g('audioPlayBtn').textContent='⏳';
+  // Usar API do Bible.is (audio gratuito)
+  // Formato: https://live.bible.is/bible/PORBB2/GEN/1
+  const bookCode=livro?.bibleIsCode||apiNome.toUpperCase().slice(0,3);
+  const audioUrl=`https://live.bible.is/bible/PORALH/GEN/${cap}`;
+  // Como fallback, usar Text-to-Speech da Web Speech API
+  usarTTS(livroNome, cap);
+}
+
+function usarTTS(livroNome, cap){
+  if(!window.speechSynthesis){toast('Áudio não suportado neste dispositivo','err');return;}
+  window.speechSynthesis.cancel();
+  // Ler o texto dos versos carregados
+  const content=g('bibliaContent');
+  const textoCompleto=Array.from(content.querySelectorAll('.verso'))
+    .map((v,i)=>v.textContent.trim())
+    .join('. ');
+  if(!textoCompleto){toast('Carregue um capítulo primeiro','err');return;}
+  const utterance=new SpeechSynthesisUtterance(livroNome+' capítulo '+cap+'. '+textoCompleto);
+  utterance.lang='pt-BR';
+  utterance.rate=0.9;
+  // Voz em português se disponível
+  const vozes=window.speechSynthesis.getVoices();
+  const vozPt=vozes.find(v=>v.lang.startsWith('pt'));
+  if(vozPt) utterance.voice=vozPt;
+  utterance.onstart=()=>{
+    audioAtivo=true;
+    g('audioPlayBtn').textContent='⏸';
+    document.getElementById('sBiblia').classList.add('audio-playing');
+  };
+  utterance.onend=()=>{
+    audioAtivo=false;
+    g('audioPlayBtn').textContent='▶';
+    g('audioProgress').style.width='100%';
+    document.getElementById('sBiblia').classList.remove('audio-playing');
+  };
+  utterance.onboundary=e=>{
+    if(e.name==='word'&&utterance.text.length>0){
+      const pct=Math.round(e.charIndex/utterance.text.length*100);
+      g('audioProgress').style.width=pct+'%';
+    }
+  };
+  window._ttsUtterance=utterance;
+  window.speechSynthesis.speak(utterance);
+}
+
+function toggleAudio(){
+  if(!window.speechSynthesis)return;
+  if(window.speechSynthesis.speaking&&!window.speechSynthesis.paused){
+    window.speechSynthesis.pause();
+    g('audioPlayBtn').textContent='▶';
+    audioAtivo=false;
+    document.getElementById('sBiblia').classList.remove('audio-playing');
+  } else if(window.speechSynthesis.paused){
+    window.speechSynthesis.resume();
+    g('audioPlayBtn').textContent='⏸';
+    audioAtivo=true;
+    document.getElementById('sBiblia').classList.add('audio-playing');
+  } else {
+    const livro=LIVROS.find(l=>l.id===g('bibliaLivro').value);
+    const livroNome=LIVRO_NOMES[livro?.id]||livro?.nome||'';
+    usarTTS(livroNome, g('bibliaCapitulo').value);
+  }
+}
+
+function audioNav(dir){
+  navCap(dir);
+  setTimeout(()=>{
+    window.speechSynthesis.cancel();
+    const livro=LIVROS.find(l=>l.id===g('bibliaLivro').value);
+    const livroNome=LIVRO_NOMES[livro?.id]||livro?.nome||'';
+    usarTTS(livroNome, g('bibliaCapitulo').value);
+  },1000);
+}
+
 // ══ BÍBLIA NVI ══
 // Usando A Bíblia Digital API (gratuita)
 const BIBLIA_TOKEN = 'Token gratuito - cadastre em https://www.abibliadigital.com.br';
@@ -1648,11 +1985,12 @@ const LIVROS = [
 let bibliaLivroAtual=null, bibliaCapAtual=1, versosCarregados=[];
 
 async function carregarBiblia(){
-  // Preencher select de livros
   const sel=g('bibliaLivro');
   if(sel.options.length<=1){
     sel.innerHTML='<option value="">Selecione o livro...</option>'+LIVROS.map(l=>`<option value="${l.id}">${l.nome}</option>`).join('');
   }
+  // Parar áudio ao sair
+  window.speechSynthesis?.cancel();
 }
 
 function carregarCapitulos(){
@@ -1751,7 +2089,7 @@ function selecionarVerso(num, texto){
   const ref=`${livro} ${cap}:${num}`;
   acoes.innerHTML=`
     <button onclick="usarNoDevocional('${esc(texto)}','${esc(ref)}')" style="background:var(--or);border:none;border-radius:8px;padding:8px 14px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">📝 Usar no devocional</button>
-    <button onclick="compartilharVerso('${esc(texto)}','${esc(ref)}')" style="background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:8px 14px;color:var(--tx);font-size:12px;cursor:pointer">💬 Postar</button>
+    <button onclick="abrirPostarVerso('${esc(texto)}','${esc(ref)}')" style="background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:8px 14px;color:var(--tx);font-size:12px;cursor:pointer">💬 Postar</button>
     <button onclick="document.getElementById('versoAcoes').remove();versoSelecionado=null;document.querySelectorAll('.verso').forEach(v=>v.style.background='')" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:18px;padding:4px">✕</button>`;
   document.body.appendChild(acoes);
 }
@@ -1763,16 +2101,141 @@ function usarNoDevocional(texto, ref){
   goScr('devoc');
 }
 
-async function compartilharVerso(texto, ref){
+function abrirPostarVerso(texto, ref){
   document.getElementById('versoAcoes')?.remove();
-  // Criar devocional rápido com só o versículo
+  document.getElementById('postarVersoModal')?.remove();
+  const m=document.createElement('div');
+  m.id='postarVersoModal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:flex-end;justify-content:center;max-width:480px;left:50%;transform:translateX(-50%)';
+  m.innerHTML=`<div style="background:var(--s1);border-radius:20px 20px 0 0;padding:24px 24px 44px;width:100%;border-top:1px solid var(--bd)">
+    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px">Postar versículo</div>
+    <div style="background:var(--org);border-left:3px solid var(--or);border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--or);font-style:italic">"${esc(texto)}" — ${esc(ref)}</div>
+    <div class="f"><label>Comentário (opcional)</label>
+      <textarea id="postarComent" rows="3" placeholder="O que esse versículo significa para você?..." style="width:100%;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:12px;font-size:14px;color:var(--tx);outline:none;resize:none;line-height:1.6"></textarea>
+    </div>
+    <div class="merr" id="postarErr"></div>
+    <button class="btn" onclick="confirmarPostarVerso('${esc(texto)}','${esc(ref)}')">PUBLICAR NO FEED</button>
+    <button class="btn btn-g" style="margin-top:8px" onclick="document.getElementById('postarVersoModal').remove()">CANCELAR</button>
+  </div>`;
+  document.body.appendChild(m);
+  setTimeout(()=>document.getElementById('postarComent')?.focus(),200);
+}
+
+async function confirmarPostarVerso(texto, ref){
+  const coment=document.getElementById('postarComent')?.value?.trim();
+  const btn=document.querySelector('#postarVersoModal .btn');
+  btn.disabled=true; btn.textContent='Publicando...';
   const {error}=await sb.from('devocionais').insert({
-    autor_id:U.id, titulo:`${ref}`, conteudo:texto,
+    autor_id:U.id, titulo:ref,
+    conteudo:coment||texto,
     versiculo:texto, referencia:ref, publicado:true
   });
-  if(error){toast('Erro ao compartilhar','err');return;}
-  toast('Versículo compartilhado! 🙏','ok');
+  btn.disabled=false;
+  if(error){
+    const err=document.getElementById('postarErr');
+    if(err){err.textContent='Erro: '+error.message;err.style.display='block';}
+    return;
+  }
+  document.getElementById('postarVersoModal')?.remove();
+  toast('Publicado no feed! 🙏','ok');
   goScr('devoc');
+}
+
+async function compartilharVerso(texto, ref){
+  abrirPostarVerso(texto, ref);
+}
+
+function abrirBuscaParaDevoc(){
+  document.getElementById('buscaDevocModal')?.remove();
+  const m=document.createElement('div');
+  m.id='buscaDevocModal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:600;display:flex;flex-direction:column;max-width:480px;left:50%;transform:translateX(-50%)';
+  m.innerHTML=`<div style="background:var(--s1);padding:20px;height:100%;overflow-y:auto;display:flex;flex-direction:column">
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
+      <button onclick="document.getElementById('buscaDevocModal').remove()" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:22px">←</button>
+      <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700">Buscar versículo</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <input id="bdInput" type="text" placeholder="Ex: João 3:16" style="flex:1;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:11px;font-size:14px;color:var(--tx);outline:none" onkeydown="if(event.key==='Enter')buscarParaDevoc()">
+      <button onclick="buscarParaDevoc()" style="background:var(--or);border:none;border-radius:8px;padding:11px 14px;color:#fff;font-size:14px;cursor:pointer">🔍</button>
+    </div>
+    <div id="bdResultados" style="flex:1;overflow-y:auto"></div>
+  </div>`;
+  document.body.appendChild(m);
+  setTimeout(()=>g('bdInput')?.focus(),200);
+}
+
+async function buscarParaDevoc(){
+  const q=g('bdInput')?.value?.trim();
+  if(!q)return;
+  const el=g('bdResultados');
+  el.innerHTML='<div class="loading"><div class="spin"></div></div>';
+  try{
+    const refMatch=q.match(/^(.+?)\s+(\d+)[:\.](\d+)$/i);
+    if(refMatch){
+      const [,livroNome,cap,verso]=refMatch;
+      const livro=LIVROS.find(l=>l.nome.toLowerCase().includes(livroNome.toLowerCase().trim()));
+      const apiNome=livro?.nomeApi||encodeURIComponent(livroNome.trim());
+      const res=await fetch(`https://bible-api.com/${apiNome}+${cap}:${verso}?translation=almeida`);
+      const data=await res.json();
+      if(data.text){
+        const txt=data.text.trim();
+        const ref=data.reference||`${livroNome} ${cap}:${verso}`;
+        el.innerHTML=`<div style="background:var(--s2);border-radius:10px;padding:14px;cursor:pointer" onclick="selecionarParaDevoc('${esc(txt)}','${esc(ref)}')">
+          <div style="font-size:11px;color:var(--or);font-weight:700;margin-bottom:6px">${esc(ref)}</div>
+          <div style="font-size:14px;line-height:1.6">${esc(txt)}</div>
+          <div style="margin-top:10px;font-size:12px;color:var(--or);font-weight:600">Toque para usar →</div>
+        </div>`;
+        return;
+      }
+    }
+    const sugestoes=LIVROS.filter(l=>l.nome.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+    if(sugestoes.length){
+      el.innerHTML=sugestoes.map(l=>`<div style="background:var(--s2);border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between" onclick="expandirLivroDevoc('${l.id}','${esc(l.nome)}',${l.caps})">
+        <span style="font-weight:600">${esc(l.nome)}</span><span style="color:var(--t3);font-size:12px">${l.caps} cap →</span>
+      </div>`).join('');
+      return;
+    }
+    el.innerHTML='<div style="text-align:center;color:var(--t3);padding:20px;font-size:13px">Digite ex: "João 3:16"</div>';
+  }catch(e){
+    el.innerHTML=`<div style="color:var(--er);font-size:13px">${e.message}</div>`;
+  }
+}
+
+async function expandirLivroDevoc(livroId, livroNome, caps){
+  const el=g('bdResultados');
+  el.innerHTML=`<div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:10px">${esc(livroNome)}</div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">
+      ${Array.from({length:caps},(_,i)=>`<button onclick="carregarCapDevoc('${livroId}','${esc(livroNome)}',${i+1})" style="background:var(--s2);border:1px solid var(--bd2);border-radius:6px;padding:8px;font-size:13px;color:var(--tx);cursor:pointer">${i+1}</button>`).join('')}
+    </div>`;
+}
+
+async function carregarCapDevoc(livroId, livroNome, cap){
+  const el=g('bdResultados');
+  el.innerHTML='<div class="loading"><div class="spin"></div></div>';
+  const livro=LIVROS.find(l=>l.id===livroId);
+  const apiNome=livro?.nomeApi||livroId;
+  try{
+    const res=await fetch(`https://bible-api.com/${apiNome}+${cap}?translation=almeida`);
+    const data=await res.json();
+    const versos=data.verses||[];
+    el.innerHTML=`<div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:10px;color:var(--or)">${esc(livroNome)} ${cap}</div>`+
+      versos.map(v=>`<div style="padding:8px 4px;border-bottom:1px solid var(--bd);cursor:pointer;display:flex;gap:8px;align-items:flex-start" onclick="selecionarParaDevoc('${esc(v.text.trim())}','${esc(livroNome+' '+cap+':'+v.verse)}')">
+        <sup style="color:var(--or);font-size:11px;font-weight:700;flex-shrink:0;margin-top:3px">${v.verse}</sup>
+        <span style="font-size:13px;line-height:1.6;color:var(--t2)">${esc(v.text.trim())}</span>
+      </div>`).join('');
+  }catch(e){
+    el.innerHTML=`<div style="color:var(--er);font-size:13px">${e.message}</div>`;
+  }
+}
+
+function selecionarParaDevoc(texto, ref){
+  document.getElementById('buscaDevocModal')?.remove();
+  const inp=g('dVers');
+  const inpRef=g('dRef');
+  if(inp) inp.value=texto;
+  if(inpRef) inpRef.value=ref;
+  toast('Versículo selecionado! ✓','ok');
 }
 
 function abrirBuscaBiblia(){
@@ -1922,7 +2385,7 @@ async function abrirFormDevoc(id){
       <button onclick="document.getElementById('devocModal').remove()" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:22px">←</button>
       <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700">${id?'Editar':'Novo'} Devocional</div>
     </div>
-    <div class="f"><label>Versículo base</label><input type="text" id="dVers" value="${esc(devoc?.versiculo||'')}" placeholder="Ex: João 15.5"></div>
+    <div class="f"><label>Versículo base <span style="font-size:10px;color:var(--or)">(ou 🔍 busque)</span></label><div style="display:flex;gap:8px"><input type="text" id="dVers" value="${esc(devoc?.versiculo||'')}" placeholder="Ex: João 15.5" style="flex:1"><button onclick="abrirBuscaParaDevoc()" style="background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:13px 14px;color:var(--or);cursor:pointer;font-size:14px">🔍</button></div></div></div>
     <div class="f"><label>Referência</label><input type="text" id="dRef" value="${esc(devoc?.referencia||'')}" placeholder="Ex: NVI"></div>
     <div class="f"><label>Título *</label><input type="text" id="dTit" value="${esc(devoc?.titulo||'')}" placeholder="Título do devocional"></div>
     <div class="f"><label>Conteúdo *</label><textarea id="dConteudo" rows="10" placeholder="Compartilhe o que Deus tem falado ao seu coração...">${esc(devoc?.conteudo||'')}</textarea></div>
@@ -2225,6 +2688,22 @@ function tpw(id,el){const i=g(id);i.type=i.type==='password'?'text':'password';e
 function maskTel(el){let val=el.value.replace(/\D/g,'');val=val.length<=10?val.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3'):val.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');el.value=val;}
 function autoH(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,110)+'px';}
 function te(m){if(!m)return'Erro.';if(m.includes('Invalid login'))return'E-mail ou senha incorretos.';if(m.includes('already registered'))return'E-mail já cadastrado.';if(m.includes('Password'))return'Senha mínimo 6 caracteres.';return m;}
+async function rebaixarMembro(uid, nome){
+  if(!confirm('Remover liderança de '+nome+'?'))return;
+  const {error}=await sb.from('profiles').update({role:'membro',nivel:'discipulo'}).eq('id',uid);
+  if(error){toast('Erro: '+error.message,'err');return;}
+  toast(nome+' voltou a ser discípulo','ok');
+  carregarPastorMembros();
+}
+
+async function toggleUsuario(uid, nome, ativar){
+  if(!confirm((ativar?'Reativar':'Desativar')+' '+nome+'?'))return;
+  const {error}=await sb.from('profiles').update({ativo:ativar}).eq('id',uid);
+  if(error){toast('Erro: '+error.message,'err');return;}
+  toast(nome+(ativar?' reativado':' desativado')+'!','ok');
+  carregarPastorMembros();
+}
+
 function toast(msg,type=''){const t=g('toast');t.textContent=msg;t.className=`toast ${type} show`;setTimeout(()=>t.className='toast',3000);}
 function fmt(d){if(!d)return'';return new Date(d).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
 function fmtPeriodo(ini,fim){
