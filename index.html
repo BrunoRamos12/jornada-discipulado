@@ -626,15 +626,19 @@ async function doLogin() {
   if (!email || !senha) { showMsg(err, 'Preencha e-mail e senha.'); return; }
   const btn = document.getElementById('btnLogin');
   btn.disabled = true; btn.textContent = 'Entrando...';
-  let loginError;
+  let loginRes;
   try {
-    const res = await sb.auth.signInWithPassword({ email, password: senha });
-    loginError = res.error;
+    loginRes = await sb.auth.signInWithPassword({ email, password: senha });
   } catch(e) {
-    loginError = e;
+    btn.disabled = false; btn.textContent = 'ENTRAR';
+    showMsg(err, 'Erro de conexão. Tente novamente.'); return;
   }
   btn.disabled = false; btn.textContent = 'ENTRAR';
-  if (loginError) { showMsg(err, traduzirErro(loginError.message)); return; }
+  if (loginRes.error) { showMsg(err, traduzirErro(loginRes.error.message)); return; }
+  if (loginRes.data?.session) {
+    currentUser = loginRes.data.session.user;
+    await iniciarApp();
+  }
 }
 
 async function doCadastro() {
