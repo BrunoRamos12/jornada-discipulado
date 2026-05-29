@@ -758,7 +758,10 @@ function nivelLabel(p){
 // ══ NAVEGAÇÃO ══
 function goScr(s){
   // Parar áudio ao navegar
-  if(s!=='biblia') window.speechSynthesis?.cancel();
+  if(s!=='biblia'){
+    window.speechSynthesis?.cancel();
+    if(window.audioHtmlEl){window.audioHtmlEl.pause();}
+  }
   document.querySelectorAll('.scr').forEach(el=>el.classList.remove('show'));
   document.querySelectorAll('.nb').forEach(el=>el.classList.remove('on'));
   const sm={home:'sHome',disc:'sDisc',pastor:'sPastor',celula:'sCelula',devoc:'sDevoc',biblia:'sBiblia',perfil:'sPerfil'};
@@ -1866,90 +1869,147 @@ function toggleAudioOff(){
   document.getElementById('sBiblia').classList.remove('audio-playing');
 }
 
+// Mapeamento bible.is — códigos FCBH para cada livro
+const BIBLEIS_CODES = {
+  gn:'GEN',ex:'EXO',lv:'LEV',nm:'NUM',dt:'DEU',js:'JOS',jz:'JDG',rt:'RUT',
+  '1sm':'1SA','2sm':'2SA','1rs':'1KI','2rs':'2KI','1cr':'1CH','2cr':'2CH',
+  ed:'EZR',ne:'NEH',et:'EST',jo:'JOB',sl:'PSA',pv:'PRO',ec:'ECC',ct:'SNG',
+  is:'ISA',jr:'JER',lm:'LAM',ez:'EZK',dn:'DAN',os:'HOS',jl:'JOL',am:'AMO',
+  ob:'OBA',jn:'JON',mq:'MIC',na:'NAM',hc:'HAB',sf:'ZEP',ag:'HAG',zc:'ZEC',
+  ml:'MAL',mt:'MAT',mc:'MRK',lc:'LUK',jo2:'JHN',at:'ACT',rm:'ROM',
+  '1co':'1CO','2co':'2CO',gl:'GAL',ef:'EPH',fp:'PHP',cl:'COL',
+  '1ts':'1TH','2ts':'2TH','1tm':'1TI','2tm':'2TI',tt:'TIT',fm:'PHM',
+  hb:'HEB',tg:'JAS','1pe':'1PE','2pe':'2PE','1jo':'1JN','2jo':'2JN',
+  '3jo':'3JN',jd:'JUD',ap:'REV'
+};
+
+// Chave da bible.is API — cadastre em https://scripture.api.bible ou https://4.dbt.io
+// Por padrão usa o player embed do bible.is que é público
+const BIBLEIS_KEY = localStorage.getItem('bibleis_key')||'';
+
+// ID da versão: PORNTLV = Nova Tradução na Linguagem de Hoje (PT-BR, com áudio)
+// PORALH = Almeida com áudio
+const BIBLEIS_VERSION = 'PORNTLV';
+
+let audioHtmlEl = null;
+
 function carregarAudioCapitulo(){
   const livroId=g('bibliaLivro').value;
   const cap=g('bibliaCapitulo').value;
   if(!livroId||!cap){toast('Selecione um capítulo primeiro','err');return;}
   const livro=LIVROS.find(l=>l.id===livroId);
-  const apiNome=livro?.nomeApi||livroId;
   const livroNome=LIVRO_NOMES[livroId]||livro?.nome||livroId;
-  g('audioTitulo').textContent=`${livroNome} ${cap}`;
+  const bookCode=BIBLEIS_CODES[livroId]||'GEN';
+  g('audioTitulo').textContent=livroNome+' '+cap;
   g('audioProgress').style.width='0%';
   g('audioTime').textContent='0:00';
   g('audioDur').textContent='--:--';
   g('audioPlayBtn').textContent='⏳';
-  // Usar API do Bible.is (audio gratuito)
-  // Formato: https://live.bible.is/bible/PORBB2/GEN/1
-  const bookCode=livro?.bibleIsCode||apiNome.toUpperCase().slice(0,3);
-  const audioUrl=`https://live.bible.is/bible/PORALH/GEN/${cap}`;
-  // Como fallback, usar Text-to-Speech da Web Speech API
-  usarTTS(livroNome, cap);
-}
 
-function usarTTS(livroNome, cap){
-  if(!window.speechSynthesis){toast('Áudio não suportado neste dispositivo','err');return;}
-  window.speechSynthesis.cancel();
-  // Ler o texto dos versos carregados
-  const content=g('bibliaContent');
-  const textoCompleto=Array.from(content.querySelectorAll('.verso'))
-    .map((v,i)=>v.textContent.trim())
-    .join('. ');
-  if(!textoCompleto){toast('Carregue um capítulo primeiro','err');return;}
-  const utterance=new SpeechSynthesisUtterance(livroNome+' capítulo '+cap+'. '+textoCompleto);
-  utterance.lang='pt-BR';
-  utterance.rate=0.9;
-  // Voz em português se disponível
-  const vozes=window.speechSynthesis.getVoices();
-  const vozPt=vozes.find(v=>v.lang.startsWith('pt'));
-  if(vozPt) utterance.voice=vozPt;
-  utterance.onstart=()=>{
-    audioAtivo=true;
+  // Tentar bible.is embed player (público, sem chave necessária para embed)
+  // URL do áudio direto via bible.is
+  const audioUrl=`https://audio.bible.is/${BIBLEIS_VERSION}/${bookCode}_${String(cap).padStart(3,'0')}.mp3`;
+  
+  // Criar elemento de áudio
+  if(audioHtmlEl){audioHtmlEl.pause();audioHtmlEl.remove();}
+  audioHtmlEl=document.createElement('audio');
+  audioHtmlEl.src=audioUrl;
+  audioHtmlEl.preload='auto';
+  document.body.appendChild(audioHtmlEl);
+
+  audioHtmlEl.onloadedmetadata=()=>{
+    const dur=audioHtmlEl.duration;
+    g('audioDur').textContent=fmtAudioTime(dur);
     g('audioPlayBtn').textContent='⏸';
+    audioAtivo=true;
     document.getElementById('sBiblia').classList.add('audio-playing');
+    audioHtmlEl.play();
   };
-  utterance.onend=()=>{
+
+  audioHtmlEl.ontimeupdate=()=>{
+    const t=audioHtmlEl.currentTime;
+    const d=audioHtmlEl.duration||1;
+    g('audioProgress').style.width=Math.round(t/d*100)+'%';
+    g('audioTime').textContent=fmtAudioTime(t);
+  };
+
+  audioHtmlEl.onended=()=>{
     audioAtivo=false;
     g('audioPlayBtn').textContent='▶';
     g('audioProgress').style.width='100%';
     document.getElementById('sBiblia').classList.remove('audio-playing');
+    // Auto-avançar para próximo capítulo
+    setTimeout(()=>audioNav(1),1500);
   };
-  utterance.onboundary=e=>{
-    if(e.name==='word'&&utterance.text.length>0){
-      const pct=Math.round(e.charIndex/utterance.text.length*100);
-      g('audioProgress').style.width=pct+'%';
-    }
+
+  audioHtmlEl.onerror=()=>{
+    console.log('bible.is não disponível, usando TTS');
+    usarTTS(livroNome, cap);
   };
-  window._ttsUtterance=utterance;
-  window.speechSynthesis.speak(utterance);
+
+  audioHtmlEl.load();
+}
+
+function fmtAudioTime(s){
+  if(!s||isNaN(s))return'0:00';
+  const m=Math.floor(s/60);
+  const sec=Math.floor(s%60);
+  return m+':'+(sec<10?'0':'')+sec;
 }
 
 function toggleAudio(){
-  if(!window.speechSynthesis)return;
-  if(window.speechSynthesis.speaking&&!window.speechSynthesis.paused){
-    window.speechSynthesis.pause();
-    g('audioPlayBtn').textContent='▶';
-    audioAtivo=false;
-    document.getElementById('sBiblia').classList.remove('audio-playing');
-  } else if(window.speechSynthesis.paused){
-    window.speechSynthesis.resume();
-    g('audioPlayBtn').textContent='⏸';
-    audioAtivo=true;
-    document.getElementById('sBiblia').classList.add('audio-playing');
-  } else {
-    const livro=LIVROS.find(l=>l.id===g('bibliaLivro').value);
-    const livroNome=LIVRO_NOMES[livro?.id]||livro?.nome||'';
-    usarTTS(livroNome, g('bibliaCapitulo').value);
+  if(audioHtmlEl&&!audioHtmlEl.error){
+    if(audioHtmlEl.paused){
+      audioHtmlEl.play();
+      g('audioPlayBtn').textContent='⏸';
+      audioAtivo=true;
+      document.getElementById('sBiblia').classList.add('audio-playing');
+    } else {
+      audioHtmlEl.pause();
+      g('audioPlayBtn').textContent='▶';
+      audioAtivo=false;
+      document.getElementById('sBiblia').classList.remove('audio-playing');
+    }
+  } else if(window.speechSynthesis){
+    // Fallback TTS
+    if(window.speechSynthesis.speaking&&!window.speechSynthesis.paused){
+      window.speechSynthesis.pause();
+      g('audioPlayBtn').textContent='▶';
+      document.getElementById('sBiblia').classList.remove('audio-playing');
+    } else if(window.speechSynthesis.paused){
+      window.speechSynthesis.resume();
+      g('audioPlayBtn').textContent='⏸';
+      document.getElementById('sBiblia').classList.add('audio-playing');
+    } else {
+      const livro=LIVROS.find(l=>l.id===g('bibliaLivro').value);
+      usarTTS(LIVRO_NOMES[livro?.id]||'', g('bibliaCapitulo').value);
+    }
   }
 }
 
+function usarTTS(livroNome, cap){
+  if(!window.speechSynthesis){toast('Áudio não disponível','err');return;}
+  window.speechSynthesis.cancel();
+  const content=g('bibliaContent');
+  const versos=Array.from(content.querySelectorAll('.verso')).map(v=>v.textContent.trim()).join('. ');
+  if(!versos){toast('Carregue o capítulo primeiro','err');return;}
+  const utt=new SpeechSynthesisUtterance(livroNome+', capítulo '+cap+'. '+versos);
+  utt.lang='pt-BR'; utt.rate=0.88;
+  const vozes=window.speechSynthesis.getVoices();
+  const voz=vozes.find(v=>v.lang==='pt-BR')||vozes.find(v=>v.lang.startsWith('pt'));
+  if(voz) utt.voice=voz;
+  utt.onstart=()=>{g('audioPlayBtn').textContent='⏸';audioAtivo=true;document.getElementById('sBiblia').classList.add('audio-playing');};
+  utt.onend=()=>{g('audioPlayBtn').textContent='▶';audioAtivo=false;g('audioProgress').style.width='100%';document.getElementById('sBiblia').classList.remove('audio-playing');};
+  utt.onboundary=e=>{if(e.name==='word'){const p=Math.round(e.charIndex/utt.text.length*100);g('audioProgress').style.width=p+'%';}};
+  window._tts=utt;
+  window.speechSynthesis.speak(utt);
+}
+
 function audioNav(dir){
+  if(audioHtmlEl){audioHtmlEl.pause();}
+  window.speechSynthesis?.cancel();
   navCap(dir);
-  setTimeout(()=>{
-    window.speechSynthesis.cancel();
-    const livro=LIVROS.find(l=>l.id===g('bibliaLivro').value);
-    const livroNome=LIVRO_NOMES[livro?.id]||livro?.nome||'';
-    usarTTS(livroNome, g('bibliaCapitulo').value);
-  },1000);
+  setTimeout(()=>carregarAudioCapitulo(),800);
 }
 
 // ══ BÍBLIA NVI ══
@@ -2046,6 +2106,10 @@ async function carregarVersos(){
 }
 
 function renderVersos(versos, livroNome, cap){
+  // Se áudio ativo, recarregar para novo capítulo
+  if(audioAtivo && g('audioPlayer').style.display!=='none'){
+    setTimeout(()=>carregarAudioCapitulo(),500);
+  }
   const el=g('bibliaContent');
   if(!versos||!versos.length){el.innerHTML='<div class="empty"><div class="empty-t">Capítulo não encontrado</div></div>';return;}
   el.innerHTML=`
