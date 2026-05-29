@@ -785,19 +785,15 @@ function mostrarVersiculo(){
 
 // ══ HOME ══
 async function carregarHome(){
-  // Carrossel de avisos
   carregarCarrossel();
-  // Feed de devocionais
   carregarHomeFeed();
-  // Discipulados
-  const el=g('hDiscs');
-  el.innerHTML='<div class="loading"><div class="spin"></div></div>';
-  const {data}=await sb.from('discipulados').select('*').eq('membro_id',U.id).order('numero',{ascending:false}).limit(3);
-  if(!data||!data.length){
-    el.innerHTML='<div class="empty" style="padding:24px"><div class="empty-i" style="font-size:32px">📖</div><div class="empty-t">Nenhum discipulado ainda</div></div>';
-    return;
+  // Avatar no campo de post
+  const av=g('feedAv');
+  if(av&&P){
+    const ini=(P.nome||'?')[0].toUpperCase();
+    if(P.foto_url) av.innerHTML=`<img src="${P.foto_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    else av.textContent=ini;
   }
-  el.innerHTML=data.map(d=>cardDiscHome(d)).join('');
 }
 
 async function carregarCarrossel(){
@@ -839,19 +835,43 @@ function abrirAviso(id){
   toast('Abrindo aviso...');
 }
 
-async function carregarHomeFeed(){
+let feedPage = 0;
+async function carregarHomeFeed(append=false){
   const el=g('homeFeed');
-  el.innerHTML='<div class="loading"><div class="spin"></div></div>';
-  const {data}=await sb.from('devocionais')
+  if(!append){
+    feedPage=0;
+    el.innerHTML='<div class="loading"><div class="spin"></div></div>';
+  }
+  const from=feedPage*10, to=from+9;
+  const {data,error}=await sb.from('devocionais')
     .select('*,profiles!devocionais_autor_id_fkey(nome,foto_url)')
     .eq('publicado',true)
     .order('created_at',{ascending:false})
-    .limit(5);
+    .range(from,to);
   if(!data||!data.length){
-    el.innerHTML='<div style="text-align:center;padding:20px;color:var(--t3);font-size:13px">Nenhum devocional ainda. Seja o primeiro! ✨</div>';
+    if(!append) el.innerHTML=`<div style="text-align:center;padding:40px 20px">
+      <div style="font-size:40px;margin-bottom:12px">🕊️</div>
+      <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px">Seja o primeiro!</div>
+      <div style="font-size:13px;color:var(--t3);margin-bottom:20px">Compartilhe um devocional ou versículo com a comunidade</div>
+      <button class="btn" style="width:auto;padding:12px 24px" onclick="abrirNovoDevoc()">✏️ Escrever devocional</button>
+    </div>`;
     return;
   }
-  el.innerHTML=data.map(d=>cardDevocional(d)).join('');
+  const cards=data.map(d=>cardDevocional(d)).join('');
+  if(append){
+    el.insertAdjacentHTML('beforeend',cards);
+  } else {
+    el.innerHTML=cards;
+  }
+  // Botão carregar mais
+  const btnMais=document.getElementById('btnMaisFeed');
+  if(btnMais) btnMais.remove();
+  if(data.length===10){
+    el.insertAdjacentHTML('beforeend',`<div style="text-align:center;padding:16px">
+      <button id="btnMaisFeed" onclick="feedPage++;carregarHomeFeed(true)" style="background:none;border:1px solid var(--bd2);border-radius:8px;padding:10px 24px;color:var(--t2);font-size:13px;cursor:pointer">Carregar mais</button>
+    </div>`);
+  }
+  feedPage++;
 }
 
 function cardDiscHome(d){
@@ -1509,7 +1529,7 @@ function renderAvs(){
   if(!P)return;
   const nomeDisplay=P.nome||(P.email||'').split('@')[0]||'Usuário';
   const ini=nomeDisplay[0].toUpperCase();
-  ['hAv','dAv'].forEach(id=>{
+  ['hAv','dAv','feedAv'].forEach(id=>{
     const el=g(id);
     if(el){
       if(P.foto_url) el.innerHTML=`<img src="${P.foto_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
@@ -2202,7 +2222,7 @@ async function confirmarPostarVerso(texto, ref){
   }
   document.getElementById('postarVersoModal')?.remove();
   toast('Publicado no feed! 🙏','ok');
-  goScr('devoc');
+  goScr('home');
 }
 
 async function compartilharVerso(texto, ref){
@@ -2399,14 +2419,20 @@ async function carregarDevocionais(){
 function cardDevocional(d){
   const nome=d.profiles?.nome||'Anônimo';
   const ini=nome[0].toUpperCase();
-  const data=new Date(d.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
+  const foto=d.profiles?.foto_url;
+  const agora=new Date();
+  const criado=new Date(d.created_at);
+  const diffMin=Math.floor((agora-criado)/60000);
+  const diffH=Math.floor(diffMin/60);
+  const diffD=Math.floor(diffH/24);
+  const dataStr=diffMin<60?diffMin+'min atrás':diffH<24?diffH+'h atrás':diffD===1?'ontem':criado.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
   const meu=d.autor_id===U?.id;
-  return `<div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--ra);padding:18px;margin-bottom:14px">
+  return `<div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--ra);padding:18px;margin-bottom:12px">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-      <div style="width:36px;height:36px;border-radius:50%;background:var(--or);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;flex-shrink:0">${ini}</div>
+      <div style="width:38px;height:38px;border-radius:50%;background:var(--or);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;flex-shrink:0;overflow:hidden;border:2px solid var(--bd2)">${foto?`<img src="${foto}" style="width:100%;height:100%;object-fit:cover">`:ini}</div>
       <div style="flex:1">
         <div style="font-size:13px;font-weight:600">${esc(nome)}</div>
-        <div style="font-size:11px;color:var(--t3)">${data}</div>
+        <div style="font-size:11px;color:var(--t3)">${dataStr}</div>
       </div>
       ${meu?`<div style="display:flex;gap:6px">
         <button onclick="editarDevoc('${d.id}')" style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px">✏️</button>
@@ -2481,7 +2507,7 @@ async function salvarDevoc(id){
   if(error){sh(err,'Erro: '+error.message);return;}
   document.getElementById('devocModal')?.remove();
   toast(id?'Devocional atualizado! ✓':'Devocional publicado! 🙏','ok');
-  carregarDevocionais();
+  goScr('home');
 }
 
 async function excluirDevoc(id){
