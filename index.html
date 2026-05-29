@@ -330,12 +330,9 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
       <div class="v-txt" id="vT">Carregando...</div>
       <div class="v-ref" id="vR"></div>
     </div>
-    <div class="sh"><span class="sh-t syne">Sua Jornada</span></div>
-    <div class="qa-g">
-      <div class="qa" onclick="goScr('disc')">
-        <div class="qa-i">📖</div><div class="qa-t">Discipulado</div><div class="qa-s">Jornada semanal</div>
-        <div class="qa-b" id="hBadge" style="display:none">!</div>
-      </div>
+        <div style="display:none" id="hBadge"></div>
+    <div style="display:none" id="qaP"></div>
+    <div style="display:none" id="hBadgeP"></div>
       <div class="qa" id="qaP" style="display:none" onclick="goScr('pastor')">
         <div class="qa-i">🤝</div><div class="qa-t">Pastor</div><div class="qa-s">Painel pastoral</div>
         <div class="qa-b" id="hBadgeP" style="display:none">0</div>
@@ -360,9 +357,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
     <div class="feed-divider">✦ Devocionais da comunidade</div>
     <div style="padding:0 20px" id="homeFeed"><div class="loading"><div class="spin"></div>Carregando...</div></div>
 
-    <!-- DISCIPULADOS (compacto) -->
-    <div class="sh" style="margin-top:8px"><span class="sh-t syne">Meus Discipulados</span><span class="sh-a" onclick="goScr('disc')">Ver todos →</span></div>
-    <div class="p20" id="hDiscs"><div class="loading"><div class="spin"></div>Carregando...</div></div>
+<div style="display:none" id="hDiscs"></div>
   </div>
 
   <!-- DISCIPULADO (membro) -->
@@ -2401,6 +2396,43 @@ function irParaVerso(livroId, cap, verso){
   },1000);
 }
 
+function addEmojiPost(e){
+  const ta=g('feedPostTxt');
+  if(!ta)return;
+  ta.value+=e;
+  ta.focus();
+  autoH(ta);
+}
+
+function toggleVisLabel(){
+  const pub=document.getElementById('visPublico')?.checked;
+  const pl=document.getElementById('visPublicLabel');
+  const prl=document.getElementById('visPrivadoLabel');
+  if(pl) pl.style.borderColor=pub?'var(--or)':'var(--bd2)';
+  if(prl) prl.style.borderColor=!pub?'var(--or)':'var(--bd2)';
+}
+
+async function publicarPost(){
+  const txt=g('feedPostTxt')?.value?.trim();
+  if(!txt){toast('Escreva algo antes de postar 😊','err');return;}
+  const btn=document.querySelector('[onclick="publicarPost()"]');
+  if(btn){btn.disabled=true;btn.textContent='Postando...';}
+  const {error}=await sb.from('devocionais').insert({
+    autor_id:U.id,
+    titulo:'', // post rápido sem título
+    conteudo:txt,
+    publicado:true,
+    tipo:'post'
+  });
+  if(btn){btn.disabled=false;btn.textContent='POSTAR';}
+  if(error){toast('Erro ao postar: '+error.message,'err');return;}
+  g('feedPostTxt').value='';
+  autoH(g('feedPostTxt'));
+  toast('Postado! 🙏','ok');
+  feedPage=0;
+  carregarHomeFeed();
+}
+
 // ══ DEVOCIONAIS ══
 async function carregarDevocionais(){
   const el=g('devocList');
@@ -2440,8 +2472,8 @@ function cardDevocional(d){
       </div>`:''}
     </div>
     ${d.versiculo?`<div style="background:var(--org);border-left:3px solid var(--or);border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:12px;font-style:italic;font-size:13px;color:var(--or)">"${esc(d.versiculo)}" <span style="font-size:11px;opacity:.7">— ${esc(d.referencia||'')}</span></div>`:''}
-    <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:8px">${esc(d.titulo)}</div>
-    <div style="font-size:14px;color:var(--t2);line-height:1.7;white-space:pre-wrap">${esc(d.conteudo)}</div>
+    ${d.titulo?`<div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:8px">${esc(d.titulo)}</div>`:''}
+    <div style="font-size:15px;color:${d.tipo==='post'?'var(--tx)':'var(--t2)'};line-height:1.7;white-space:pre-wrap">${esc(d.conteudo)}</div>
     <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--bd)">
       <div style="display:flex;gap:10px;margin-bottom:10px" id="reacoes_${d.id}">
         ${['🙏','❤️','🔥','🙌','😢'].map(e=>`<button onclick="reagir('${d.id}','${e}')" style="background:var(--s2);border:1px solid var(--bd2);border-radius:20px;padding:4px 10px;font-size:14px;cursor:pointer;transition:all .15s" id="rBtn_${d.id}_${e.codePointAt(0)}">${e}</button>`).join('')}
@@ -2480,7 +2512,20 @@ async function abrirFormDevoc(id){
     <div class="f"><label>Título *</label><input type="text" id="dTit" value="${esc(devoc?.titulo||'')}" placeholder="Título do devocional"></div>
     <div class="f"><label>Conteúdo *</label><textarea id="dConteudo" rows="10" placeholder="Compartilhe o que Deus tem falado ao seu coração...">${esc(devoc?.conteudo||'')}</textarea></div>
     <div class="merr" id="dErr"></div>
-    <button class="btn" onclick="salvarDevoc(${id?`'${id}'`:'null'})">${id?'SALVAR ALTERAÇÕES':'PUBLICAR DEVOCIONAL'}</button>
+    <div style="background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rs);padding:14px 16px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--t2);margin-bottom:10px">Visibilidade</div>
+      <div style="display:flex;gap:8px">
+        <label style="flex:1;background:var(--s1);border:1px solid var(--bd2);border-radius:8px;padding:10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px" id="visPublicLabel">
+          <input type="radio" name="visDevoc" id="visPublico" value="publico" checked onchange="toggleVisLabel()" style="accent-color:var(--or)">
+          <div><div style="font-size:13px;font-weight:600">📢 Feed público</div><div style="font-size:11px;color:var(--t2)">Todos verão</div></div>
+        </label>
+        <label style="flex:1;background:var(--s1);border:1px solid var(--bd2);border-radius:8px;padding:10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px" id="visPrivadoLabel">
+          <input type="radio" name="visDevoc" id="visPrivado" value="privado" onchange="toggleVisLabel()" style="accent-color:var(--or)">
+          <div><div style="font-size:13px;font-weight:600">🔒 Privado</div><div style="font-size:11px;color:var(--t2)">Só você e líderes</div></div>
+        </label>
+      </div>
+    </div>
+    <button class="btn" onclick="salvarDevoc(${id?`'${id}'`:'null'})">${id?'SALVAR ALTERAÇÕES':'PUBLICAR'}</button>
     ${id?`<button class="btn btn-g" style="margin-top:8px" onclick="document.getElementById('devocModal').remove()">CANCELAR</button>`:''}
   </div>`;
   document.body.appendChild(m);
@@ -2495,12 +2540,13 @@ async function salvarDevoc(id){
   if(!titulo||!conteudo){sh(err,'Título e conteúdo são obrigatórios.');return;}
   const btn=document.querySelector('#devocModal .btn');
   btn.disabled=true; btn.textContent='Publicando...';
+  const publico=document.getElementById('visPublico')?.checked!==false;
   let error;
   if(id){
-    const r=await sb.from('devocionais').update({titulo,conteudo,versiculo,referencia,updated_at:new Date().toISOString()}).eq('id',id);
+    const r=await sb.from('devocionais').update({titulo,conteudo,versiculo,referencia,publicado:publico,updated_at:new Date().toISOString()}).eq('id',id);
     error=r.error;
   } else {
-    const r=await sb.from('devocionais').insert({autor_id:U.id,titulo,conteudo,versiculo,referencia,publicado:true});
+    const r=await sb.from('devocionais').insert({autor_id:U.id,titulo,conteudo,versiculo,referencia,publicado:publico,tipo:'devocional'});
     error=r.error;
   }
   btn.disabled=false;
