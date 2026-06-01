@@ -113,7 +113,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
 
 /* CHAT DE DISCIPULADO */
 .chat-ov{display:none;position:fixed;inset:0;background:var(--bg);z-index:200;max-width:480px;margin:0 auto;flex-direction:column}
-.chat-ov.show{display:flex}
+.chat-ov.show{display:flex}.chat-ov.on{display:flex}
 .chat-hdr{padding:14px 18px;background:var(--s1);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;flex-shrink:0}
 .back-btn{background:none;border:none;color:var(--t2);cursor:pointer;padding:4px;display:flex;align-items:center}
 .chat-meta{flex:1}
@@ -309,7 +309,7 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',s
       <div class="f"><label>E-mail *</label><input type="email" id="cE" placeholder="seu@email.com"></div>
       <div class="f"><label>WhatsApp</label><input type="tel" id="cT" placeholder="(00) 00000-0000" oninput="maskTel(this)"></div>
       <div class="f"><label>Célula</label><select id="cC"><option value="">Selecione sua célula</option></select></div>
-      <div class="f"><label>Você é</label><select id="cRole"><option value="membro">Membro</option><option value="lider">Líder de Célula</option></select></div>
+      
       <div class="f"><label>Senha *</label><div class="pw"><input type="password" id="cS" placeholder="Mínimo 6 caracteres" autocomplete="new-password"><span class="pw-e" onclick="tpw('cS',this)">👁</span></div></div>
       <div class="f"><label>Confirmar senha *</label><div class="pw"><input type="password" id="cS2" placeholder="Repita sua senha" autocomplete="new-password"><span class="pw-e" onclick="tpw('cS2',this)">👁</span></div></div>
       <button class="btn" id="btnC" onclick="doCad()">CRIAR MINHA CONTA</button>
@@ -647,6 +647,7 @@ window.onload=async()=>{
   mostrarVersiculo();
   const {data}=await sb.auth.getSession();
   if(data.session) entrarApp(data.session.user);
+  carregarCelulasCad();
 };
 
 // ══ AUTH ══
@@ -930,9 +931,9 @@ async function carregarDiscScreen(){
   el.innerHTML=html;
 }
 
-async function abrirNovoDisc(){
+async function abrirNovoDisc(numOverride){
   const {data:existentes}=await sb.from('discipulados').select('numero').eq('membro_id',U.id).order('numero',{ascending:false}).limit(1);
-  const num=(existentes&&existentes.length>0?existentes[0].numero:0)+1;
+  const num=numOverride||(existentes&&existentes.length>0?existentes[0].numero:0)+1;
   const hoje=new Date();
   const sabado=new Date(hoje); sabado.setDate(hoje.getDate()+(6-hoje.getDay()));
   // Lider responsável = lider_direto do membro
@@ -1299,6 +1300,11 @@ async function promoverLider(){
     <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px">Promover a Líder</div>
     <div style="font-size:13px;color:var(--t2);margin-bottom:20px">O líder será vinculado à célula dos Líderes automaticamente</div>
     <div class="f"><label>Discípulo *</label><select id="promUid">${membros.map(mb=>`<option value="${mb.id}">${esc(mb.nome||mb.email)}</option>`).join('')}</select></div>
+    <div class="f"><label>Nível de liderança</label><select class="fi" id="promNivel">
+      <option value="lider">👑 Líder de Célula</option>
+      <option value="lider12">⭐ Líder 12</option>
+      <option value="apostolo">✦ Apóstolo/Pastor</option>
+    </select></div>
     <div class="f"><label>Célula que irá liderar</label><select id="promCel"><option value="">Manter atual</option>${celulas.map(c=>`<option value="${c.id}">${esc(c.nome)}</option>`).join('')}</select></div>
     <div class="merr" id="promErr"></div>
     <button class="btn" onclick="confirmarPromocao()">PROMOVER</button>
@@ -1496,17 +1502,20 @@ async function salvarPerfil(){
   toast('Perfil atualizado! ✓','ok');
 }
 function alterarSenha(){
+  document.getElementById('senhaModal')?.remove();
   const modal=document.createElement('div');
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:flex-end;justify-content:center;max-width:480px;margin:0 auto;left:50%;transform:translateX(-50%)';
-  modal.innerHTML=`<div style="background:var(--s1);border-radius:20px 20px 0 0;padding:28px 24px 40px;width:100%">
+  modal.id='senhaModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:flex-end;justify-content:center;max-width:480px;left:50%;transform:translateX(-50%)';
+  modal.innerHTML=`<div style="background:var(--s1);border-radius:20px 20px 0 0;padding:28px 24px 44px;width:100%;border-top:1px solid var(--bd)">
     <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:20px">Alterar senha</div>
     <div class="f"><label>Nova senha</label><div class="pw"><input type="password" id="novaSenha" placeholder="Mínimo 6 caracteres"><span class="pw-e" onclick="tpw('novaSenha',this)">👁</span></div></div>
     <div class="f"><label>Confirmar nova senha</label><div class="pw"><input type="password" id="novaSenha2" placeholder="Repita a senha"><span class="pw-e" onclick="tpw('novaSenha2',this)">👁</span></div></div>
     <div class="merr" id="errSenha"></div>
-    <button class="btn" onclick="confirmarSenha()">ALTERAR SENHA</button>
-    <button class="btn btn-g" style="margin-top:8px" onclick="this.closest('[style]').remove()">CANCELAR</button>
+    <button class="btn" id="btnAlterarSenha" onclick="confirmarSenha()">ALTERAR SENHA</button>
+    <button class="btn btn-g" style="margin-top:8px" onclick="document.getElementById('senhaModal').remove()">CANCELAR</button>
   </div>`;
   document.body.appendChild(modal);
+  setTimeout(()=>document.getElementById('novaSenha')?.focus(),200);
 }
 async function confirmarSenha(){
   const s1=document.getElementById('novaSenha')?.value?.trim();
@@ -1514,8 +1523,15 @@ async function confirmarSenha(){
   const err=document.getElementById('errSenha');
   if(!s1||s1.length<6){sh(err,'Senha mínimo 6 caracteres.');return;}
   if(s1!==s2){sh(err,'As senhas não coincidem.');return;}
+  const btn=document.getElementById('btnAlterarSenha');
+  if(btn){btn.disabled=true;btn.textContent='Alterando...';}
   const {error}=await sb.auth.updateUser({password:s1});
-  if(error){sh(err,te(error.message));return;}
+  if(btn){btn.disabled=false;btn.textContent='ALTERAR SENHA';}
+  if(error){
+    const msg=(error.message||'').toLowerCase().includes('different')||error.message.includes('same')
+      ?'A nova senha deve ser diferente da atual.':te(error.message);
+    sh(err,msg);return;
+  }
   document.getElementById('senhaModal')?.remove();
   toast('Senha alterada com sucesso! 🔒','ok');
 }
@@ -2779,6 +2795,12 @@ async function excluirCelula(id){
 }
 
 // ══ CÉLULAS ══
+async function carregarCelulasCad(){
+  const sel=document.getElementById('cC');
+  if(!sel) return;
+  const {data}=await sb.from('celulas').select('id,nome').eq('ativo',true).order('nome');
+  sel.innerHTML='<option value="">Selecione sua célula (opcional)</option>'+(data||[]).map(c=>`<option value="${c.id}">${esc(c.nome)}</option>`).join('');
+}
 async function carregarCelulas(){
   const sel=g('cC');
   try{
@@ -2824,6 +2846,13 @@ function tpw(id,el){const i=g(id);i.type=i.type==='password'?'text':'password';e
 function maskTel(el){let val=el.value.replace(/\D/g,'');val=val.length<=10?val.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3'):val.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');el.value=val;}
 function autoH(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,110)+'px';}
 function te(m){if(!m)return'Erro.';if(m.includes('Invalid login'))return'E-mail ou senha incorretos.';if(m.includes('already registered'))return'E-mail já cadastrado.';if(m.includes('Password'))return'Senha mínimo 6 caracteres.';return m;}
+async function toggleAtivo(uid, nome, ativar){
+  if(!confirm((ativar?'Reativar':'Desativar')+' '+nome+'?'))return;
+  const {error}=await sb.from('profiles').update({ativo:ativar}).eq('id',uid);
+  if(error){toast('Erro: '+error.message,'err');return;}
+  toast(nome+(ativar?' reativado':' desativado')+'!','ok');
+  carregarPastorMembros();
+}
 async function rebaixarMembro(uid, nome){
   if(!confirm('Remover liderança de '+nome+'?'))return;
   const {error}=await sb.from('profiles').update({role:'membro',nivel:'discipulo'}).eq('id',uid);
